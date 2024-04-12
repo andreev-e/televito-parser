@@ -1,13 +1,12 @@
-package main
+package myAutoGe
 
 import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"io/ioutil"
-	"net/http"
 	"strconv"
+	"televito-parser/helpers"
 )
 
 type Response struct {
@@ -21,38 +20,30 @@ type Response struct {
 	} `json:"data"`
 }
 
-func main() {
+const url = "https://api2.myauto.ge/ka/products/"
 
-	page := 1
-	url := "https://api2.myauto.ge/ka/products/?ForRent=0&Page=" + strconv.Itoa(page)
-
+func ParsePage(page int) {
+	params := map[string]string{
+		"ForRent":       "0",
+		"CurrencyID":    "1",
+		"MileageType":   "1",
+		"SortOrder":     "1",
+		"Page":          strconv.Itoa(page),
+		"hideDealPrice": "1",
+		"Locs":          "2.3.4.7.15.30.113.52.37.36.38.39.40.31.5.41.44.47.48.53.54.8.16.6.14.13.12.11.10.9.55.56.57.59.58.61.62.63.64.66.71.72.74.75.76.77.78.80.81.82.83.84.85.86.87.88.91.96.97.101.109",
+	}
+	body := helpers.LoadUrl(url, params)
 	// Make an HTTP GET request
-	response, err := http.Get(url)
-	if err != nil {
-		fmt.Printf("Error fetching data: %v\n", err)
-		return
-	}
-	defer response.Body.Close()
-
-	// Read the response body
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		fmt.Printf("Error reading response body: %v\n", err)
-		return
-	}
 
 	// Parse JSON data
 	var responseObject Response
-	err = json.Unmarshal(body, &responseObject)
+	err := json.Unmarshal(body, &responseObject)
 	if err != nil {
 		fmt.Printf("Error parsing JSON: %v\n", err)
 		return
 	}
 
 	fmt.Println("Items:")
-
-	//////
-
 	for _, item := range responseObject.Data.Items {
 		fmt.Println(item)
 	}
