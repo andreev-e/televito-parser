@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./addSources/myAutoGe"
+	"televito-parser/addSources/myAutoGe"
 )
 
 func main() {

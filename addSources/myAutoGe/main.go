@@ -3,9 +3,9 @@ package myAutoGe
 import (
 	"encoding/json"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"strconv"
 	"televito-parser/helpers"
+	//_ "github.com/go-sql-driver/mysql"
+	"strconv"
 )
 
 type AddSource struct {
