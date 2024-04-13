@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"os"
 )
 
 type Add struct {
@@ -28,7 +29,8 @@ func WriteAdds(adds []Add) {
 }
 
 func GetExistingAdds(sourceIds []int32) []Add {
-	db, err := sql.Open("mysql", "televito_and:BeD8Pf00ZBxGqvGr@tcp(159.253.19.143:3306)/televito_and")
+
+	db, err := sql.Open("mysql", os.Getenv("SQL_CONNECTION"))
 	if err != nil {
 		panic(err)
 	}
