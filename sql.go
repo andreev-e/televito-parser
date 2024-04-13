@@ -1,9 +1,8 @@
-package helpers
+package main
 
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"os"
 	"strconv"
 )
