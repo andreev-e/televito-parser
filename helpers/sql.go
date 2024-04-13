@@ -3,8 +3,8 @@ package helpers
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 	"os"
+	"strconv"
 )
 
 type Add struct {
@@ -30,7 +30,7 @@ func WriteAdds(adds []Add) {
 
 func GetExistingAdds(sourceIds []int32) []Add {
 
-	db, err := sql.Open("mysql", os.Getenv("SQL_CONNECTION"))
+	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
 	if err != nil {
 		panic(err)
 	}

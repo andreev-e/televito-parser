@@ -7,6 +7,6 @@ import (
 func main() {
 	var myAutoGePage int32 = 1
 	for {
-		myAutoGePage = myAutoGe.ParsePage(myautoGePage)
+		myAutoGePage = myAutoGe.ParsePage(myAutoGePage)
 	}
 }
