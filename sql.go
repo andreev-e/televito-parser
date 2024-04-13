@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Add struct {
