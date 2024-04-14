@@ -25,12 +25,16 @@ type Add struct {
 	images       string
 	currency     string
 	updated_at   string
+	created_at   string
 }
 
 type User struct {
-	id      int
-	name    string
-	contact uint32
+	id         int
+	name       string
+	contact    uint64
+	lang       string
+	currency   string
+	locationId uint16
 }
 
 func GetExistingAdds(sourceIds []uint32, source_class string) map[uint32]Add {
@@ -45,7 +49,26 @@ func GetExistingAdds(sourceIds []uint32, source_class string) map[uint32]Add {
 	for rows.Next() {
 		var add Add
 
-		err := rows.Scan(&add.id, &add.user_id, &add.source_id)
+		err := rows.Scan(
+			&add.id,
+			&add.user_id,
+			&add.source_id,
+			&add.status,
+			&add.location_id,
+			&add.name,
+			&add.description,
+			&add.price,
+			&add.price_usd,
+			&add.source_class,
+			&add.source_id,
+			&add.categoryId,
+			&add.approved,
+			&add.images,
+			&add.currency,
+			&add.created_at,
+			&add.updated_at,
+		)
+
 		if err != nil {
 			panic(err)
 		}
@@ -109,11 +132,9 @@ func UpdateAdd(add Add) {
 }
 
 func InsertAdd(add Add) {
-	var query = "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at) " +
-		"VALUES (?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, '[]', ?, NOW());"
-	_, err := RunQuery(query, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.currency)
-	panic(err)
-
+	var query = "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) " +
+		"VALUES (?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, '[]', ?, NOW(), NOW());"
+	_, _ = RunQuery(query, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.currency)
 }
 
 func findUserByPhone(phone uint64) (User, error) {
@@ -134,4 +155,29 @@ func findUserByPhone(phone uint64) (User, error) {
 	}
 
 	return user, errors.New("user not found")
+}
+
+func createNewUser(contact uint64, lang string, currency string, locationId uint16) (User, error) {
+	var user User
+
+	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
+	if err != nil {
+		panic("SQL connection failed")
+	}
+	defer db.Close()
+
+	stmt, _ := db.Prepare("INSERT INTO users (contact, lang, currency, location_id, created_at, updated_at, timezone) " +
+		"VALUES (?,?,?,?, NOW(), NOW(), 'Asia/Tbilisi');")
+
+	res, _ := stmt.Exec(contact, lang, currency, locationId)
+
+	userId, _ := res.LastInsertId()
+
+	user.id = int(userId)
+	user.contact = contact
+	user.lang = lang
+	user.currency = currency
+	user.locationId = locationId
+
+	return user, nil
 }

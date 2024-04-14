@@ -127,31 +127,34 @@ func MyAutoGeParsePage(page uint16) uint16 {
 	fmt.Println(strconv.Itoa(len(addSources)) + " Items adding")
 
 	for id, addSource := range addSources {
+		var locationId = getLocationByAddress(getAddress(addSource.LocationId, ""), 0, 0)
 		add := Add{
 			name:         getName(addSource),
 			description:  getDescription(addSource),
 			price:        addSource.Price,
 			price_usd:    addSource.PriceUSD,
 			currency:     getCurrency(addSource),
-			location_id:  getLocationByAddress(getAddress(addSource.LocationId, ""), 0, 0),
+			location_id:  locationId,
 			categoryId:   getCategory(addSource),
 			source_class: sourceClass,
 			source_id:    id,
-			user_id:      getUser(addSource),
+			user_id:      getUser(addSource, locationId).id,
 		}
 
 		InsertAdd(add)
+
+		fmt.Println("inserted add " + strconv.Itoa(int(id)))
 	}
 
 	return page
 }
 
-func getUser(addSource AddSource) int {
+func getUser(addSource AddSource, locationId uint16) User {
 	var user, err = findUserByPhone(addSource.ClientPhone)
 	if err != nil {
-		return user.id
+		user, err = createNewUser(addSource.ClientPhone, "ge", getCurrency(addSource), locationId)
 	}
-	return user.id
+	return user
 }
 
 func getAddress(locationId uint16, address string) string {
