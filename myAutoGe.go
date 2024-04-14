@@ -36,8 +36,10 @@ type LoadedAppData struct {
 	Currencies []Currency     `json:"Currencies"`
 	Models     []Model        `json:"Models"`
 	Mans       []Manufacturer `json:"Mans"`
-	GearTypes  []GearType     `json:"GearTypes:items"`
-	Locations  struct {
+	GearTypes  struct {
+		Items []GearType `json:"items"`
+	} `json:"GearTypes"`
+	Locations struct {
 		Items []MyAutoGeLocation `json:"items"`
 	} `json:"Locations"`
 }
@@ -237,12 +239,14 @@ func getName(addSource AddSource) string {
 				transmission = "CVT"
 				break
 			}
+		} else {
+			panic("No transmission type")
 		}
 
 		if addSource.VehicleType == 2 {
 			name = append(name, strconv.Itoa(int(addSource.EngineVolume)))
 		} else {
-			name = append(name, strconv.Itoa(int(addSource.EngineVolume/1000))+transmission)
+			name = append(name, strconv.FormatFloat(float64(float32(addSource.EngineVolume/1000)), 'f', 1, 64)+transmission)
 		}
 
 	}
@@ -312,7 +316,7 @@ func loadData() {
 		}
 
 		gearTypes := make(map[uint16]GearType)
-		for _, gearType := range loadedAppData.GearTypes {
+		for _, gearType := range loadedAppData.GearTypes.Items {
 			gearTypes[gearType.ID] = gearType
 		}
 
