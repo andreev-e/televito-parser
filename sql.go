@@ -26,7 +26,7 @@ type Add struct {
 	currency     string
 	updated_at   string
 	created_at   string
-	deleted_at   string
+	deleted_at   *string
 }
 
 type User struct {
@@ -112,21 +112,64 @@ func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
 }
 
 func getLocationByAddress(address string, lat float32, lng float32) uint16 {
-	location := QueryLocation(address)
-	if location != nil {
-		return 777
+	location, err := queryLocation(address)
+	if err == nil {
+		return location.id
 	}
 
-	return CreateLocation(address).ID
+	location, err = storeLocation(address, lat, lng)
+	if err == nil {
+		return location.id
+	}
+	panic("location store failed")
 }
 
-func CreateLocation(address string) Location {
-	return Location{}
+type Location struct {
+	id         uint16
+	address    string
+	created_at string
+	updated_at string
 }
 
-func QueryLocation(address string) *Location {
-	// Query location from database
-	return nil
+func storeLocation(address string, lat float32, lng float32) (Location, error) {
+	var location Location
+
+	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
+	if err != nil {
+		panic("SQL connection failed")
+	}
+	defer db.Close()
+
+	stmt, _ := db.Prepare("INSERT INTO locations (address, lat, lng, created_at, updated_at) " +
+		"VALUES (?,?,?, NOW(), NOW());")
+
+	res, _ := stmt.Exec(address, lat, lng)
+
+	locationId, _ := res.LastInsertId()
+
+	location.id = uint16(int(locationId))
+	location.address = address
+
+	return location, nil
+}
+
+func queryLocation(address string) (Location, error) {
+	var query = "SELECT id, address FROM locations WHERE address = ?"
+	rows, err := RunQuery(query, address)
+	if err == nil {
+		for rows.Next() {
+			var location Location
+			_ = rows.Scan(
+				&location.id,
+				&location.address,
+			)
+
+			return location, nil
+		}
+	}
+	defer rows.Close()
+
+	return storeLocation(address, 0, 0)
 }
 
 func UpdateAdd(add Add) {

@@ -38,7 +38,7 @@ type LoadedAppData struct {
 	Mans       []Manufacturer `json:"Mans"`
 	GearTypes  []GearType     `json:"GearTypes:items"`
 	Locations  struct {
-		Items []Location `json:"items"`
+		Items []MyAutoGeLocation `json:"items"`
 	} `json:"Locations"`
 }
 
@@ -47,7 +47,7 @@ type AppData struct {
 	Currencies map[uint8]Currency
 	Models     map[uint16]Model
 	Mans       map[uint16]Manufacturer
-	Locations  map[uint16]Location
+	Locations  map[uint16]MyAutoGeLocation
 	GearTypes  map[uint16]GearType
 }
 
@@ -72,7 +72,7 @@ type Manufacturer struct {
 	Name string `json:"man_name"`
 }
 
-type Location struct {
+type MyAutoGeLocation struct {
 	ID       uint16 `json:"location_id"`
 	Name     string `json:"title"`
 	ParentId uint16 `json:"parent_id"`
@@ -160,7 +160,7 @@ func getUser(addSource AddSource, locationId uint16) User {
 func getAddress(locationId uint16, address string) string {
 	location, ok := appData.Locations[locationId]
 	if ok {
-		address = address + location.Name
+		address = address + location.Name + ", "
 		if location.ParentId != 0 {
 			return getAddress(location.ParentId, address)
 		}
@@ -169,7 +169,7 @@ func getAddress(locationId uint16, address string) string {
 		panic("No location in dictionary " + strconv.Itoa(int(locationId)))
 	}
 
-	return address
+	return address[:len(address)-2]
 }
 
 func getCategory(addSource AddSource) int {
@@ -301,7 +301,7 @@ func loadData() {
 			mans[manufacturer.ID] = manufacturer
 		}
 
-		locations := make(map[uint16]Location)
+		locations := make(map[uint16]MyAutoGeLocation)
 		for _, location := range loadedAppData.Locations.Items {
 			locations[location.ID] = location
 		}

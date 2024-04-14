@@ -24,6 +24,7 @@ jobs:
             && export PATH=$PATH:/usr/local/go/bin
             && go build
 #            && MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" ./televito-parser
+#            && systemctl restart televito-parser
 
 
 
