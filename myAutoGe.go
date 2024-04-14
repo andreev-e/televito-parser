@@ -39,30 +39,41 @@ type Currency struct {
 }
 
 type Model struct {
+	ID   uint16 `json:"model_id"`
+	Name string `json:"model_name"`
 }
 
-type Man struct {
-	ID      uint16 `json:"man_id"`
-	ManName string `json:"man_name"`
+type Manufacturer struct {
+	ID   uint16 `json:"man_id"`
+	Name string `json:"man_name"`
 }
 
 type Location struct {
+	ID   uint16 `json:"location_id"`
+	Name string `json:"title"`
+}
+
+type GearType struct {
+	ID   uint16 `json:"gear_type_id"`
+	Name string `json:"title"`
 }
 
 type LoadedAppData struct {
 	Categories []Category
 	Currencies []Currency
 	Models     []Model
-	Mans       []Man
+	Mans       []Manufacturer
 	Locations  []Location
+	GearTypes  []GearType
 }
 
 type AppData struct {
 	Categories map[uint16]Category
 	Currencies map[uint16]Currency
 	Models     map[uint16]Model
-	Mans       map[uint16]Man
+	Mans       map[uint16]Manufacturer
 	Locations  map[uint16]Location
+	GearTypes  map[uint16]GearType
 }
 
 const url = "https://api2.myauto.ge/ka/products/"
@@ -108,46 +119,53 @@ func MyAutoGeParsePage(page uint16) uint16 {
 }
 
 func getName(addSource AddSource) string {
-	name := []string{}
-	val, ok := appData.Mans[addSource.ManID]
+	var name []string
+
+	manufacturer, ok := appData.Mans[addSource.ManID]
 	if ok {
-		name = append(name, val.ManName)
+		name = append(name, manufacturer.Name)
 	}
-	//        $name = [];
-	//        if (array_key_exists($addSource->man_id, $this->appdata->Mans)) {
-	//            $name[] = $this->appdata->Mans[$addSource->man_id];
-	//        }
-	//        if (array_key_exists($addSource->model_id, $this->appdata->Models)) {
-	//            $name[] = $this->appdata->Models[$addSource->model_id];
-	//        }
-	//        if ($addSource->car_model) {
-	//            $name[] = $addSource->car_model;
-	//        }
-	//        if ($addSource->prod_year) {
-	//            $name[] = $addSource->prod_year;
-	//        }
-	//        if ($addSource->engine_volume) {
-	//            $transmission = '';
-	//            switch ($this->getGearType($addSource->gear_type_id)) {
-	//                case 'Automatic':
-	//                case 'Tiptronic':
-	//                    $transmission = 'AT';
-	//                    break;
-	//                case 'Manual':
-	//                    $transmission = 'MT';
-	//                    break;
-	//                case 'Variator':
-	//                    $transmission = 'CVT';
-	//                    break;
-	//            }
-	//
-	//            if ($addSource->vehicle_type === self::TYPE_MOTO) {
-	//                $name[] = $addSource->engine_volume . 'cc';
-	//            } else {
-	//                $name[] = number_format($addSource->engine_volume / 1000, 1) . $transmission;
-	//            }
-	//        }
-	//
+
+	model, ok := appData.Models[addSource.ModelID]
+	if ok {
+		name = append(name, model.Name)
+	}
+
+	if addSource.CarModel != "" {
+		name = append(name, addSource.CarModel)
+	}
+
+	if addSource.ProdYear != 0 {
+		name = append(name, strconv.Itoa(int(addSource.ProdYear)))
+	}
+
+	gearType, transmissionOk := appData.GearTypes[addSource.GearTypeID]
+
+	if ok && addSource.EngineVolume != 0 {
+		var transmission = ""
+
+		if transmissionOk {
+			switch gearType.Name {
+			case "Automatic":
+			case "Tiptronic":
+				transmission = "AT"
+				break
+			case "Manual":
+				transmission = "MT"
+				break
+			case "Variator":
+				transmission = "CVT"
+				break
+			}
+		}
+
+		if addSource.VehicleType == 2 {
+			name = append(name, strconv.Itoa(int(addSource.EngineVolume)))
+		} else {
+			name = append(name, strconv.Itoa(int(addSource.EngineVolume/1000))+transmission)
+		}
+
+	}
 
 	return strings.Join(name, " ")
 }
@@ -194,45 +212,38 @@ func loadData() {
 		}
 
 		categories := make(map[uint16]Category)
-
 		for _, category := range loadedAppData.Categories {
 			categories[category.CategoryId] = category
 		}
 
+		mans := make(map[uint16]Manufacturer)
+		for _, manufacturer := range loadedAppData.Mans {
+			mans[manufacturer.ID] = manufacturer
+		}
+
+		locations := make(map[uint16]Location)
+		for _, location := range loadedAppData.Locations {
+			locations[location.ID] = location
+		}
+
+		models := make(map[uint16]Model)
+		for _, model := range loadedAppData.Models {
+			models[model.ID] = model
+		}
+
+		gearTypes := make(map[uint16]GearType)
+		for _, gearType := range loadedAppData.GearTypes {
+			gearTypes[gearType.ID] = gearType
+		}
+
 		appData = AppData{
 			Categories: categories,
+			Mans:       mans,
+			Locations:  locations,
+			Models:     models,
+			GearTypes:  gearTypes,
 		}
 
 		fmt.Println("Appdata loaded")
 	}
 }
-
-//    private function loadData(): void
-//    {
-//        $this->appdata = Cache::remember('myauto_appdata_ru', 24 * 60 * 60, function() {
-//            $result = $this->client->request('GET', self::URL . '/appdata/other_en.json');
-//            $data = json_decode($result->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR);
-//
-//            $data->Locations->items = array_reduce($data->Locations->items, static function($carry, $item) {
-//                $carry[$item->location_id] = $item;
-//                return $carry;
-//            }, []);
-//
-//            $data->Mans = array_reduce($data->Mans, static function($carry, $item) {
-//                $carry[$item->man_id] = $item->man_name;
-//                return $carry;
-//            }, []);
-//
-//            $data->Models = array_reduce($data->Models, static function($carry, $item) {
-//                $carry[$item->model_id] = $item->model_name;
-//                return $carry;
-//            }, []);
-//
-//            $data->Currencies = array_reduce($data->Currencies, static function($carry, $item) {
-//                $carry[$item->currencyID] = $item->title;
-//                return $carry;
-//            }, []);
-//
-//            return $data;
-//        });
-//    }
