@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"os"
@@ -24,6 +25,12 @@ type Add struct {
 	images       string
 	currency     string
 	updated_at   string
+}
+
+type User struct {
+	id      int
+	name    string
+	contact uint32
 }
 
 func GetExistingAdds(sourceIds []uint32, source_class string) map[uint32]Add {
@@ -78,17 +85,13 @@ func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
 	return rows, nil
 }
 
-func getLocationByAddress(address []rune, lat float32, lng float32) uint16 {
-	panic(address)
-	var transliterated = Transliterate(address[:150])
-	panic(transliterated)
-	// Query the location by address
-	location := QueryLocation(transliterated)
+func getLocationByAddress(address string, lat float32, lng float32) uint16 {
+	location := QueryLocation(address)
 	if location != nil {
 		return 777
 	}
 
-	return CreateLocation(transliterated).ID
+	return CreateLocation(address).ID
 }
 
 func CreateLocation(address string) Location {
@@ -106,6 +109,29 @@ func UpdateAdd(add Add) {
 }
 
 func InsertAdd(add Add) {
-	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?,  WHERE id = (?)"
-	_, _ = RunQuery(query, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.id)
+	var query = "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at) " +
+		"VALUES (?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, '[]', ?, NOW());"
+	_, err := RunQuery(query, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.currency)
+	panic(err)
+
+}
+
+func findUserByPhone(phone uint64) (User, error) {
+	var user User
+	var query = "SELECT * FROM users WHERE contact = ?"
+	rows, err := RunQuery(query, phone)
+	if err != nil {
+		return user, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&user.id, &user.name, &user.contact)
+		if err != nil {
+			return user, err
+		}
+
+		return user, nil
+	}
+
+	return user, errors.New("user not found")
 }

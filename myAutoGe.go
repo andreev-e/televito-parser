@@ -22,6 +22,7 @@ type AddSource struct {
 	VehicleType   uint16  `json:"vehicle_type"`
 	CustomsPassed bool    `json:"customs_passed"`
 	LocationId    uint16  `json:"location_id"`
+	ClientPhone   uint64  `json:"client_phone"`
 }
 
 type Response struct {
@@ -35,8 +36,10 @@ type LoadedAppData struct {
 	Currencies []Currency     `json:"Currencies"`
 	Models     []Model        `json:"Models"`
 	Mans       []Manufacturer `json:"Mans"`
-	Locations  []Location     `json:"Locations:items"`
 	GearTypes  []GearType     `json:"GearTypes:items"`
+	Locations  struct {
+		Items []Location `json:"items"`
+	} `json:"Locations"`
 }
 
 type AppData struct {
@@ -71,7 +74,7 @@ type Manufacturer struct {
 
 type Location struct {
 	ID       uint16 `json:"location_id"`
-	Name     []rune `json:"title"`
+	Name     string `json:"title"`
 	ParentId uint16 `json:"parent_id"`
 }
 
@@ -113,7 +116,7 @@ func MyAutoGeParsePage(page uint16) uint16 {
 		add.price = addSources[id].Price
 		add.price_usd = addSources[id].PriceUSD
 		add.currency = getCurrency(addSources[id])
-		add.location_id = getLocationByAddress(getAddress(addSources[id].LocationId, make([]rune, 0)), 0, 0)
+		add.location_id = getLocationByAddress(getAddress(addSources[id].LocationId, ""), 0, 0)
 		add.categoryId = getCategory(addSources[id])
 
 		UpdateAdd(add)
@@ -130,24 +133,31 @@ func MyAutoGeParsePage(page uint16) uint16 {
 			price:        addSource.Price,
 			price_usd:    addSource.PriceUSD,
 			currency:     getCurrency(addSource),
-			location_id:  getLocationByAddress(getAddress(addSource.LocationId, make([]rune, 0)), 0, 0),
+			location_id:  getLocationByAddress(getAddress(addSource.LocationId, ""), 0, 0),
 			categoryId:   getCategory(addSource),
 			source_class: sourceClass,
 			source_id:    id,
+			user_id:      getUser(addSource),
 		}
 
-		//InsertAdd(add)
-
-		fmt.Println(add)
+		InsertAdd(add)
 	}
 
 	return page
 }
 
-func getAddress(locationId uint16, address []rune) []rune {
+func getUser(addSource AddSource) int {
+	var user, err = findUserByPhone(addSource.ClientPhone)
+	if err != nil {
+		return user.id
+	}
+	return user.id
+}
+
+func getAddress(locationId uint16, address string) string {
 	location, ok := appData.Locations[locationId]
 	if ok {
-		address = append(address, location.Name...)
+		address = address + location.Name
 		if location.ParentId != 0 {
 			return getAddress(location.ParentId, address)
 		}
@@ -289,7 +299,7 @@ func loadData() {
 		}
 
 		locations := make(map[uint16]Location)
-		for _, location := range loadedAppData.Locations {
+		for _, location := range loadedAppData.Locations.Items {
 			locations[location.ID] = location
 		}
 
