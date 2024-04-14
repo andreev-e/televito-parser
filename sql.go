@@ -173,14 +173,14 @@ func queryLocation(address string) (Location, error) {
 }
 
 func UpdateAdd(add Add) {
-	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?,  WHERE id = (?)"
-	_, _ = RunQuery(query, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.id)
+	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ?,  WHERE id = (?)"
+	_, _ = RunQuery(query, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.id, add.images)
 }
 
 func InsertAdd(add Add) {
 	var query = "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) " +
-		"VALUES (?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, '[]', ?, NOW(), NOW());"
-	_, _ = RunQuery(query, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.currency)
+		"VALUES (?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, ? , ?, NOW(), NOW());"
+	_, _ = RunQuery(query, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.images, add.currency)
 }
 
 func findUserByPhone(phone uint64) (User, error) {

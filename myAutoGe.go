@@ -23,6 +23,8 @@ type AddSource struct {
 	CustomsPassed bool    `json:"customs_passed"`
 	LocationId    uint16  `json:"location_id"`
 	ClientPhone   uint64  `json:"client_phone"`
+	PhotosCount   uint    `json:"pic_number"`
+	Photo         string  `json:"photo"`
 }
 
 type Response struct {
@@ -87,6 +89,7 @@ type GearType struct {
 
 const url = "https://api2.myauto.ge"
 const sourceClass = "MyAutoGe"
+const NumberOfPhotos uint = 5
 
 var appData AppData
 
@@ -120,6 +123,7 @@ func MyAutoGeParsePage(page uint16) uint16 {
 		add.currency = getCurrency(addSources[id])
 		add.location_id = getLocationByAddress(getAddress(addSources[id].LocationId, ""), 0, 0)
 		add.categoryId = getCategory(addSources[id])
+		add.images = getImagesUrlList(addSources[id], addSources[id].CarID)
 
 		UpdateAdd(add)
 
@@ -141,6 +145,7 @@ func MyAutoGeParsePage(page uint16) uint16 {
 			source_class: sourceClass,
 			source_id:    id,
 			user_id:      getUser(addSource, locationId).id,
+			images:       getImagesUrlList(addSource, addSource.CarID),
 		}
 
 		InsertAdd(add)
@@ -149,6 +154,15 @@ func MyAutoGeParsePage(page uint16) uint16 {
 	}
 
 	return page
+}
+
+func getImagesUrlList(source AddSource, id uint32) string {
+	images := make([]string, 0)
+	for i := uint(1); i <= min(source.PhotosCount, NumberOfPhotos); i++ {
+		images = append(images, "https://static.my.ge/myauto/photos/"+source.Photo+"/large/"+strconv.Itoa(int(id))+"_"+strconv.Itoa(int(i))+".jpg")
+	}
+
+	return "[\"" + strings.Join(images, "\",\"") + "\"]"
 }
 
 func getUser(addSource AddSource, locationId uint16) User {
@@ -229,6 +243,8 @@ func getName(addSource AddSource) string {
 		if transmissionOk {
 			switch gearType.Name {
 			case "Automatic":
+				transmission = "AT"
+				break
 			case "Tiptronic":
 				transmission = "AT"
 				break
@@ -239,8 +255,6 @@ func getName(addSource AddSource) string {
 				transmission = "CVT"
 				break
 			}
-		} else {
-			panic("No transmission type")
 		}
 
 		if addSource.VehicleType == 2 {
