@@ -1,0 +1,27 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ vars.USER_NAME }}
+          password: ${{ secrets.USER_PASSWORD }}
+          port: 22
+          script: cd ${{ vars.PROD_PATH }}
+            && git checkout master
+            && git reset --hard
+            && git pull
+            && go build
+            && MYSQL_CONNECTION_STRING=${{ secrets.MYSQL_CONNECTION_STRING }} ./televito-parser
+
+
+
