@@ -7,10 +7,11 @@ import (
 )
 
 type AddSource struct {
-	CarID    int32   `json:"car_id"`
+	CarID    uint32  `json:"car_id"`
 	Price    int     `json:"price"`
 	PriceUSD float32 `json:"price_usd"`
-	Currency int8    `json:"currency_id"`
+	Currency uint8   `json:"currency_id"`
+	ManID    uint16  `json:"man_id"`
 }
 
 type Response struct {
@@ -30,7 +31,7 @@ func MyAutoGeParsePage(page int32) int32 {
 		page++
 	}
 
-	carIds := make([]int32, 0)
+	carIds := make([]uint32, 0)
 	for _, addSource := range addSources {
 		carIds = append(carIds, addSource.CarID)
 	}

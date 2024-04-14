@@ -30,7 +30,7 @@ func WriteAdds(adds []Add) {
 
 }
 
-func GetExistingAdds(sourceIds []int32) []Add {
+func GetExistingAdds(sourceIds []uint32) []Add {
 
 	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
 	if err != nil {
