@@ -3,17 +3,16 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"os"
 	"strconv"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 type Add struct {
 	id           int
 	user_id      int
 	status       int
-	location_id  int
+	location_id  uint16
 	name         string
 	description  string
 	price        int
@@ -77,4 +76,25 @@ func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
 	}
 
 	return rows, nil
+}
+
+func getLocationByAddress(address []rune, lat float32, lng float32) uint16 {
+	var transliterated = Transliterate(address[:150])
+	panic(transliterated)
+	// Query the location by address
+	location := QueryLocation(transliterated)
+	if location != nil {
+		return 777
+	}
+
+	return CreateLocation(transliterated).ID
+}
+
+func CreateLocation(address string) Location {
+	return Location{}
+}
+
+func QueryLocation(address string) *Location {
+	// Query location from database
+	return nil
 }

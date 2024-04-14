@@ -21,6 +21,7 @@ type AddSource struct {
 	GearTypeID    uint16  `json:"gear_type_id"`
 	VehicleType   uint16  `json:"vehicle_type"`
 	CustomsPassed bool    `json:"customs_passed"`
+	LocationId    uint16  `json:"location_id"`
 }
 
 type Response struct {
@@ -51,8 +52,9 @@ type Manufacturer struct {
 }
 
 type Location struct {
-	ID   uint16 `json:"location_id"`
-	Name string `json:"title"`
+	ID       uint16 `json:"location_id"`
+	Name     []rune `json:"title"`
+	ParentId uint16 `json:"parent_id"`
 }
 
 type GearType struct {
@@ -71,7 +73,7 @@ type LoadedAppData struct {
 
 type AppData struct {
 	Categories map[uint16]Category
-	Currencies map[uint16]Currency
+	Currencies map[uint8]Currency
 	Models     map[uint16]Model
 	Mans       map[uint16]Manufacturer
 	Locations  map[uint16]Location
@@ -107,18 +109,40 @@ func MyAutoGeParsePage(page uint16) uint16 {
 	for id, add := range existingAdds {
 		add.name = getName(addSources[id])
 		add.description = getDescription(addSources[id])
-
-		//            'description' => $this->getAddDescription($addSource),
-		//            'price' => $addSource->price,
-		//            'price_usd' => $addSource->price_usd,
-		//            'currency' => $currency,
-		//            'location_id' => $location->id,
-		//            'category_id' => $category->id,
+		add.price = addSources[id].Price
+		add.price_usd = addSources[id].PriceUSD
+		add.currency = getCurrency(addSources[id])
+		add.location_id = getLocationByAddress(getAddress(addSources[id].LocationId, make([]rune, 0)), 0, 0)
+		add.categoryId = getCategory(addSources[id])
 	}
 
 	fmt.Println(existingAdds)
 
 	return page
+}
+
+func getAddress(locationId uint16, address []rune) []rune {
+	location, ok := appData.Locations[locationId]
+	if ok {
+		address = append(address, location.Name...)
+		if location.ParentId != 0 {
+			return getAddress(location.ParentId, address)
+		}
+	}
+
+	return address
+}
+
+func getCategory(addSource AddSource) int {
+	return 0
+}
+
+func getCurrency(addSource AddSource) string {
+	currency, ok := appData.Currencies[addSource.Currency]
+	if ok {
+		return currency.Name
+	}
+	return ""
 }
 
 func getDescription(addSource AddSource) string {
@@ -253,12 +277,18 @@ func loadData() {
 			gearTypes[gearType.ID] = gearType
 		}
 
+		currencies := make(map[uint8]Currency)
+		for _, currency := range loadedAppData.Currencies {
+			currencies[currency.ID] = currency
+		}
+
 		appData = AppData{
 			Categories: categories,
 			Mans:       mans,
 			Locations:  locations,
 			Models:     models,
 			GearTypes:  gearTypes,
+			Currencies: currencies,
 		}
 
 		fmt.Println("Appdata loaded")
