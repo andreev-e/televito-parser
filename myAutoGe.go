@@ -152,8 +152,10 @@ func MyAutoGeParsePage(page uint16) uint16 {
 
 		InsertAdd(add)
 
-		fmt.Println("inserted add " + strconv.Itoa(int(id)))
+		fmt.Print(".")
 	}
+
+	fmt.Println(strconv.Itoa(len(addSources)) + " Items inserted")
 
 	return page
 }

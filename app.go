@@ -1,9 +1,12 @@
 package main
 
+import (
+	"time"
+)
+
 func main() {
-	var myAutoGePage uint16 = 1
+	go reparseFirstPages()
 	for {
-		myAutoGePage = MyAutoGeParsePage(myAutoGePage)
-		return
+		time.Sleep(10 * time.Second)
 	}
 }
