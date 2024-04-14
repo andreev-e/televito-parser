@@ -25,6 +25,7 @@ type AddSource struct {
 	ClientPhone   uint64  `json:"client_phone"`
 	PhotosCount   uint    `json:"pic_number"`
 	Photo         string  `json:"photo"`
+	CategoryID    uint16  `json:"category_id"`
 }
 
 type Response struct {
@@ -34,10 +35,10 @@ type Response struct {
 }
 
 type LoadedAppData struct {
-	Categories []Category     `json:"Categories"`
-	Currencies []Currency     `json:"Currencies"`
-	Models     []Model        `json:"Models"`
-	Mans       []Manufacturer `json:"Mans"`
+	Categories []MyAutoGeCategory `json:"Categories"`
+	Currencies []Currency         `json:"Currencies"`
+	Models     []Model            `json:"Models"`
+	Mans       []Manufacturer     `json:"Mans"`
 	GearTypes  struct {
 		Items []GearType `json:"items"`
 	} `json:"GearTypes"`
@@ -47,7 +48,7 @@ type LoadedAppData struct {
 }
 
 type AppData struct {
-	Categories map[uint16]Category
+	Categories map[uint16]MyAutoGeCategory
 	Currencies map[uint8]Currency
 	Models     map[uint16]Model
 	Mans       map[uint16]Manufacturer
@@ -55,7 +56,7 @@ type AppData struct {
 	GearTypes  map[uint16]GearType
 }
 
-type Category struct {
+type MyAutoGeCategory struct {
 	CategoryId uint16 `json:"category_id"`
 	Name       string `json:"title"`
 }
@@ -90,6 +91,7 @@ type GearType struct {
 const url = "https://api2.myauto.ge"
 const sourceClass = "MyAutoGe"
 const NumberOfPhotos uint = 5
+const MainCategory = 12
 
 var appData AppData
 
@@ -122,7 +124,7 @@ func MyAutoGeParsePage(page uint16) uint16 {
 		add.price_usd = addSources[id].PriceUSD
 		add.currency = getCurrency(addSources[id])
 		add.location_id = getLocationByAddress(getAddress(addSources[id].LocationId, ""), 0, 0)
-		add.categoryId = getCategory(addSources[id])
+		add.categoryId = getCategory(addSources[id]).id
 		add.images = getImagesUrlList(addSources[id], addSources[id].CarID)
 
 		UpdateAdd(add)
@@ -141,7 +143,7 @@ func MyAutoGeParsePage(page uint16) uint16 {
 			price_usd:    addSource.PriceUSD,
 			currency:     getCurrency(addSource),
 			location_id:  locationId,
-			categoryId:   getCategory(addSource),
+			categoryId:   getCategory(addSource).id,
 			source_class: sourceClass,
 			source_id:    id,
 			user_id:      getUser(addSource, locationId).id,
@@ -168,7 +170,7 @@ func getImagesUrlList(source AddSource, id uint32) string {
 func getUser(addSource AddSource, locationId uint16) User {
 	var user, err = findUserByPhone(addSource.ClientPhone)
 	if err != nil {
-		user, err = createNewUser(addSource.ClientPhone, "ge", getCurrency(addSource), locationId)
+		user, err = createUser(addSource.ClientPhone, "ge", getCurrency(addSource), locationId)
 	}
 	return user
 }
@@ -188,8 +190,36 @@ func getAddress(locationId uint16, address string) string {
 	return address[:len(address)-2]
 }
 
-func getCategory(addSource AddSource) int {
-	return 0
+type Category struct {
+	id         uint16
+	name       string
+	parentId   uint16
+	created_at string
+	updated_at string
+	deleted_at string
+	adds_count uint32
+}
+
+func getCategory(addSource AddSource) Category {
+	manufacturer, manufacturerOk := appData.Mans[addSource.ManID]
+
+	if manufacturerOk {
+		var parentCategory, find_error = findCategoryByNameAndParent(manufacturer.Name, MainCategory)
+		if find_error != nil {
+			parentCategory, _ = createCategory(manufacturer.Name, MainCategory)
+		}
+
+		subCat, subCatOk := appData.Categories[addSource.CategoryID]
+		if subCatOk {
+			category, find_subcat_error := findCategoryByNameAndParent(subCat.Name, parentCategory.id)
+			if find_subcat_error != nil {
+				category, _ = createCategory(subCat.Name, parentCategory.id)
+			}
+			return category
+		}
+	}
+
+	panic("No manufacturer in dictionary")
 }
 
 func getCurrency(addSource AddSource) string {
@@ -309,7 +339,7 @@ func loadData() {
 			panic("Can't load myAutoGe appdata")
 		}
 
-		categories := make(map[uint16]Category)
+		categories := make(map[uint16]MyAutoGeCategory)
 		for _, category := range loadedAppData.Categories {
 			categories[category.CategoryId] = category
 		}

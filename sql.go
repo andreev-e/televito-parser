@@ -20,7 +20,7 @@ type Add struct {
 	price_usd    float32
 	source_class string
 	source_id    uint32
-	categoryId   int
+	categoryId   uint16
 	approved     int
 	images       string
 	currency     string
@@ -203,7 +203,7 @@ func findUserByPhone(phone uint64) (User, error) {
 	return user, errors.New("user not found")
 }
 
-func createNewUser(contact uint64, lang string, currency string, locationId uint16) (User, error) {
+func createUser(contact uint64, lang string, currency string, locationId uint16) (User, error) {
 	var user User
 
 	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
@@ -226,4 +226,47 @@ func createNewUser(contact uint64, lang string, currency string, locationId uint
 	user.location_id = locationId
 
 	return user, nil
+}
+
+func findCategoryByNameAndParent(name string, parentId uint16) (Category, error) {
+	var category Category
+	var query = "SELECT * FROM categories WHERE contact = ? AND parent_id = ? AND deleted_at IS NULL"
+	rows, err := RunQuery(query, name, parentId)
+	if err != nil {
+		return category, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&category.id)
+		if err != nil {
+			return category, err
+		}
+
+		return category, nil
+	}
+
+	return category, errors.New("category not found")
+}
+
+func createCategory(name string, parentId uint16) (Category, error) {
+	var category Category
+
+	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
+	if err != nil {
+		panic("SQL connection failed")
+	}
+	defer db.Close()
+
+	stmt, _ := db.Prepare("INSERT INTO categories (name, parent_id, created_at, updated_at) " +
+		"VALUES (?,?, NOW(), NOW());")
+
+	res, _ := stmt.Exec(name, parentId)
+
+	categoryId, _ := res.LastInsertId()
+
+	category.id = uint16(int(categoryId))
+	category.name = name
+	category.parentId = parentId
+
+	return category, nil
 }
