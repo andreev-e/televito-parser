@@ -26,15 +26,18 @@ type Add struct {
 	currency     string
 	updated_at   string
 	created_at   string
+	deleted_at   string
 }
 
 type User struct {
-	id         int
-	name       string
-	contact    uint64
-	lang       string
-	currency   string
-	locationId uint16
+	id          int
+	contact     uint64
+	lang        string
+	currency    string
+	location_id uint16
+	timezone    string
+	created_at  string
+	updated_at  string
 }
 
 func GetExistingAdds(sourceIds []uint32, source_class string) map[uint32]Add {
@@ -52,21 +55,21 @@ func GetExistingAdds(sourceIds []uint32, source_class string) map[uint32]Add {
 		err := rows.Scan(
 			&add.id,
 			&add.user_id,
-			&add.source_id,
-			&add.status,
-			&add.location_id,
 			&add.name,
 			&add.description,
 			&add.price,
 			&add.price_usd,
-			&add.source_class,
-			&add.source_id,
-			&add.categoryId,
-			&add.approved,
-			&add.images,
 			&add.currency,
+			&add.images,
+			&add.categoryId,
+			&add.location_id,
+			&add.status,
+			&add.approved,
 			&add.created_at,
 			&add.updated_at,
+			&add.deleted_at,
+			&add.source_class,
+			&add.source_id,
 		)
 
 		if err != nil {
@@ -146,7 +149,7 @@ func findUserByPhone(phone uint64) (User, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&user.id, &user.name, &user.contact)
+		err := rows.Scan(&user.id, &user.contact)
 		if err != nil {
 			return user, err
 		}
@@ -177,7 +180,7 @@ func createNewUser(contact uint64, lang string, currency string, locationId uint
 	user.contact = contact
 	user.lang = lang
 	user.currency = currency
-	user.locationId = locationId
+	user.location_id = locationId
 
 	return user, nil
 }
