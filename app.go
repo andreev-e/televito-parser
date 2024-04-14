@@ -1,7 +1,7 @@
 package main
 
 func main() {
-	var myAutoGePage int32 = 1
+	var myAutoGePage uint16 = 1
 	for {
 		myAutoGePage = MyAutoGeParsePage(myAutoGePage)
 		return
