@@ -18,10 +18,10 @@ jobs:
           port: 22
           script: su ${{ vars.USER_NAME }}
             && cd ${{ vars.PROD_PATH }}
-            && ls -la
             && git checkout main
             && git reset --hard
             && git pull
+            && export PATH=$PATH:/usr/local/go/bin
             && go build
             && MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" ./televito-parser
 
