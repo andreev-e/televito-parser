@@ -30,6 +30,24 @@ type Response struct {
 	} `json:"data"`
 }
 
+type LoadedAppData struct {
+	Categories []Category     `json:"Categories"`
+	Currencies []Currency     `json:"Currencies"`
+	Models     []Model        `json:"Models"`
+	Mans       []Manufacturer `json:"Mans"`
+	Locations  []Location     `json:"Locations:items"`
+	GearTypes  []GearType     `json:"GearTypes:items"`
+}
+
+type AppData struct {
+	Categories map[uint16]Category
+	Currencies map[uint8]Currency
+	Models     map[uint16]Model
+	Mans       map[uint16]Manufacturer
+	Locations  map[uint16]Location
+	GearTypes  map[uint16]GearType
+}
+
 type Category struct {
 	CategoryId uint16 `json:"category_id"`
 	Name       string `json:"title"`
@@ -62,25 +80,8 @@ type GearType struct {
 	Name string `json:"title"`
 }
 
-type LoadedAppData struct {
-	Categories []Category
-	Currencies []Currency
-	Models     []Model
-	Mans       []Manufacturer
-	Locations  []Location
-	GearTypes  []GearType
-}
-
-type AppData struct {
-	Categories map[uint16]Category
-	Currencies map[uint8]Currency
-	Models     map[uint16]Model
-	Mans       map[uint16]Manufacturer
-	Locations  map[uint16]Location
-	GearTypes  map[uint16]GearType
-}
-
-const url = "https://api2.myauto.ge/ka/products/"
+const url = "https://api2.myauto.ge"
+const sourceClass = "MyAutoGe"
 
 var appData AppData
 
@@ -102,9 +103,9 @@ func MyAutoGeParsePage(page uint16) uint16 {
 		carIds = append(carIds, key)
 	}
 
-	RestoreTrashedAdds(carIds, "MyAutoGe")
+	RestoreTrashedAdds(carIds, sourceClass)
 
-	existingAdds := GetExistingAdds(carIds, "MyAutoGe")
+	existingAdds := GetExistingAdds(carIds, sourceClass)
 
 	for id, add := range existingAdds {
 		add.name = getName(addSources[id])
@@ -114,9 +115,31 @@ func MyAutoGeParsePage(page uint16) uint16 {
 		add.currency = getCurrency(addSources[id])
 		add.location_id = getLocationByAddress(getAddress(addSources[id].LocationId, make([]rune, 0)), 0, 0)
 		add.categoryId = getCategory(addSources[id])
+
+		UpdateAdd(add)
+
+		delete(addSources, id)
 	}
 
-	fmt.Println(existingAdds)
+	fmt.Println(strconv.Itoa(len(addSources)) + " Items adding")
+
+	for id, addSource := range addSources {
+		add := Add{
+			name:         getName(addSource),
+			description:  getDescription(addSource),
+			price:        addSource.Price,
+			price_usd:    addSource.PriceUSD,
+			currency:     getCurrency(addSource),
+			location_id:  getLocationByAddress(getAddress(addSource.LocationId, make([]rune, 0)), 0, 0),
+			categoryId:   getCategory(addSource),
+			source_class: sourceClass,
+			source_id:    id,
+		}
+
+		//InsertAdd(add)
+
+		fmt.Println(add)
+	}
 
 	return page
 }
@@ -128,6 +151,9 @@ func getAddress(locationId uint16, address []rune) []rune {
 		if location.ParentId != 0 {
 			return getAddress(location.ParentId, address)
 		}
+	} else {
+		fmt.Println(appData.Locations)
+		panic("No location in dictionary " + strconv.Itoa(int(locationId)))
 	}
 
 	return address
@@ -222,7 +248,7 @@ func loadPage(page uint16) map[uint32]AddSource {
 		"Locs":          "2.3.4.7.15.30.113.52.37.36.38.39.40.31.5.41.44.47.48.53.54.8.16.6.14.13.12.11.10.9.55.56.57.59.58.61.62.63.64.66.71.72.74.75.76.77.78.80.81.82.83.84.85.86.87.88.91.96.97.101.109",
 	}
 
-	body := LoadUrl(url, params)
+	body := LoadUrl(url+"/ka/products/", params)
 
 	var responseObject Response
 	err := json.Unmarshal(body, &responseObject)

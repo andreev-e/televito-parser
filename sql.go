@@ -79,6 +79,7 @@ func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
 }
 
 func getLocationByAddress(address []rune, lat float32, lng float32) uint16 {
+	panic(address)
 	var transliterated = Transliterate(address[:150])
 	panic(transliterated)
 	// Query the location by address
@@ -97,4 +98,14 @@ func CreateLocation(address string) Location {
 func QueryLocation(address string) *Location {
 	// Query location from database
 	return nil
+}
+
+func UpdateAdd(add Add) {
+	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?,  WHERE id = (?)"
+	_, _ = RunQuery(query, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.id)
+}
+
+func InsertAdd(add Add) {
+	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?,  WHERE id = (?)"
+	_, _ = RunQuery(query, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.id)
 }
