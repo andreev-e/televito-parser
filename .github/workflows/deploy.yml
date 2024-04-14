@@ -18,6 +18,7 @@ jobs:
           port: 22
           script: su ${{ vars.USER_NAME }}
             && cd ${{ vars.PROD_PATH }}
+            && ls -la
             && git checkout master
             && git reset --hard
             && git pull
