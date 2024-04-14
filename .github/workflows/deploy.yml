@@ -22,7 +22,7 @@ jobs:
             && git reset --hard
             && git pull
             && go build
-            && MYSQL_CONNECTION_STRING=${{ secrets.MYSQL_CONNECTION_STRING }} ./televito-parser
+            && MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" ./televito-parser
 
 
 
