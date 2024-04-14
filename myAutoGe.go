@@ -8,17 +8,19 @@ import (
 )
 
 type AddSource struct {
-	CarID        uint32  `json:"car_id"`
-	Price        int     `json:"price"`
-	PriceUSD     float32 `json:"price_usd"`
-	Currency     uint8   `json:"currency_id"`
-	ManID        uint16  `json:"man_id"`
-	ModelID      uint16  `json:"model_id"`
-	CarModel     string  `json:"car_model"`
-	ProdYear     uint16  `json:"prod_year"`
-	EngineVolume uint16  `json:"engine_volume"`
-	GearTypeID   uint16  `json:"gear_type_id"`
-	VehicleType  uint16  `json:"vehicle_type"`
+	CarID         uint32  `json:"car_id"`
+	Price         int     `json:"price"`
+	PriceUSD      float32 `json:"price_usd"`
+	Currency      uint8   `json:"currency_id"`
+	ManID         uint16  `json:"man_id"`
+	ModelID       uint16  `json:"model_id"`
+	CarModel      string  `json:"car_model"`
+	CarDesc       string  `json:"car_desc"`
+	ProdYear      uint16  `json:"prod_year"`
+	EngineVolume  uint16  `json:"engine_volume"`
+	GearTypeID    uint16  `json:"gear_type_id"`
+	VehicleType   uint16  `json:"vehicle_type"`
+	CustomsPassed bool    `json:"customs_passed"`
 }
 
 type Response struct {
@@ -104,7 +106,8 @@ func MyAutoGeParsePage(page uint16) uint16 {
 
 	for id, add := range existingAdds {
 		add.name = getName(addSources[id])
-		//            'name' => $name,
+		add.description = getDescription(addSources[id])
+
 		//            'description' => $this->getAddDescription($addSource),
 		//            'price' => $addSource->price,
 		//            'price_usd' => $addSource->price_usd,
@@ -116,6 +119,20 @@ func MyAutoGeParsePage(page uint16) uint16 {
 	fmt.Println(existingAdds)
 
 	return page
+}
+
+func getDescription(addSource AddSource) string {
+	var description []string
+
+	if addSource.CarDesc != "" {
+		description = append(description, addSource.CarDesc)
+	}
+
+	if !addSource.CustomsPassed {
+		description = append(description, "🚫 Customs not passed")
+	}
+
+	return strings.Join(description, "\n\r")
 }
 
 func getName(addSource AddSource) string {
