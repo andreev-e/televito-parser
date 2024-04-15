@@ -173,14 +173,21 @@ func queryLocation(address string) (Location, error) {
 }
 
 func UpdateAdd(add Add) {
-	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ?,  WHERE id = (?)"
-	_, _ = RunQuery(query, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.id, add.images)
+	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
+	_, err := RunQuery(query, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.images, add.id)
+	if err != nil {
+		fmt.Println(add.id)
+		panic(err)
+	}
 }
 
 func InsertAdd(add Add) {
 	var query = "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) " +
 		"VALUES (?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, ? , ?, NOW(), NOW());"
-	_, _ = RunQuery(query, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.images, add.currency)
+	_, err := RunQuery(query, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.images, add.currency)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func findUserByPhone(phone uint64) (User, error) {
@@ -260,9 +267,15 @@ func createCategory(name string, parentId uint16) (Category, error) {
 	stmt, _ := db.Prepare("INSERT INTO categories (name, parent_id, created_at, updated_at) " +
 		"VALUES (?,?, NOW(), NOW());")
 
-	res, _ := stmt.Exec(name, parentId)
+	res, err := stmt.Exec(name, parentId)
+	if err != nil {
+		panic(err)
+	}
 
-	categoryId, _ := res.LastInsertId()
+	categoryId, err := res.LastInsertId()
+	if err != nil {
+		panic(err)
+	}
 
 	category.id = uint16(int(categoryId))
 	category.name = name

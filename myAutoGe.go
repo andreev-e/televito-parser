@@ -103,7 +103,7 @@ func MyAutoGeParsePage(page uint16) uint16 {
 	if len(addSources) == 0 {
 		fmt.Println("0 Items - resetting page to 1")
 	} else {
-		fmt.Println(strconv.Itoa(len(addSources)) + " Items loaded")
+		fmt.Println(strconv.Itoa(len(addSources)) + " Items loaded p " + strconv.Itoa(int(page)))
 		page++
 	}
 
