@@ -24,6 +24,5 @@ jobs:
             git pull &&
             export PATH=$PATH:/usr/local/go/bin &&
             go build &&
-            MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" && 
-            pm2 start ./televito-parser
+            pm2 start MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}"./televito-parser
 
