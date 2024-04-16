@@ -206,13 +206,34 @@ func queryLocation(address string) (Location, error) {
 	return storeLocation(address, 0, 0)
 }
 
-func UpdateAdd(add Add) {
-	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
-	_, err := RunQuery(query, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.images, add.id)
-	if err != nil {
-		fmt.Println(add.id)
-		panic(err)
+//func UpdateAdd(add Add) {
+//	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
+//	_, err := RunQuery(query, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.images, add.id)
+//	if err != nil {
+//		fmt.Println(add.id)
+//	}
+//}
+
+func UpdateAddsBulk(adds []Add) {
+	if len(adds) == 0 {
+		return
 	}
+
+	var valueStrings []string
+	var valueArgs []interface{}
+
+	for _, add := range adds {
+		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+
+		valueArgs = append(valueArgs, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.images, add.id)
+	}
+
+	// Construct the query with multiple value strings
+	query := "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
+
+	// Execute the batch insert query
+	_, _ = RunQuery(query, valueArgs...)
+
 }
 
 //func InsertAdd(add Add) {
