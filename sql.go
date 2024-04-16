@@ -225,8 +225,11 @@ func createUser(contact uint64, lang string, currency string, locationId uint16)
 	}
 	defer db.Close()
 
-	stmt, _ := db.Prepare("INSERT INTO users (contact, lang, currency, location_id, created_at, updated_at, timezone) " +
+	stmt, err := db.Prepare("INSERT INTO users (contact, lang, currency, location_id, created_at, updated_at, timezone) " +
 		"VALUES (?,?,?,?, NOW(), NOW(), 'Asia/Tbilisi');")
+	if err != nil {
+		return user, err
+	}
 
 	res, err := stmt.Exec(contact, lang, currency, locationId)
 	if err != nil {
