@@ -24,10 +24,5 @@ jobs:
             && export PATH=$PATH:/usr/local/go/bin
             && go build
             && MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" ./televito-parser
+            && pkill televito-parser
             && nohup MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" ./televito-parser > /dev/null 2>&1 &
-#            && pkill televito-parser
-
-
-
-
-
