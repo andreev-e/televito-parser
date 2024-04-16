@@ -32,4 +32,4 @@ jobs:
           port: 22
           script: | 
             su ${{ vars.USER_NAME }} &&
-            nohup MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" ./televito-parser > /dev/null 2>&1 &
+            MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" ./televito-parser
