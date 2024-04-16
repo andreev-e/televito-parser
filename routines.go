@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -16,6 +17,7 @@ func reparseAllPages() {
 	var page uint16
 	page = 1
 	storedPage, err := readRedisKey("tvito_database_tvito_cache_:MyAutoGe_last_page")
+	fmt.Println("tvito_database_tvito_cache_:MyAutoGe_last_page: ", storedPage)
 	if err != nil {
 		pageInt, err := strconv.Atoi(storedPage)
 		if err != nil {
@@ -27,6 +29,6 @@ func reparseAllPages() {
 
 	for {
 		page, err = MyAutoGeParsePage(page)
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
