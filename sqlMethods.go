@@ -163,6 +163,9 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 func queryLocation(address string) (Location, error) {
 	var query = "SELECT id, address FROM locations WHERE address = ?"
 	rows, err := RunQuery(query, address)
+	if err != nil {
+		return Location{}, err
+	}
 	defer rows.Close()
 
 	if err == nil {
