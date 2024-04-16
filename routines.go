@@ -19,7 +19,7 @@ func reparseAllPages() {
 	fmt.Println("tvito_database_tvito_cache_:MyAutoGe_last_page: ", storedPage)
 	if err == nil {
 		pageInt, err := strconv.Atoi(storedPage)
-		if err != nil {
+		if err == nil {
 			page = uint16(pageInt)
 		} else {
 			page = 777
