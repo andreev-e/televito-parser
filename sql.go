@@ -143,7 +143,10 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 	stmt, _ := db.Prepare("INSERT INTO locations (address, lat, lng, created_at, updated_at) " +
 		"VALUES (?,?,?, NOW(), NOW());")
 
-	res, _ := stmt.Exec(address, lat, lng)
+	res, err := stmt.Exec(address, lat, lng)
+	if err != nil {
+		panic(err)
+	}
 
 	locationId, _ := res.LastInsertId()
 
