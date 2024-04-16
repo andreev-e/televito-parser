@@ -271,17 +271,18 @@ func createCategory(name string, parentId uint16) (Category, error) {
 		"VALUES (?,?, NOW(), NOW());")
 
 	if err != nil {
-		fmt.Println(parentId)
-		panic(err)
+		return category, err
 	}
 
 	res, err := stmt.Exec(name, parentId)
 	if err != nil {
-		fmt.Println(parentId)
-		panic(err)
+		return category, err
 	}
 
-	categoryId, _ := res.LastInsertId()
+	categoryId, err := res.LastInsertId()
+	if err != nil {
+		return category, err
+	}
 
 	category.id = uint16(int(categoryId))
 	category.name = name

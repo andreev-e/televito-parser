@@ -118,13 +118,18 @@ func MyAutoGeParsePage(page uint16) uint16 {
 	existingAdds := GetExistingAdds(carIds, sourceClass)
 
 	for id, add := range existingAdds {
+		category, err := getCategory(addSources[id])
+		if err != nil {
+			continue
+		}
+
 		add.name = getName(addSources[id])
 		add.description = getDescription(addSources[id])
 		add.price = addSources[id].Price
 		add.price_usd = addSources[id].PriceUSD
 		add.currency = getCurrency(addSources[id])
 		add.location_id = getLocationByAddress(getAddress(addSources[id].LocationId, ""), 0, 0)
-		add.categoryId = getCategory(addSources[id]).id
+		add.categoryId = category.id
 		add.images = getImagesUrlList(addSources[id], addSources[id].CarID)
 
 		UpdateAdd(add)
@@ -135,6 +140,11 @@ func MyAutoGeParsePage(page uint16) uint16 {
 	fmt.Println(strconv.Itoa(len(addSources)) + " Items adding")
 
 	for id, addSource := range addSources {
+		category, err := getCategory(addSources[id])
+		if err != nil {
+			continue
+		}
+
 		var locationId = getLocationByAddress(getAddress(addSource.LocationId, ""), 0, 0)
 		add := Add{
 			name:         getName(addSource),
@@ -143,7 +153,7 @@ func MyAutoGeParsePage(page uint16) uint16 {
 			price_usd:    addSource.PriceUSD,
 			currency:     getCurrency(addSource),
 			location_id:  locationId,
-			categoryId:   getCategory(addSource).id,
+			categoryId:   category.id,
 			source_class: sourceClass,
 			source_id:    id,
 			user_id:      getUser(addSource, locationId).id,
@@ -202,26 +212,39 @@ type Category struct {
 	adds_count uint32
 }
 
-func getCategory(addSource AddSource) Category {
+func getCategory(addSource AddSource) (Category, error) {
 	manufacturer, manufacturerOk := appData.Mans[addSource.ManID]
+	if !manufacturerOk {
+		return Category{}, fmt.Errorf("Manufacturer not found")
+	}
 
-	if manufacturerOk {
-		var parentCategory, find_error = findCategoryByNameAndParent(manufacturer.Name, MainCategory)
-		if find_error != nil {
-			parentCategory, _ = createCategory(manufacturer.Name, MainCategory)
+	var category Category
+	var subCategory Category
+	var err = fmt.Errorf("Get category error")
+
+	category, err = findCategoryByNameAndParent(manufacturer.Name, MainCategory)
+	if err != nil {
+		createdCategory, err := createCategory(manufacturer.Name, MainCategory)
+		if err != nil {
+			return Category{}, err
 		}
+		category = createdCategory
+	}
 
-		subCat, subCatOk := appData.Categories[addSource.CategoryID]
-		if subCatOk {
-			category, find_subcat_error := findCategoryByNameAndParent(subCat.Name, parentCategory.id)
-			if find_subcat_error != nil {
-				category, _ = createCategory(subCat.Name, parentCategory.id)
-			}
-			return category
+	subCategoryAuto, subCatOk := appData.Categories[addSource.CategoryID]
+	if !subCatOk {
+		return category, nil
+	}
+
+	subCategory, err = findCategoryByNameAndParent(subCategoryAuto.Name, category.id)
+	if err != nil {
+		subCategory, err = createCategory(subCategoryAuto.Name, category.id)
+		if err != nil {
+			return category, err
 		}
 	}
 
-	panic("No manufacturer in dictionary")
+	return subCategory, nil // Return subcategory if found or created successfully
 }
 
 func getCurrency(addSource AddSource) string {
