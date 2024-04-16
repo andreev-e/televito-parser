@@ -95,7 +95,7 @@ const MainCategory = 12
 
 var appData AppData
 
-func MyAutoGeParsePage(page uint16) uint16 {
+func MyAutoGeParsePage(page uint16) (uint16, error) {
 	loadData()
 
 	addSources := loadPage(page)
@@ -115,7 +115,10 @@ func MyAutoGeParsePage(page uint16) uint16 {
 
 	RestoreTrashedAdds(carIds, sourceClass)
 
-	existingAdds := GetExistingAdds(carIds, sourceClass)
+	existingAdds, err := GetExistingAdds(carIds, sourceClass)
+	if err != nil {
+		return page, err
+	}
 
 	for id, add := range existingAdds {
 		category, err := getCategory(addSources[id])
@@ -167,7 +170,7 @@ func MyAutoGeParsePage(page uint16) uint16 {
 
 	fmt.Println(strconv.Itoa(len(addSources)) + " Items inserted")
 
-	return page
+	return page, nil
 }
 
 func getImagesUrlList(source AddSource, id uint32) string {

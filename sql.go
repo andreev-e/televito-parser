@@ -40,13 +40,16 @@ type User struct {
 	updated_at  string
 }
 
-func GetExistingAdds(sourceIds []uint32, source_class string) map[uint32]Add {
+func GetExistingAdds(sourceIds []uint32, source_class string) (map[uint32]Add, error) {
 	var sourceIdsString string
 	for _, sourceId := range sourceIds {
 		sourceIdsString = sourceIdsString + strconv.Itoa(int(sourceId)) + ","
 	}
 
-	rows, _ := RunQuery("SELECT * FROM adds WHERE source_id IN (?) AND source_class = (?)", sourceIdsString, source_class)
+	rows, err := RunQuery("SELECT * FROM adds WHERE source_id IN (?) AND source_class = (?)", sourceIdsString, source_class)
+	if err != nil {
+		return nil, err
+	}
 
 	result := make(map[uint32]Add, 0)
 	for rows.Next() {
@@ -83,7 +86,7 @@ func GetExistingAdds(sourceIds []uint32, source_class string) map[uint32]Add {
 		panic(err)
 	}
 
-	return result
+	return result, nil
 }
 
 func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
