@@ -147,6 +147,7 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 		"VALUES (?,?,?, NOW(), NOW());")
 
 	res, err := stmt.Exec(address, lat, lng)
+	defer stmt.Close()
 	if err != nil {
 		panic(err)
 	}
@@ -229,6 +230,7 @@ func createUser(contact uint64, lang string, currency string, locationId uint16)
 	}
 
 	res, err := stmt.Exec(contact, lang, currency, locationId)
+	defer stmt.Close()
 	if err != nil {
 		return user, err
 	}
@@ -281,6 +283,7 @@ func createCategory(name string, parentId uint16) (Category, error) {
 	}
 
 	res, err := stmt.Exec(name, parentId)
+	defer stmt.Close()
 	if err != nil {
 		return category, err
 	}
