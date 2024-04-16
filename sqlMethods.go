@@ -50,8 +50,8 @@ func initDB() {
 		fmt.Println(err)
 	}
 
-	db.SetMaxOpenConns(200)
-	db.SetMaxIdleConns(100)
+	db.SetMaxOpenConns(100)
+	db.SetMaxIdleConns(50)
 }
 
 func CloseDB() {
