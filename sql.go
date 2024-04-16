@@ -267,8 +267,13 @@ func createCategory(name string, parentId uint16) (Category, error) {
 	}
 	defer db.Close()
 
-	stmt, _ := db.Prepare("INSERT INTO categories (name, parent_id, created_at, updated_at) " +
+	stmt, err := db.Prepare("INSERT INTO categories (name, parent_id, created_at, updated_at) " +
 		"VALUES (?,?, NOW(), NOW());")
+
+	if err != nil {
+		fmt.Println(parentId)
+		panic(err)
+	}
 
 	res, err := stmt.Exec(name, parentId)
 	if err != nil {
