@@ -8,7 +8,10 @@ import (
 
 func reparseFirstPages() {
 	for {
-		MyAutoGeParsePage(1)
+		_, err := MyAutoGeParsePage(1)
+		if err != nil {
+			fmt.Println("Error parsing first pages: ", err)
+		}
 		time.Sleep(10 * time.Minute)
 	}
 }
