@@ -22,5 +22,13 @@ jobs:
             git reset --hard &&
             git pull &&
             export PATH=$PATH:/usr/local/go/bin &&
-            go build &&
+            go build
+      - name: run app in background
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: root
+          password: ${{ secrets.ROOT_PASSWORD }}
+          port: 22
+          script: su ${{ vars.USER_NAME }} &&
             nohup MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" ./televito-parser > /dev/null 2>&1 &

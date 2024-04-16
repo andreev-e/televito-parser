@@ -233,7 +233,6 @@ func UpdateAddsBulk(adds []Add) {
 
 	// Execute the batch insert query
 	_, _ = RunQuery(query, valueArgs...)
-
 }
 
 //func InsertAdd(add Add) {
