@@ -143,8 +143,11 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 	}
 	defer db.Close()
 
-	stmt, _ := db.Prepare("INSERT INTO locations (address, lat, lng, created_at, updated_at) " +
+	stmt, err := db.Prepare("INSERT INTO locations (address, lat, lng, created_at, updated_at) " +
 		"VALUES (?,?,?, NOW(), NOW());")
+	if err != nil {
+		return location, err
+	}
 	defer stmt.Close()
 
 	res, err := stmt.Exec(address, lat, lng)
@@ -168,16 +171,14 @@ func queryLocation(address string) (Location, error) {
 	}
 	defer rows.Close()
 
-	if err == nil {
-		for rows.Next() {
-			var location Location
-			_ = rows.Scan(
-				&location.id,
-				&location.address,
-			)
+	for rows.Next() {
+		var location Location
+		_ = rows.Scan(
+			&location.id,
+			&location.address,
+		)
 
-			return location, nil
-		}
+		return location, nil
 	}
 
 	return storeLocation(address, 0, 0)
