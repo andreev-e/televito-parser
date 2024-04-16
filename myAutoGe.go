@@ -143,6 +143,7 @@ func MyAutoGeParsePage(page uint16) (uint16, error) {
 
 	fmt.Println(strconv.Itoa(len(addSources)) + " Items adding")
 
+	var adds []Add
 	for id, addSource := range addSources {
 		category, err := getCategory(addSources[id])
 		if err != nil {
@@ -164,12 +165,14 @@ func MyAutoGeParsePage(page uint16) (uint16, error) {
 			images:       getImagesUrlList(addSource, addSource.CarID),
 		}
 
-		InsertAdd(add)
+		adds = append(adds, add)
 
 		fmt.Print(".")
 	}
 
-	fmt.Println(strconv.Itoa(len(addSources)) + " Items inserted")
+	InsertAddsBulk(adds)
+
+	fmt.Println(strconv.Itoa(len(adds)) + " Items inserted")
 
 	return page, nil
 }

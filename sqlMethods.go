@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Add struct {
@@ -214,10 +215,31 @@ func UpdateAdd(add Add) {
 	}
 }
 
-func InsertAdd(add Add) {
-	var query = "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) " +
-		"VALUES (?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, ? , ?, NOW(), NOW());"
-	_, _ = RunQuery(query, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.images, add.currency)
+//func InsertAdd(add Add) {
+//	var query = "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) " +
+//		"VALUES (?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, ? , ?, NOW(), NOW());"
+//	_, _ = RunQuery(query, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.images, add.currency)
+//}
+
+func InsertAddsBulk(adds []Add) {
+	if len(adds) == 0 {
+		return
+	}
+
+	var valueStrings []string
+	var valueArgs []interface{}
+
+	for _, add := range adds {
+		valueStrings = append(valueStrings, "(?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, NOW(), NOW())")
+
+		valueArgs = append(valueArgs, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.images, add.currency)
+	}
+
+	// Construct the query with multiple value strings
+	query := "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) VALUES " + strings.Join(valueStrings, ", ")
+
+	// Execute the batch insert query
+	_, _ = RunQuery(query, valueArgs...)
 }
 
 func findUserByPhone(phone uint64) (User, error) {
