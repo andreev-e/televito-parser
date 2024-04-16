@@ -101,10 +101,10 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 
 func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
 	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
+	defer db.Close()
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
 
 	rows, err := db.Query(query, params...)
 	if err != nil {
@@ -145,9 +145,10 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 
 	stmt, _ := db.Prepare("INSERT INTO locations (address, lat, lng, created_at, updated_at) " +
 		"VALUES (?,?,?, NOW(), NOW());")
+	defer stmt.Close()
 
 	res, err := stmt.Exec(address, lat, lng)
-	defer stmt.Close()
+
 	if err != nil {
 		panic(err)
 	}
@@ -163,6 +164,8 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 func queryLocation(address string) (Location, error) {
 	var query = "SELECT id, address FROM locations WHERE address = ?"
 	rows, err := RunQuery(query, address)
+	defer rows.Close()
+
 	if err == nil {
 		for rows.Next() {
 			var location Location
@@ -174,7 +177,6 @@ func queryLocation(address string) (Location, error) {
 			return location, nil
 		}
 	}
-	defer rows.Close()
 
 	return storeLocation(address, 0, 0)
 }
@@ -198,10 +200,11 @@ func findUserByPhone(phone uint64) (User, error) {
 	var user User
 	var query = "SELECT * FROM users WHERE contact = ?"
 	rows, err := RunQuery(query, phone)
+	defer rows.Close()
 	if err != nil {
 		return user, err
 	}
-	defer rows.Close()
+
 	for rows.Next() {
 		err := rows.Scan(&user.id, &user.contact)
 		if err != nil {
@@ -218,10 +221,10 @@ func createUser(contact uint64, lang string, currency string, locationId uint16)
 	var user User
 
 	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
+	defer db.Close()
 	if err != nil {
 		panic("SQL connection failed")
 	}
-	defer db.Close()
 
 	stmt, err := db.Prepare("INSERT INTO users (contact, lang, currency, location_id, created_at, updated_at, timezone) " +
 		"VALUES (?,?,?,?, NOW(), NOW(), 'Asia/Tbilisi');")
@@ -250,10 +253,11 @@ func findCategoryByNameAndParent(name string, parentId uint16) (Category, error)
 	var category Category
 	var query = "SELECT * FROM categories WHERE contact = ? AND parent_id = ? AND deleted_at IS NULL"
 	rows, err := RunQuery(query, name, parentId)
+	defer rows.Close()
 	if err != nil {
 		return category, err
 	}
-	defer rows.Close()
+
 	for rows.Next() {
 		err := rows.Scan(&category.id)
 		if err != nil {
@@ -270,10 +274,10 @@ func createCategory(name string, parentId uint16) (Category, error) {
 	var category Category
 
 	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
+	defer db.Close()
 	if err != nil {
 		panic("SQL connection failed")
 	}
-	defer db.Close()
 
 	stmt, err := db.Prepare("INSERT INTO categories (name, parent_id, created_at, updated_at) " +
 		"VALUES (?,?, NOW(), NOW());")
