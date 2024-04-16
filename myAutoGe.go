@@ -117,6 +117,7 @@ func MyAutoGeParsePage(page uint16) (uint16, error) {
 
 	existingAdds, err := GetExistingAdds(carIds, sourceClass)
 	if err != nil {
+		fmt.Println(err)
 		return page - 1, err
 	}
 
