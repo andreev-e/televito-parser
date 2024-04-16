@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
 	"os"
 	"strconv"
 )
@@ -47,16 +46,22 @@ func initDB() {
 	var err error
 	db, err = sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
 	if err != nil {
-		log.Fatal("Error initializing database connection:", err)
+		fmt.Println("Error initializing database connection:")
+		fmt.Println(err)
 	}
-	// Set maximum open connections and idle connections
+
 	db.SetMaxOpenConns(20)
 	db.SetMaxIdleConns(10)
 }
 
 func CloseDB() {
 	if db != nil {
-		db.Close()
+		err := db.Close()
+		if err != nil {
+			fmt.Println("Error closing database connection:")
+			fmt.Println(err)
+			return
+		}
 	}
 }
 
