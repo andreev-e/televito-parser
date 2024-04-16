@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"log"
 	"os"
 	"strconv"
 )
@@ -38,6 +39,25 @@ type User struct {
 	timezone    string
 	created_at  string
 	updated_at  string
+}
+
+var db *sql.DB
+
+func initDB() {
+	var err error
+	db, err = sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
+	if err != nil {
+		log.Fatal("Error initializing database connection:", err)
+	}
+	// Set maximum open connections and idle connections
+	db.SetMaxOpenConns(20)
+	db.SetMaxIdleConns(10)
+}
+
+func CloseDB() {
+	if db != nil {
+		db.Close()
+	}
 }
 
 func GetExistingAdds(sourceIds []uint32, source_class string) (map[uint32]Add, error) {
@@ -100,11 +120,9 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 }
 
 func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
-	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
-	if err != nil {
-		return nil, err
+	if db == nil {
+		return nil, errors.New("database connection not initialized")
 	}
-	defer db.Close()
 
 	rows, err := db.Query(query, params...)
 	if err != nil {
@@ -137,11 +155,9 @@ type Location struct {
 func storeLocation(address string, lat float32, lng float32) (Location, error) {
 	var location Location
 
-	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
-	if err != nil {
-		return location, err
+	if db == nil {
+		return location, errors.New("database connection not initialized")
 	}
-	defer db.Close()
 
 	stmt, err := db.Prepare("INSERT INTO locations (address, lat, lng, created_at, updated_at) " +
 		"VALUES (?,?,?, NOW(), NOW());")
@@ -223,11 +239,9 @@ func findUserByPhone(phone uint64) (User, error) {
 func createUser(contact uint64, lang string, currency string, locationId uint16) (User, error) {
 	var user User
 
-	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
-	if err != nil {
-		return user, err
+	if db == nil {
+		return user, errors.New("database connection not initialized")
 	}
-	defer db.Close()
 
 	stmt, err := db.Prepare("INSERT INTO users (contact, lang, currency, location_id, created_at, updated_at, timezone) " +
 		"VALUES (?,?,?,?, NOW(), NOW(), 'Asia/Tbilisi');")
@@ -276,11 +290,9 @@ func findCategoryByNameAndParent(name string, parentId uint16) (Category, error)
 func createCategory(name string, parentId uint16) (Category, error) {
 	var category Category
 
-	db, err := sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
-	if err != nil {
-		return category, err
+	if db == nil {
+		return category, errors.New("database connection not initialized")
 	}
-	defer db.Close()
 
 	stmt, err := db.Prepare("INSERT INTO categories (name, parent_id, created_at, updated_at) " +
 		"VALUES (?,?, NOW(), NOW());")

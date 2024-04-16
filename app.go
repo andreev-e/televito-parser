@@ -5,6 +5,9 @@ import (
 )
 
 func main() {
+	initDB()
+	defer CloseDB()
+
 	go reparseFirstPages()
 	go reparseAllPages()
 	for {
