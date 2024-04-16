@@ -170,8 +170,6 @@ func MyAutoGeParsePage(page uint16) (uint16, error) {
 		}
 
 		addsToInsert = append(addsToInsert, add)
-
-		fmt.Print(".")
 	}
 
 	InsertAddsBulk(addsToInsert)
