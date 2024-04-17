@@ -1,4 +1,4 @@
-package main
+package Dbmethods
 
 import (
 	"database/sql"
@@ -8,42 +8,12 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	Models "televito-parser/models"
 )
-
-type Add struct {
-	id           int
-	user_id      int
-	status       int
-	location_id  uint16
-	name         string
-	description  string
-	price        int
-	price_usd    float32
-	source_class string
-	source_id    uint32
-	categoryId   uint16
-	approved     int
-	images       string
-	currency     string
-	updated_at   string
-	created_at   string
-	deleted_at   *string
-}
-
-type User struct {
-	id          int
-	contact     uint64
-	lang        string
-	currency    string
-	location_id uint16
-	timezone    string
-	created_at  string
-	updated_at  string
-}
 
 var db *sql.DB
 
-func initDB() {
+func InitDB() {
 	var err error
 	db, err = sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
 	if err != nil {
@@ -66,7 +36,7 @@ func CloseDB() {
 	}
 }
 
-func GetExistingAdds(sourceIds []uint32, source_class string) (map[uint32]Add, error) {
+func GetExistingAdds(sourceIds []uint32, source_class string) (map[uint32]Models.Add, error) {
 	var sourceIdsString string
 	for _, sourceId := range sourceIds {
 		sourceIdsString = sourceIdsString + strconv.Itoa(int(sourceId)) + ","
@@ -77,35 +47,35 @@ func GetExistingAdds(sourceIds []uint32, source_class string) (map[uint32]Add, e
 		return nil, err
 	}
 
-	result := make(map[uint32]Add, 0)
+	result := make(map[uint32]Models.Add, 0)
 	for rows.Next() {
-		var add Add
+		var add Models.Add
 
 		err := rows.Scan(
-			&add.id,
-			&add.user_id,
-			&add.name,
-			&add.description,
-			&add.price,
-			&add.price_usd,
-			&add.currency,
-			&add.images,
-			&add.categoryId,
-			&add.location_id,
-			&add.status,
-			&add.approved,
-			&add.created_at,
-			&add.updated_at,
-			&add.deleted_at,
-			&add.source_class,
-			&add.source_id,
+			&add.Id,
+			&add.User_id,
+			&add.Name,
+			&add.Description,
+			&add.Price,
+			&add.Price_usd,
+			&add.Currency,
+			&add.Images,
+			&add.CategoryId,
+			&add.Location_id,
+			&add.Status,
+			&add.Approved,
+			&add.Created_at,
+			&add.Updated_at,
+			&add.Deleted_at,
+			&add.Source_class,
+			&add.Source_id,
 		)
 
 		if err != nil {
 			return result, err
 		}
 
-		result[add.source_id] = add
+		result[add.Source_id] = add
 	}
 
 	if err := rows.Err(); err != nil {
@@ -138,7 +108,7 @@ func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
 	return rows, nil
 }
 
-func getLocationByAddress(address string, lat float32, lng float32) uint16 {
+func GetLocationByAddress(address string, lat float32, lng float32) uint16 {
 	location, err := queryLocation(address)
 	if err == nil {
 		return location.id
@@ -214,7 +184,7 @@ func queryLocation(address string) (Location, error) {
 //	}
 //}
 
-func UpdateAddsBulk(adds []Add) {
+func UpdateAddsBulk(adds []Models.Add) {
 	if len(adds) == 0 {
 		return
 	}
@@ -225,7 +195,7 @@ func UpdateAddsBulk(adds []Add) {
 	for _, add := range adds {
 		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 
-		valueArgs = append(valueArgs, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.images, add.id)
+		valueArgs = append(valueArgs, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
 	}
 
 	// Construct the query with multiple value strings
@@ -241,7 +211,7 @@ func UpdateAddsBulk(adds []Add) {
 //	_, _ = RunQuery(query, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.images, add.currency)
 //}
 
-func InsertAddsBulk(adds []Add) {
+func InsertAddsBulk(adds []Models.Add) {
 	if len(adds) == 0 {
 		return
 	}
@@ -252,7 +222,7 @@ func InsertAddsBulk(adds []Add) {
 	for _, add := range adds {
 		valueStrings = append(valueStrings, "(?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, NOW(), NOW())")
 
-		valueArgs = append(valueArgs, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.images, add.currency)
+		valueArgs = append(valueArgs, add.User_id, add.Location_id, add.Name, add.Description, add.Price, add.Price_usd, add.Source_class, add.Source_id, add.CategoryId, add.Images, add.Currency)
 	}
 
 	// Construct the query with multiple value strings
@@ -262,8 +232,8 @@ func InsertAddsBulk(adds []Add) {
 	_, _ = RunQuery(query, valueArgs...)
 }
 
-func findUserByPhone(phone uint64) (User, error) {
-	var user User
+func FindUserByPhone(phone uint64) (Models.User, error) {
+	var user Models.User
 	var query = "SELECT * FROM users WHERE contact = ?"
 	rows, err := RunQuery(query, phone)
 	if err != nil {
@@ -272,7 +242,7 @@ func findUserByPhone(phone uint64) (User, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&user.id, &user.contact)
+		err := rows.Scan(&user.Id, &user.Contact)
 		if err != nil {
 			return user, err
 		}
@@ -283,8 +253,8 @@ func findUserByPhone(phone uint64) (User, error) {
 	return user, errors.New("user not found")
 }
 
-func createUser(contact uint64, lang string, currency string, locationId uint16) (User, error) {
-	var user User
+func CreateUser(contact uint64, lang string, currency string, locationId uint16) (Models.User, error) {
+	var user Models.User
 
 	if db == nil {
 		return user, errors.New("database connection not initialized")
@@ -304,17 +274,17 @@ func createUser(contact uint64, lang string, currency string, locationId uint16)
 
 	userId, _ := res.LastInsertId()
 
-	user.id = int(userId)
-	user.contact = contact
-	user.lang = lang
-	user.currency = currency
-	user.location_id = locationId
+	user.Id = int(userId)
+	user.Contact = contact
+	user.Lang = lang
+	user.Currency = currency
+	user.Location_id = locationId
 
 	return user, nil
 }
 
-func findCategoryByNameAndParent(name string, parentId uint16) (Category, error) {
-	var category Category
+func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category, error) {
+	var category Models.Category
 	var query = "SELECT * FROM categories WHERE contact = ? AND parent_id = ? AND deleted_at IS NULL"
 	rows, err := RunQuery(query, name, parentId)
 	if err != nil {
@@ -323,7 +293,7 @@ func findCategoryByNameAndParent(name string, parentId uint16) (Category, error)
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&category.id)
+		err := rows.Scan(&category.Id)
 		if err != nil {
 			return category, err
 		}
@@ -334,8 +304,8 @@ func findCategoryByNameAndParent(name string, parentId uint16) (Category, error)
 	return category, errors.New("category not found")
 }
 
-func createCategory(name string, parentId uint16) (Category, error) {
-	var category Category
+func CreateCategory(name string, parentId uint16) (Models.Category, error) {
+	var category Models.Category
 
 	if db == nil {
 		return category, errors.New("database connection not initialized")
@@ -359,9 +329,9 @@ func createCategory(name string, parentId uint16) (Category, error) {
 		return category, err
 	}
 
-	category.id = uint16(int(categoryId))
-	category.name = name
-	category.parentId = parentId
+	category.Id = uint16(int(categoryId))
+	category.Name = name
+	category.ParentId = parentId
 
 	return category, nil
 }

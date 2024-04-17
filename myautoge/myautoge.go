@@ -1,10 +1,13 @@
-package main
+package Myautoge
 
 import (
 	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
+	"televito-parser/dbmethods"
+	Http "televito-parser/http"
+	Main "televito-parser/models"
 )
 
 type AddSource struct {
@@ -114,65 +117,65 @@ func MyAutoGeParsePage(page uint16) (uint16, error) {
 		carIds = append(carIds, key)
 	}
 
-	RestoreTrashedAdds(carIds, sourceClass)
+	Dbmethods.RestoreTrashedAdds(carIds, sourceClass)
 
-	existingAdds, err := GetExistingAdds(carIds, sourceClass)
+	existingAdds, err := Dbmethods.GetExistingAdds(carIds, sourceClass)
 	if err != nil {
 		fmt.Println(err)
 		return page - 1, err
 	}
 
-	var addsToUpdate []Add
+	var addsToUpdate []Main.Add
 	for id, add := range existingAdds {
 		category, err := getCategory(addSources[id])
 		if err != nil {
 			continue
 		}
 
-		add.name = getName(addSources[id])
-		add.description = getDescription(addSources[id])
-		add.price = addSources[id].Price
-		add.price_usd = addSources[id].PriceUSD
-		add.currency = getCurrency(addSources[id])
-		add.location_id = getLocationByAddress(getAddress(addSources[id].LocationId, ""), 0, 0)
-		add.categoryId = category.id
-		add.images = getImagesUrlList(addSources[id], addSources[id].CarID)
+		add.Name = getName(addSources[id])
+		add.Description = getDescription(addSources[id])
+		add.Price = addSources[id].Price
+		add.Price_usd = addSources[id].PriceUSD
+		add.Currency = getCurrency(addSources[id])
+		add.Location_id = Dbmethods.GetLocationByAddress(getAddress(addSources[id].LocationId, ""), 0, 0)
+		add.CategoryId = category.Id
+		add.Images = getImagesUrlList(addSources[id], addSources[id].CarID)
 
 		addsToUpdate = append(addsToUpdate, add)
 
 		delete(addSources, id)
 	}
 
-	UpdateAddsBulk(addsToUpdate)
+	Dbmethods.UpdateAddsBulk(addsToUpdate)
 
 	fmt.Println(strconv.Itoa(len(addSources)) + " Items adding")
 
-	var addsToInsert []Add
+	var addsToInsert []Main.Add
 	for id, addSource := range addSources {
 		category, err := getCategory(addSources[id])
 		if err != nil {
 			continue
 		}
 
-		var locationId = getLocationByAddress(getAddress(addSource.LocationId, ""), 0, 0)
-		add := Add{
-			name:         getName(addSource),
-			description:  getDescription(addSource),
-			price:        addSource.Price,
-			price_usd:    addSource.PriceUSD,
-			currency:     getCurrency(addSource),
-			location_id:  locationId,
-			categoryId:   category.id,
-			source_class: sourceClass,
-			source_id:    id,
-			user_id:      getUser(addSource, locationId).id,
-			images:       getImagesUrlList(addSource, addSource.CarID),
+		var locationId = Dbmethods.GetLocationByAddress(getAddress(addSource.LocationId, ""), 0, 0)
+		add := Main.Add{
+			Name:         getName(addSource),
+			Description:  getDescription(addSource),
+			Price:        addSource.Price,
+			Price_usd:    addSource.PriceUSD,
+			Currency:     getCurrency(addSource),
+			Location_id:  locationId,
+			CategoryId:   category.Id,
+			Source_class: sourceClass,
+			Source_id:    id,
+			User_id:      getUser(addSource, locationId).Id,
+			Images:       getImagesUrlList(addSource, addSource.CarID),
 		}
 
 		addsToInsert = append(addsToInsert, add)
 	}
 
-	InsertAddsBulk(addsToInsert)
+	Dbmethods.InsertAddsBulk(addsToInsert)
 
 	fmt.Println(strconv.Itoa(len(addsToInsert)) + " Items inserted")
 
@@ -188,10 +191,10 @@ func getImagesUrlList(source AddSource, id uint32) string {
 	return "[\"" + strings.Join(images, "\",\"") + "\"]"
 }
 
-func getUser(addSource AddSource, locationId uint16) User {
-	var user, err = findUserByPhone(addSource.ClientPhone)
+func getUser(addSource AddSource, locationId uint16) Main.User {
+	var user, err = Dbmethods.FindUserByPhone(addSource.ClientPhone)
 	if err != nil {
-		user, err = createUser(addSource.ClientPhone, "ge", getCurrency(addSource), locationId)
+		user, err = Dbmethods.CreateUser(addSource.ClientPhone, "ge", getCurrency(addSource), locationId)
 	}
 	return user
 }
@@ -211,31 +214,21 @@ func getAddress(locationId uint16, address string) string {
 	return address[:len(address)-2]
 }
 
-type Category struct {
-	id         uint16
-	name       string
-	parentId   uint16
-	created_at string
-	updated_at string
-	deleted_at string
-	adds_count uint32
-}
-
-func getCategory(addSource AddSource) (Category, error) {
+func getCategory(addSource AddSource) (Main.Category, error) {
 	manufacturer, manufacturerOk := appData.Mans[addSource.ManID]
 	if !manufacturerOk {
-		return Category{}, fmt.Errorf("Manufacturer not found")
+		return Main.Category{}, fmt.Errorf("Manufacturer not found")
 	}
 
-	var category Category
-	var subCategory Category
+	var category Main.Category
+	var subCategory Main.Category
 	var err = fmt.Errorf("Get category error")
 
-	category, err = findCategoryByNameAndParent(manufacturer.Name, MainCategory)
+	category, err = Dbmethods.FindCategoryByNameAndParent(manufacturer.Name, MainCategory)
 	if err != nil {
-		createdCategory, err := createCategory(manufacturer.Name, MainCategory)
+		createdCategory, err := Dbmethods.CreateCategory(manufacturer.Name, MainCategory)
 		if err != nil {
-			return Category{}, err
+			return Main.Category{}, err
 		}
 		category = createdCategory
 	}
@@ -245,9 +238,9 @@ func getCategory(addSource AddSource) (Category, error) {
 		return category, nil
 	}
 
-	subCategory, err = findCategoryByNameAndParent(subCategoryAuto.Name, category.id)
+	subCategory, err = Dbmethods.FindCategoryByNameAndParent(subCategoryAuto.Name, category.Id)
 	if err != nil {
-		subCategory, err = createCategory(subCategoryAuto.Name, category.id)
+		subCategory, err = Dbmethods.CreateCategory(subCategoryAuto.Name, category.Id)
 		if err != nil {
 			return category, err
 		}
@@ -343,7 +336,7 @@ func loadPage(page uint16) map[uint32]AddSource {
 		"Locs":          "2.3.4.7.15.30.113.52.37.36.38.39.40.31.5.41.44.47.48.53.54.8.16.6.14.13.12.11.10.9.55.56.57.59.58.61.62.63.64.66.71.72.74.75.76.77.78.80.81.82.83.84.85.86.87.88.91.96.97.101.109",
 	}
 
-	body := LoadUrl(url+"/ka/products/", params)
+	body := Http.LoadUrl(url+"/ka/products/", params)
 
 	var responseObject Response
 	err := json.Unmarshal(body, &responseObject)
@@ -363,7 +356,7 @@ func loadPage(page uint16) map[uint32]AddSource {
 
 func loadData() {
 	if len(appData.Categories) == 0 {
-		body := LoadUrl(url+"/appdata/other_en.json", nil)
+		body := Http.LoadUrl(url+"/appdata/other_en.json", nil)
 
 		var loadedAppData LoadedAppData
 
