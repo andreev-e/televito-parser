@@ -33,6 +33,6 @@ func reparseAllPages() {
 
 	for {
 		page, err = MyAutoGeParsePage(page)
-		time.Sleep(20 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 }
