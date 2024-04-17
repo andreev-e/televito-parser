@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-func reparseFirstPages() {
+func reparseFirstPages(class string) {
 	for {
-		_, err := Myautoge.MyAutoGeParsePage(1)
+		_, err := Myautoge.ParsePage(1, class)
 		if err != nil {
 			fmt.Println("Error parsing first pages: ", err)
 		}
@@ -33,7 +33,7 @@ func reparseAllPages(class string) {
 	}
 
 	for {
-		page, err = Myautoge.MyAutoGeParsePage(page)
+		page, err = Myautoge.ParsePage(page, class)
 		time.Sleep(10 * time.Second)
 	}
 }

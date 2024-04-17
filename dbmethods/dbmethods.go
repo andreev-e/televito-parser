@@ -36,13 +36,13 @@ func CloseDB() {
 	}
 }
 
-func GetExistingAdds(sourceIds []uint32, source_class string) (map[uint32]Models.Add, error) {
+func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.Add, error) {
 	var sourceIdsString string
 	for _, sourceId := range sourceIds {
 		sourceIdsString = sourceIdsString + strconv.Itoa(int(sourceId)) + ","
 	}
 
-	rows, err := RunQuery("SELECT * FROM adds WHERE source_id IN (?) AND source_class = (?)", sourceIdsString, source_class)
+	rows, err := RunQuery("SELECT * FROM adds WHERE source_id IN (?) AND source_class = (?)", sourceIdsString, sourceClass)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,6 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 	}
 
 	_, _ = RunQuery("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = (?)", sourceIdsString, sourceClass)
-	fmt.Println("trashed restored")
 }
 
 func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {

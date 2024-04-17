@@ -5,9 +5,15 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"televito-parser/dbmethods"
 	Http "televito-parser/http"
 	Main "televito-parser/models"
+)
+
+var (
+	once        sync.Once
+	loadedMutex sync.Mutex
 )
 
 type AddSource struct {
@@ -38,28 +44,28 @@ type Response struct {
 }
 
 type LoadedAppData struct {
-	Categories []MyAutoGeCategory `json:"Categories"`
-	Currencies []Currency         `json:"Currencies"`
-	Models     []Model            `json:"Models"`
-	Mans       []Manufacturer     `json:"Mans"`
+	Categories []Category     `json:"Categories"`
+	Currencies []Currency     `json:"Currencies"`
+	Models     []Model        `json:"Models"`
+	Mans       []Manufacturer `json:"Mans"`
 	GearTypes  struct {
 		Items []GearType `json:"items"`
 	} `json:"GearTypes"`
 	Locations struct {
-		Items []MyAutoGeLocation `json:"items"`
+		Items []Location `json:"items"`
 	} `json:"Locations"`
 }
 
 type AppData struct {
-	Categories map[uint16]MyAutoGeCategory
+	Categories map[uint16]Category
 	Currencies map[uint8]Currency
 	Models     map[uint16]Model
 	Mans       map[uint16]Manufacturer
-	Locations  map[uint16]MyAutoGeLocation
+	Locations  map[uint16]Location
 	GearTypes  map[uint16]GearType
 }
 
-type MyAutoGeCategory struct {
+type Category struct {
 	CategoryId uint16 `json:"category_id"`
 	Name       string `json:"title"`
 }
@@ -80,7 +86,7 @@ type Manufacturer struct {
 	Name string `json:"man_name"`
 }
 
-type MyAutoGeLocation struct {
+type Location struct {
 	ID       uint16 `json:"location_id"`
 	Name     string `json:"title"`
 	ParentId uint16 `json:"parent_id"`
@@ -92,22 +98,21 @@ type GearType struct {
 }
 
 const url = "https://api2.myauto.ge"
-const sourceClass = "MyAutoGe"
 const NumberOfPhotos uint = 5
 const MainCategory = 12
 
-var appData AppData
+var AutoAppData AppData
 
-func MyAutoGeParsePage(page uint16) (uint16, error) {
+func ParsePage(page uint16, class string) (uint16, error) {
 	loadData()
 
-	addSources := loadPage(page)
+	addSources := loadPage(page, class)
 
 	if len(addSources) == 0 {
-		fmt.Println("0 Items - resetting page to 1")
+		fmt.Println(class + ": 0 Items - resetting page to 1")
 		return uint16(1), nil
 	} else {
-		fmt.Println(strconv.Itoa(len(addSources)) + " Items loaded p " + strconv.Itoa(int(page)))
+		fmt.Println(class + ": " + strconv.Itoa(len(addSources)) + " Items loaded p " + strconv.Itoa(int(page)))
 		page++
 	}
 
@@ -117,9 +122,9 @@ func MyAutoGeParsePage(page uint16) (uint16, error) {
 		carIds = append(carIds, key)
 	}
 
-	Dbmethods.RestoreTrashedAdds(carIds, sourceClass)
+	Dbmethods.RestoreTrashedAdds(carIds, class)
 
-	existingAdds, err := Dbmethods.GetExistingAdds(carIds, sourceClass)
+	existingAdds, err := Dbmethods.GetExistingAdds(carIds, class)
 	if err != nil {
 		fmt.Println(err)
 		return page - 1, err
@@ -166,7 +171,7 @@ func MyAutoGeParsePage(page uint16) (uint16, error) {
 			Currency:     getCurrency(addSource),
 			Location_id:  locationId,
 			CategoryId:   category.Id,
-			Source_class: sourceClass,
+			Source_class: class,
 			Source_id:    id,
 			User_id:      getUser(addSource, locationId).Id,
 			Images:       getImagesUrlList(addSource, addSource.CarID),
@@ -200,14 +205,14 @@ func getUser(addSource AddSource, locationId uint16) Main.User {
 }
 
 func getAddress(locationId uint16, address string) string {
-	location, ok := appData.Locations[locationId]
+	location, ok := AutoAppData.Locations[locationId]
 	if ok {
 		address = address + location.Name + ", "
 		if location.ParentId != 0 {
 			return getAddress(location.ParentId, address)
 		}
 	} else {
-		fmt.Println(appData.Locations)
+		fmt.Println(AutoAppData.Locations)
 		panic("No location in dictionary " + strconv.Itoa(int(locationId)))
 	}
 
@@ -215,7 +220,7 @@ func getAddress(locationId uint16, address string) string {
 }
 
 func getCategory(addSource AddSource) (Main.Category, error) {
-	manufacturer, manufacturerOk := appData.Mans[addSource.ManID]
+	manufacturer, manufacturerOk := AutoAppData.Mans[addSource.ManID]
 	if !manufacturerOk {
 		return Main.Category{}, fmt.Errorf("Manufacturer not found")
 	}
@@ -233,7 +238,7 @@ func getCategory(addSource AddSource) (Main.Category, error) {
 		category = createdCategory
 	}
 
-	subCategoryAuto, subCatOk := appData.Categories[addSource.CategoryID]
+	subCategoryAuto, subCatOk := AutoAppData.Categories[addSource.CategoryID]
 	if !subCatOk {
 		return category, nil
 	}
@@ -250,7 +255,7 @@ func getCategory(addSource AddSource) (Main.Category, error) {
 }
 
 func getCurrency(addSource AddSource) string {
-	currency, ok := appData.Currencies[addSource.Currency]
+	currency, ok := AutoAppData.Currencies[addSource.Currency]
 	if ok {
 		return currency.Name
 	}
@@ -274,12 +279,12 @@ func getDescription(addSource AddSource) string {
 func getName(addSource AddSource) string {
 	var name []string
 
-	manufacturer, ok := appData.Mans[addSource.ManID]
+	manufacturer, ok := AutoAppData.Mans[addSource.ManID]
 	if ok {
 		name = append(name, manufacturer.Name)
 	}
 
-	model, ok := appData.Models[addSource.ModelID]
+	model, ok := AutoAppData.Models[addSource.ModelID]
 	if ok {
 		name = append(name, model.Name)
 	}
@@ -292,7 +297,7 @@ func getName(addSource AddSource) string {
 		name = append(name, strconv.Itoa(int(addSource.ProdYear)))
 	}
 
-	gearType, transmissionOk := appData.GearTypes[addSource.GearTypeID]
+	gearType, transmissionOk := AutoAppData.GearTypes[addSource.GearTypeID]
 
 	if ok && addSource.EngineVolume != 0 {
 		var transmission = ""
@@ -325,9 +330,13 @@ func getName(addSource AddSource) string {
 	return strings.Join(name, " ")
 }
 
-func loadPage(page uint16) map[uint32]AddSource {
+func loadPage(page uint16, class string) map[uint32]AddSource {
+	var forRent = "0"
+	if class == "MyAutoGeRent" {
+		forRent = "1"
+	}
 	params := map[string]string{
-		"ForRent":       "0",
+		"ForRent":       forRent,
 		"CurrencyID":    "1",
 		"MileageType":   "1",
 		"SortOrder":     "1",
@@ -355,7 +364,7 @@ func loadPage(page uint16) map[uint32]AddSource {
 }
 
 func loadData() {
-	if len(appData.Categories) == 0 {
+	once.Do(func() {
 		body := Http.LoadUrl(url+"/appdata/other_en.json", nil)
 
 		var loadedAppData LoadedAppData
@@ -366,7 +375,7 @@ func loadData() {
 			panic("Can't load myAutoGe appdata")
 		}
 
-		categories := make(map[uint16]MyAutoGeCategory)
+		categories := make(map[uint16]Category)
 		for _, category := range loadedAppData.Categories {
 			categories[category.CategoryId] = category
 		}
@@ -376,7 +385,7 @@ func loadData() {
 			mans[manufacturer.ID] = manufacturer
 		}
 
-		locations := make(map[uint16]MyAutoGeLocation)
+		locations := make(map[uint16]Location)
 		for _, location := range loadedAppData.Locations.Items {
 			locations[location.ID] = location
 		}
@@ -396,7 +405,7 @@ func loadData() {
 			currencies[currency.ID] = currency
 		}
 
-		appData = AppData{
+		AutoAppData = AppData{
 			Categories: categories,
 			Mans:       mans,
 			Locations:  locations,
@@ -406,5 +415,5 @@ func loadData() {
 		}
 
 		fmt.Println("Appdata loaded")
-	}
+	})
 }
