@@ -187,7 +187,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 		}
 
 		log.Println("Bulk going to insert " + strconv.Itoa(len(addsToInsert)))
-		//Dbmethods.InsertAddsBulk(addsToInsert)
+		Dbmethods.InsertAddsBulk(addsToInsert)
 	}
 
 	return page, nil
