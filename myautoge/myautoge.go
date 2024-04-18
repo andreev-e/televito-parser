@@ -122,14 +122,14 @@ func ParsePage(page uint16, class string) (uint16, error) {
 
 	carIds := make([]uint32, 0)
 
-	for key, _ := range addSources {
+	for key := range addSources {
 		carIds = append(carIds, key)
 	}
 
 	Dbmethods.RestoreTrashedAdds(carIds, class)
 
 	existingAdds, err := Dbmethods.GetExistingAdds(carIds, class)
-	log.Print("Already exists: ", len(existingAdds), existingAdds)
+	log.Print("Already exists: ", carIds, len(existingAdds), existingAdds)
 	if err != nil {
 		log.Println(err)
 		return page - 1, err
