@@ -162,10 +162,10 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 func queryLocation(address string) (Location, error) {
 	var query = "SELECT id, address FROM locations WHERE address = ?"
 	rows, err := RunQuery(query, address)
+	defer rows.Close()
 	if err != nil {
 		return Location{}, err
 	}
-	defer rows.Close()
 
 	for rows.Next() {
 		var location Location
@@ -236,10 +236,10 @@ func FindUserByPhone(phone uint64) (Models.User, error) {
 	var user Models.User
 	var query = "SELECT * FROM users WHERE contact = \"?\""
 	rows, err := RunQuery(query, phone)
+	defer rows.Close()
 	if err != nil {
 		return user, err
 	}
-	defer rows.Close()
 
 	for rows.Next() {
 		err := rows.Scan(&user.Id, &user.Contact)
@@ -288,10 +288,10 @@ func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category,
 	var category Models.Category
 	var query = "SELECT * FROM categories WHERE contact = ? AND parent_id = ? AND deleted_at IS NULL"
 	rows, err := RunQuery(query, name, parentId)
+	defer rows.Close()
 	if err != nil {
 		return category, err
 	}
-	defer rows.Close()
 
 	for rows.Next() {
 		err := rows.Scan(&category.Id)
