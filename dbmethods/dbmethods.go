@@ -219,12 +219,62 @@ func InsertAddsBulk(adds []Models.Add) {
 	// Construct the query with multiple value strings
 	query := "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) VALUES " + strings.Join(valueStrings, ", ")
 
-	// Execute the batch insert query
-	_, err := db.Query(query, valueArgs...)
+	// Begin transaction
+	tx, err := db.Begin()
 	if err != nil {
 		log.Println(err)
+		return
+	}
+
+	// Prepare the statement
+	stmt, err := tx.Prepare(query)
+	if err != nil {
+		log.Println(err)
+		tx.Rollback()
+		return
+	}
+	defer stmt.Close()
+
+	// Execute the batch insert query
+	_, err = stmt.Exec(valueArgs...)
+	if err != nil {
+		log.Println(err)
+		tx.Rollback()
+		return
+	}
+
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+		tx.Rollback()
+		return
 	}
 }
+
+//func InsertAddsBulk(adds []Models.Add) {
+//	if len(adds) == 0 {
+//		return
+//	}
+//
+//	var valueStrings []string
+//	var valueArgs []interface{}
+//
+//	for _, add := range adds {
+//		valueStrings = append(valueStrings, "(?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, NOW(), NOW())")
+//
+//		valueArgs = append(valueArgs, add.User_id, add.Location_id, add.Name, add.Description, add.Price, add.Price_usd, add.Source_class, add.Source_id, add.CategoryId, add.Images, add.Currency)
+//	}
+//
+//	// Construct the query with multiple value strings
+//	query := "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) VALUES " + strings.Join(valueStrings, ", ")
+//
+//	// Execute the batch insert query
+//	_, err := db.Query(query, valueArgs...)
+//	if err != nil {
+//		log.Println(err)
+//	}
+//}
 
 func FindUserByPhone(phone uint64) (Models.User, error) {
 	var user Models.User
