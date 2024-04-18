@@ -81,6 +81,7 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 			result[add.Source_id] = add
 		}
 	}
+	rows.Close()
 
 	return result, nil
 }
@@ -176,6 +177,7 @@ func queryLocation(address string) (Location, error) {
 
 		return location, nil
 	}
+	rows.Close()
 
 	return storeLocation(address, 0, 0)
 }
@@ -249,6 +251,7 @@ func FindUserByPhone(phone uint64) (Models.User, error) {
 
 		return user, nil
 	}
+	rows.Close()
 
 	return user, errors.New("user not found")
 }
@@ -301,6 +304,7 @@ func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category,
 
 		return category, nil
 	}
+	rows.Close()
 
 	return category, errors.New("category not found")
 }
