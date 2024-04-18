@@ -32,6 +32,6 @@ func main() {
 	go reparseAllPages("MyAutoGeRent")
 	for {
 		log.Print(".")
-		time.Sleep(10 * time.Second)
+		time.Sleep(30 * time.Second)
 	}
 }
