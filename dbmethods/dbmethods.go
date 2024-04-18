@@ -139,7 +139,7 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 
 	stmt, err := db.Prepare("INSERT INTO locations (address, lat, lng, created_at, updated_at) " +
 		"VALUES (?,?,?, NOW(), NOW());")
-	defer stmt.Close()
+	defer db.Close()
 	if err != nil {
 		return location, err
 	}
@@ -258,13 +258,13 @@ func CreateUser(contact uint64, lang string, currency string, locationId uint16)
 
 	stmt, err := db.Prepare("INSERT INTO users (contact, lang, currency, location_id, created_at, updated_at, timezone) " +
 		"VALUES (?,?,?,?, NOW(), NOW(), 'Asia/Tbilisi');")
-	defer stmt.Close()
+	defer db.Close()
 	if err != nil {
 		return user, err
 	}
 
 	res, err := stmt.Exec(contact, lang, currency, locationId)
-	stmt.Close()
+	defer stmt.Close()
 	if err != nil {
 		return user, err
 	}
@@ -310,13 +310,13 @@ func CreateCategory(name string, parentId uint16) (Models.Category, error) {
 
 	stmt, err := db.Prepare("INSERT INTO categories (name, parent_id, created_at, updated_at) " +
 		"VALUES (?,?, NOW(), NOW());")
-	defer stmt.Close()
+	defer db.Close()
 	if err != nil {
 		return category, err
 	}
 
 	res, err := stmt.Exec(name, parentId)
-	stmt.Close()
+	defer stmt.Close()
 	if err != nil {
 		return category, err
 	}
