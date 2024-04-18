@@ -34,6 +34,6 @@ func reparseAllPages(class string) {
 
 	for {
 		page, err = Myautoge.ParsePage(page, class)
-		time.Sleep(10 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 }
