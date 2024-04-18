@@ -152,6 +152,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 
 		addsToUpdate = append(addsToUpdate, add)
 
+		log.Println("already exists: ", id)
 		delete(addSources, id)
 	}
 
