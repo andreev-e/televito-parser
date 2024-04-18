@@ -221,10 +221,10 @@ func InsertAddsBulk(adds []Models.Add) {
 	var valueStrings []string
 	var valueArgs []interface{}
 
-	for sourceId, add := range adds {
+	for _, add := range adds {
 		valueStrings = append(valueStrings, "(?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, NOW(), NOW())")
 
-		valueArgs = append(valueArgs, add.User_id, add.Location_id, add.Name, add.Description, add.Price, add.Price_usd, add.Source_class, sourceId, add.CategoryId, add.Images, add.Currency)
+		valueArgs = append(valueArgs, add.User_id, add.Location_id, add.Name, add.Description, add.Price, add.Price_usd, add.Source_class, add.Source_id, add.CategoryId, add.Images, add.Currency)
 	}
 
 	// Construct the query with multiple value strings
