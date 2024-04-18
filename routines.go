@@ -34,6 +34,9 @@ func reparseAllPages(class string) {
 
 	for {
 		page, err = Myautoge.ParsePage(page, class)
+		if err != nil {
+			log.Println("Error parsing "+class+", p "+strconv.Itoa(int(page)), err)
+		}
 		time.Sleep(1 * time.Second)
 	}
 }

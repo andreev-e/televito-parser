@@ -112,11 +112,11 @@ func ParsePage(page uint16, class string) (uint16, error) {
 		return page, err
 	}
 
+	log.Println(class + ": " + strconv.Itoa(len(addSources)) + " Items loaded p " + strconv.Itoa(int(page)))
 	if len(addSources) == 0 {
 		log.Println(class + ": 0 Items - resetting page to 1")
 		return uint16(1), nil
 	} else {
-		log.Println(class + ": " + strconv.Itoa(len(addSources)) + " Items loaded p " + strconv.Itoa(int(page)))
 		page++
 	}
 
