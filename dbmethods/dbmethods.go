@@ -219,10 +219,36 @@ func InsertAddsBulk(adds []Models.Add) {
 	// Construct the query with multiple value strings
 	query := "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) VALUES " + strings.Join(valueStrings, ", ")
 
-	// Execute the batch insert query
-	_, err := db.Query(query, valueArgs...)
+	// Begin transaction
+	tx, err := db.Begin()
 	if err != nil {
 		log.Println(err)
+		return
+	}
+
+	// Prepare the statement
+	stmt, err := tx.Prepare(query)
+	if err != nil {
+		log.Println(err)
+		tx.Rollback()
+		return
+	}
+	defer stmt.Close()
+
+	// Execute the batch insert query
+	_, err = stmt.Exec(valueArgs...)
+	if err != nil {
+		log.Println(err)
+		tx.Rollback()
+		return
+	}
+
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+		tx.Rollback()
+		return
 	}
 }
 
