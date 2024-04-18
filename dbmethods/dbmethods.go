@@ -82,6 +82,8 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 		}
 	}
 
+	rows.Close()
+
 	if err := rows.Err(); err != nil {
 		return result, err
 	}
@@ -96,7 +98,8 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 	}
 	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
 
-	_, err := RunQuery("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
+	rows, err := RunQuery("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
+	rows.Close()
 	if err != nil {
 		log.Println(err)
 	}
@@ -180,6 +183,8 @@ func queryLocation(address string) (Location, error) {
 		return location, nil
 	}
 
+	rows.Close()
+
 	return storeLocation(address, 0, 0)
 }
 
@@ -230,7 +235,8 @@ func InsertAddsBulk(adds []Models.Add) {
 	query := "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) VALUES " + strings.Join(valueStrings, ", ")
 
 	// Execute the batch insert query
-	_, err := RunQuery(query, valueArgs...)
+	rows, err := RunQuery(query, valueArgs...)
+	rows.Close()
 	if err != nil {
 		log.Println(err)
 	}
@@ -252,6 +258,8 @@ func FindUserByPhone(phone uint64) (Models.User, error) {
 
 		return user, nil
 	}
+
+	rows.Close()
 
 	return user, errors.New("user not found")
 }
@@ -303,6 +311,8 @@ func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category,
 
 		return category, nil
 	}
+
+	rows.Close()
 
 	return category, errors.New("category not found")
 }
