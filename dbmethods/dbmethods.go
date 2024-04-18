@@ -98,10 +98,9 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
 
 	rows, err := db.Query("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
+	defer rows.Close()
 	if err != nil {
 		log.Println(err)
-	} else {
-		rows.Close()
 	}
 }
 
