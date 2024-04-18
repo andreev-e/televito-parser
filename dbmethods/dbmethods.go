@@ -43,7 +43,7 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 	}
 	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
 
-	rows, err := RunQuery("SELECT * FROM adds WHERE source_id IN (?) AND source_class = '?'", sourceIdsString, sourceClass)
+	rows, err := RunQuery("SELECT * FROM adds WHERE source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
 	if err != nil {
 		return nil, err
 	}
@@ -85,8 +85,9 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 	for _, sourceId := range sourceIds {
 		sourceIdsString = sourceIdsString + strconv.Itoa(int(sourceId)) + ","
 	}
+	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
 
-	_, _ = RunQuery("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = (?)", sourceIdsString, sourceClass)
+	_, _ = RunQuery("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
 }
 
 func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
