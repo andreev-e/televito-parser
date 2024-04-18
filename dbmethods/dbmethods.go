@@ -184,7 +184,7 @@ func queryLocation(address string) (Location, error) {
 //}
 
 func UpdateAddsBulk(adds []Models.Add) {
-	log.Println("Bulk Items adding" + strconv.Itoa(len(adds)))
+	log.Println("Bulk Items updating " + strconv.Itoa(len(adds)))
 
 	if len(adds) == 0 {
 		return
@@ -216,6 +216,8 @@ func UpdateAddsBulk(adds []Models.Add) {
 //}
 
 func InsertAddsBulk(adds []Models.Add) {
+	log.Println("Bulk Items inserting " + strconv.Itoa(len(adds)))
+
 	if len(adds) == 0 {
 		return
 	}
