@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	logFile, err := os.Create("logfile.log")
+	logFile, err := os.Create("main.log")
 	if err != nil {
 		log.Println("Error creating log file:", err)
 		return
@@ -31,6 +31,7 @@ func main() {
 	go reparseAllPages("MyAutoGe")
 	go reparseAllPages("MyAutoGeRent")
 	for {
+		log.Print(".")
 		time.Sleep(10 * time.Second)
 	}
 }
