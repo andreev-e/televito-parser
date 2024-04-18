@@ -3,6 +3,7 @@ package Myautoge
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -109,10 +110,10 @@ func ParsePage(page uint16, class string) (uint16, error) {
 	addSources := loadPage(page, class)
 
 	if len(addSources) == 0 {
-		fmt.Println(class + ": 0 Items - resetting page to 1")
+		log.Println(class + ": 0 Items - resetting page to 1")
 		return uint16(1), nil
 	} else {
-		fmt.Println(class + ": " + strconv.Itoa(len(addSources)) + " Items loaded p " + strconv.Itoa(int(page)))
+		log.Println(class + ": " + strconv.Itoa(len(addSources)) + " Items loaded p " + strconv.Itoa(int(page)))
 		page++
 	}
 
@@ -126,7 +127,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 
 	existingAdds, err := Dbmethods.GetExistingAdds(carIds, class)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return page - 1, err
 	}
 
@@ -153,7 +154,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 
 	Dbmethods.UpdateAddsBulk(addsToUpdate)
 
-	fmt.Println(strconv.Itoa(len(addSources)) + " Items adding")
+	log.Println(strconv.Itoa(len(addSources)) + " Items adding")
 
 	var addsToInsert []Main.Add
 	for id, addSource := range addSources {
@@ -182,7 +183,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 
 	Dbmethods.InsertAddsBulk(addsToInsert)
 
-	fmt.Println(strconv.Itoa(len(addsToInsert)) + " Items inserted")
+	log.Println(strconv.Itoa(len(addsToInsert)) + " Items inserted")
 
 	return page, nil
 }
@@ -212,7 +213,7 @@ func getAddress(locationId uint16, address string) string {
 			return getAddress(location.ParentId, address)
 		}
 	} else {
-		fmt.Println(AutoAppData.Locations)
+		log.Println(AutoAppData.Locations)
 		panic("No location in dictionary " + strconv.Itoa(int(locationId)))
 	}
 
@@ -350,7 +351,7 @@ func loadPage(page uint16, class string) map[uint32]AddSource {
 	var responseObject Response
 	err := json.Unmarshal(body, &responseObject)
 	if err != nil {
-		fmt.Printf("Error parsing JSON: %v\n", err)
+		log.Printf("Error parsing JSON: %v\n", err)
 		return nil
 	}
 
@@ -371,7 +372,7 @@ func loadData() {
 
 		err := json.Unmarshal(body, &loadedAppData)
 		if err != nil {
-			fmt.Printf("Error parsing JSON: %v\n", err)
+			log.Printf("Error parsing JSON: %v\n", err)
 			panic("Can't load myAutoGe appdata")
 		}
 
@@ -414,6 +415,6 @@ func loadData() {
 			Currencies: currencies,
 		}
 
-		fmt.Println("Appdata loaded")
+		log.Println("Appdata loaded")
 	})
 }

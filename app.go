@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	Dbmethods "televito-parser/dbmethods"
@@ -11,7 +10,7 @@ import (
 func main() {
 	logFile, err := os.Create("logfile.log")
 	if err != nil {
-		fmt.Println("Error creating log file:", err)
+		log.Println("Error creating log file:", err)
 		return
 	}
 	defer logFile.Close()

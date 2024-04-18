@@ -1,9 +1,9 @@
 package Http
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -16,7 +16,7 @@ func LoadUrl(url string, params map[string]string) []byte {
 	response, err := http.Get(fullUrl)
 
 	if err != nil {
-		fmt.Printf("Error fetching data: %v\n", err)
+		log.Printf("Error fetching data: %v\n", err)
 		return nil
 	}
 
@@ -29,7 +29,7 @@ func LoadUrl(url string, params map[string]string) []byte {
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		fmt.Printf("Error reading response body: %v\n", err)
+		log.Printf("Error reading response body: %v\n", err)
 		return nil
 	}
 

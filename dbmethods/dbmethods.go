@@ -3,8 +3,8 @@ package Dbmethods
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -17,8 +17,8 @@ func InitDB() {
 	var err error
 	db, err = sql.Open("mysql", os.Getenv("MYSQL_CONNECTION_STRING"))
 	if err != nil {
-		fmt.Println("Error initializing database connection:")
-		fmt.Println(err)
+		log.Println("Error initializing database connection:")
+		log.Println(err)
 	}
 
 	db.SetMaxOpenConns(100)
@@ -29,8 +29,8 @@ func CloseDB() {
 	if db != nil {
 		err := db.Close()
 		if err != nil {
-			fmt.Println("Error closing database connection:")
-			fmt.Println(err)
+			log.Println("Error closing database connection:")
+			log.Println(err)
 			return
 		}
 	}
@@ -179,7 +179,7 @@ func queryLocation(address string) (Location, error) {
 //	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
 //	_, err := RunQuery(query, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.images, add.id)
 //	if err != nil {
-//		fmt.Println(add.id)
+//		log.Println(add.id)
 //	}
 //}
 

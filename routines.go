@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"strconv"
 	Myautoge "televito-parser/myautoge"
 	"time"
@@ -11,7 +11,7 @@ func reparseFirstPages(class string) {
 	for {
 		_, err := Myautoge.ParsePage(1, class)
 		if err != nil {
-			fmt.Println("Error parsing first pages: ", err)
+			log.Println("Error parsing first pages: ", err)
 		}
 		time.Sleep(10 * time.Minute)
 	}
@@ -20,7 +20,7 @@ func reparseFirstPages(class string) {
 func reparseAllPages(class string) {
 	var page uint16
 	storedPage, err := readRedisKey("tvito_database_tvito_cache_:" + class + "_last_page")
-	fmt.Println("tvito_database_tvito_cache_:"+class+"_last_page: ", storedPage)
+	log.Println("tvito_database_tvito_cache_:"+class+"_last_page: ", storedPage)
 	if err == nil {
 		pageInt, err := strconv.Atoi(storedPage)
 		if err == nil {
