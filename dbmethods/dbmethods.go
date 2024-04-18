@@ -48,7 +48,8 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
 
 	var query = "SELECT * FROM adds WHERE source_id IN (?) AND source_class = ?"
-	rows, err := RunQuery(query, sourceIdsString, sourceClass)
+	rows, err := db.Query(query, sourceIdsString, sourceClass)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +83,6 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 		}
 	}
 
-	rows.Close()
-
 	if err := rows.Err(); err != nil {
 		return result, err
 	}
@@ -104,19 +103,6 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 	} else {
 		rows.Close()
 	}
-}
-
-func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
-	if db == nil {
-		return nil, errors.New("database connection not initialized")
-	}
-
-	rows, err := db.Query(query, params...)
-	if err != nil {
-		return nil, err
-	}
-
-	return rows, nil
 }
 
 func GetLocationByAddress(address string, lat float32, lng float32) uint16 {
@@ -169,7 +155,8 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 
 func queryLocation(address string) (Location, error) {
 	var query = "SELECT id, address FROM locations WHERE address = ?"
-	rows, err := RunQuery(query, address)
+	rows, err := db.Query(query, address)
+	defer rows.Close()
 	if err != nil {
 		return Location{}, err
 	}
@@ -184,15 +171,13 @@ func queryLocation(address string) (Location, error) {
 		return location, nil
 	}
 
-	rows.Close()
-
 	return storeLocation(address, 0, 0)
 }
 
 func UpdateAdd(add Models.Add) {
 	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
-	rows, err := RunQuery(query, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
-	rows.Close()
+	rows, err := db.Query(query, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
+	defer rows.Close()
 	if err != nil {
 		log.Println(err)
 	}
@@ -236,8 +221,8 @@ func InsertAddsBulk(adds []Models.Add) {
 	query := "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) VALUES " + strings.Join(valueStrings, ", ")
 
 	// Execute the batch insert query
-	rows, err := RunQuery(query, valueArgs...)
-	rows.Close()
+	rows, err := db.Query(query, valueArgs...)
+	defer rows.Close()
 	if err != nil {
 		log.Println(err)
 	}
@@ -246,7 +231,8 @@ func InsertAddsBulk(adds []Models.Add) {
 func FindUserByPhone(phone uint64) (Models.User, error) {
 	var user Models.User
 	var query = "SELECT * FROM users WHERE contact = \"?\""
-	rows, err := RunQuery(query, phone)
+	rows, err := db.Query(query, phone)
+	defer rows.Close()
 	if err != nil {
 		return user, err
 	}
@@ -259,8 +245,6 @@ func FindUserByPhone(phone uint64) (Models.User, error) {
 
 		return user, nil
 	}
-
-	rows.Close()
 
 	return user, errors.New("user not found")
 }
@@ -299,7 +283,7 @@ func CreateUser(contact uint64, lang string, currency string, locationId uint16)
 func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category, error) {
 	var category Models.Category
 	var query = "SELECT * FROM categories WHERE contact = ? AND parent_id = ? AND deleted_at IS NULL"
-	rows, err := RunQuery(query, name, parentId)
+	rows, err := db.Query(query, name, parentId)
 	if err != nil {
 		return category, err
 	}
