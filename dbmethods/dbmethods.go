@@ -49,10 +49,10 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 
 	var query = "SELECT * FROM adds WHERE source_id IN (?) AND source_class = ?"
 	rows, err := db.Query(query, sourceIdsString, sourceClass)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	result := make(map[uint32]Models.Add, 0)
 	for rows.Next() {
@@ -98,10 +98,10 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
 
 	rows, err := db.Query("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
-	defer rows.Close()
 	if err != nil {
 		log.Println(err)
 	}
+	defer rows.Close()
 }
 
 func GetLocationByAddress(address string, lat float32, lng float32) uint16 {
@@ -155,10 +155,10 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 func queryLocation(address string) (Location, error) {
 	var query = "SELECT id, address FROM locations WHERE address = ?"
 	rows, err := db.Query(query, address)
-	defer rows.Close()
 	if err != nil {
 		return Location{}, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var location Location
@@ -176,10 +176,10 @@ func queryLocation(address string) (Location, error) {
 func UpdateAdd(add Models.Add) {
 	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
 	rows, err := db.Query(query, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
-	defer rows.Close()
 	if err != nil {
 		log.Println(err)
 	}
+	defer rows.Close()
 }
 
 func UpdateAddsBulk(adds []Models.Add) {
@@ -221,20 +221,20 @@ func InsertAddsBulk(adds []Models.Add) {
 
 	// Execute the batch insert query
 	rows, err := db.Query(query, valueArgs...)
-	defer rows.Close()
 	if err != nil {
 		log.Println(err)
 	}
+	defer rows.Close()
 }
 
 func FindUserByPhone(phone uint64) (Models.User, error) {
 	var user Models.User
 	var query = "SELECT * FROM users WHERE contact = \"?\""
 	rows, err := db.Query(query, phone)
-	defer rows.Close()
 	if err != nil {
 		return user, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		err := rows.Scan(&user.Id, &user.Contact)
@@ -286,6 +286,7 @@ func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category,
 	if err != nil {
 		return category, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		err := rows.Scan(&category.Id)
@@ -295,8 +296,6 @@ func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category,
 
 		return category, nil
 	}
-
-	rows.Close()
 
 	return category, errors.New("category not found")
 }
