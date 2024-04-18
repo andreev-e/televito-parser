@@ -184,7 +184,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 			addsToInsert = append(addsToInsert, add)
 		}
 
-		Dbmethods.InsertAddsBulk(addsToInsert)
+		//Dbmethods.InsertAddsBulk(addsToInsert)
 	}
 
 	return page, nil
