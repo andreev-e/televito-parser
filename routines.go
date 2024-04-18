@@ -23,7 +23,7 @@ func reparseFirstPages(class string) {
 
 func reparseAllPages(class string) {
 	defer func() {
-		log.Println("reparseFirstPages ended " + class)
+		log.Println("reparseAllPages ended " + class)
 	}()
 
 	var page uint16
