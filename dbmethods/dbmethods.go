@@ -191,14 +191,19 @@ func UpdateAddsBulk(adds []Models.Add) {
 
 	for _, add := range adds {
 		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-
 		valueArgs = append(valueArgs, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
 	}
 
 	// Construct the query with multiple value strings
 	query := "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
 
-	// Execute the batch insert query
+	// Concatenate the value strings with comma separators
+	values := strings.Join(valueStrings, ",")
+
+	// Append the constructed values to the query
+	query = query + " VALUES " + values
+
+	// Execute the bulk update query
 	_, err := RunQuery(query, valueArgs...)
 	if err != nil {
 		log.Println(err)
