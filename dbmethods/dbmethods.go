@@ -46,7 +46,6 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 		sourceIdsString = sourceIdsString + strconv.Itoa(int(sourceId)) + ","
 	}
 	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
-	log.Println(sourceIdsString)
 	var query = "SELECT * FROM adds WHERE source_id IN (?) AND source_class = ?"
 	rows, err := db.Query(query, sourceIdsString, sourceClass)
 	if err != nil {
