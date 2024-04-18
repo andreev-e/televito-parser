@@ -158,7 +158,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 
 	Dbmethods.UpdateAddsBulk(addsToUpdate)
 
-	var addsToInsert []Main.Add
+	var addsToInsert = make([]Main.Add, 0)
 	for id, addSource := range addSources {
 		category, err := getCategory(addSources[id])
 		if err != nil {
