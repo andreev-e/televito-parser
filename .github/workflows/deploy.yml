@@ -25,5 +25,5 @@ jobs:
             export PATH=$PATH:/usr/local/go/bin &&
             go build &&
             rm -f main.log &&
-            MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" pm2 restart televito-parser --update-env --exp-backoff-restart-delay=100
+            MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" pm2 restart televito-parser --update-env
 
