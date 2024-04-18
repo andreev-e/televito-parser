@@ -140,12 +140,13 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 
 	stmt, err := db.Prepare("INSERT INTO locations (address, lat, lng, created_at, updated_at) " +
 		"VALUES (?,?,?, NOW(), NOW());")
+	defer stmt.Close()
 	if err != nil {
 		return location, err
 	}
-	defer stmt.Close()
 
 	res, err := stmt.Exec(address, lat, lng)
+	defer stmt.Close()
 	if err != nil {
 		return location, err
 	}
@@ -261,15 +262,16 @@ func CreateUser(contact uint64, lang string, currency string, locationId uint16)
 
 	stmt, err := db.Prepare("INSERT INTO users (contact, lang, currency, location_id, created_at, updated_at, timezone) " +
 		"VALUES (?,?,?,?, NOW(), NOW(), 'Asia/Tbilisi');")
+	defer stmt.Close()
 	if err != nil {
 		return user, err
 	}
 
 	res, err := stmt.Exec(contact, lang, currency, locationId)
+	defer stmt.Close()
 	if err != nil {
 		return user, err
 	}
-	defer stmt.Close()
 
 	userId, _ := res.LastInsertId()
 
@@ -312,16 +314,16 @@ func CreateCategory(name string, parentId uint16) (Models.Category, error) {
 
 	stmt, err := db.Prepare("INSERT INTO categories (name, parent_id, created_at, updated_at) " +
 		"VALUES (?,?, NOW(), NOW());")
-
+	defer stmt.Close()
 	if err != nil {
 		return category, err
 	}
 
 	res, err := stmt.Exec(name, parentId)
+	defer stmt.Close()
 	if err != nil {
 		return category, err
 	}
-	defer stmt.Close()
 
 	categoryId, err := res.LastInsertId()
 	if err != nil {
