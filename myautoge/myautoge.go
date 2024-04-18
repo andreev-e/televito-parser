@@ -158,7 +158,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 	}
 
 	log.Println("Bulk updating " + strconv.Itoa(len(addsToUpdate)))
-	Dbmethods.UpdateAddsBulk(addsToUpdate)
+	//Dbmethods.UpdateAddsBulk(addsToUpdate) - fails app
 
 	if (len(addSources)) != 0 {
 		var addsToInsert = make([]Main.Add, 0)
