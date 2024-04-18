@@ -222,11 +222,10 @@ func InsertAddsBulk(adds []Models.Add) {
 	query := "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) VALUES " + strings.Join(valueStrings, ", ")
 
 	// Execute the batch insert query
-	rows, err := db.Query(query, valueArgs...)
+	_, err := db.Query(query, valueArgs...)
 	if err != nil {
 		log.Println(err)
 	}
-	defer rows.Close()
 }
 
 func FindUserByPhone(phone uint64) (Models.User, error) {
