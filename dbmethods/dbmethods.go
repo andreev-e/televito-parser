@@ -87,7 +87,10 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 	}
 	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
 
-	_, _ = RunQuery("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
+	_, err := RunQuery("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
@@ -186,20 +189,17 @@ func UpdateAddsBulk(adds []Models.Add) {
 		return
 	}
 
-	var valueStrings []string
+	var valueStrings string
 	var valueArgs []interface{}
 
 	for _, add := range adds {
-		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		valueStrings += "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?;"
 
 		valueArgs = append(valueArgs, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
 	}
 
-	// Construct the query with multiple value strings
-	query := "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
-
 	// Execute the batch insert query
-	_, err := RunQuery(query, valueArgs...)
+	_, err := RunQuery(valueStrings, valueArgs...)
 	if err != nil {
 		log.Println(err)
 	}
@@ -212,7 +212,7 @@ func UpdateAddsBulk(adds []Models.Add) {
 //}
 
 func InsertAddsBulk(adds []Models.Add) {
-	log.Println("Bulk Items inserting " + strconv.Itoa(len(adds)))
+	log.Println("Bulk inserting " + strconv.Itoa(len(adds)))
 
 	if len(adds) == 0 {
 		return
