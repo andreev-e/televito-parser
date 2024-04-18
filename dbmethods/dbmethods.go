@@ -243,7 +243,7 @@ func InsertAddsBulk(adds []Models.Add) {
 
 func FindUserByPhone(phone uint64) (Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE contact = ?"
+	var query = "SELECT * FROM users WHERE contact = \"?\""
 	rows, err := RunQuery(query, phone)
 	if err != nil {
 		return user, err
