@@ -174,13 +174,13 @@ func queryLocation(address string) (Location, error) {
 	return storeLocation(address, 0, 0)
 }
 
-//func UpdateAdd(add Add) {
-//	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
-//	_, err := RunQuery(query, add.user_id, add.name, add.description, add.price, add.price_usd, add.currency, add.categoryId, add.location_id, add.images, add.id)
-//	if err != nil {
-//		log.Println(add.id)
-//	}
-//}
+func UpdateAdd(add Models.Add) {
+	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
+	_, err := RunQuery(query, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
+	if err != nil {
+		log.Println(err)
+	}
+}
 
 func UpdateAddsBulk(adds []Models.Add) {
 	log.Println("Bulk updating " + strconv.Itoa(len(adds)))
@@ -189,19 +189,8 @@ func UpdateAddsBulk(adds []Models.Add) {
 		return
 	}
 
-	var valueStrings string
-	var valueArgs []interface{}
-
 	for _, add := range adds {
-		valueStrings += "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?;"
-
-		valueArgs = append(valueArgs, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
-	}
-
-	// Execute the batch insert query
-	_, err := RunQuery(valueStrings, valueArgs...)
-	if err != nil {
-		log.Println(err)
+		UpdateAdd(add)
 	}
 }
 
