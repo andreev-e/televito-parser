@@ -228,7 +228,7 @@ func InsertAddsBulk(adds []Models.Add) {
 
 func FindUserByPhone(phone uint64) (Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE contact = \"?\""
+	var query = "SELECT * FROM users WHERE contact = \"?\" LIMIT 1"
 	rows, err := db.Query(query, phone)
 	if err != nil {
 		return user, err
@@ -278,7 +278,7 @@ func CreateUser(contact uint64, lang string, currency string, locationId uint16)
 
 func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category, error) {
 	var category Models.Category
-	var query = "SELECT * FROM categories WHERE contact = ? AND parent_id = ? AND deleted_at IS NULL"
+	var query = "SELECT * FROM categories WHERE contact = ? AND parent_id = ? AND deleted_at IS NULL LIMIT 1"
 	rows, err := db.Query(query, name, parentId)
 	if err != nil {
 		return category, err
