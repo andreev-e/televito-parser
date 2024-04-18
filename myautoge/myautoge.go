@@ -129,7 +129,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 	Dbmethods.RestoreTrashedAdds(carIds, class)
 
 	existingAdds, err := Dbmethods.GetExistingAdds(carIds, class)
-	log.Print(class+" already exists: ", existingAdds, " of ", len(carIds))
+	log.Print(class+" already exists: ", len(existingAdds), " of ", len(carIds))
 	if err != nil {
 		log.Println(err)
 		return page - 1, err
@@ -137,23 +137,24 @@ func ParsePage(page uint16, class string) (uint16, error) {
 
 	var addsToUpdate = make([]Main.Add, 0)
 	for id, add := range existingAdds {
-		category, err := getCategory(addSources[id])
+		convertedId := uint32(id)
+		category, err := getCategory(addSources[convertedId])
 		if err != nil {
 			continue
 		}
 
-		add.Name = getName(addSources[id])
-		add.Description = getDescription(addSources[id])
-		add.Price = addSources[id].Price
-		add.Price_usd = addSources[id].PriceUSD
-		add.Currency = getCurrency(addSources[id])
-		add.Location_id = Dbmethods.GetLocationByAddress(getAddress(addSources[id].LocationId, ""), 0, 0)
+		add.Name = getName(addSources[convertedId])
+		add.Description = getDescription(addSources[convertedId])
+		add.Price = addSources[convertedId].Price
+		add.Price_usd = addSources[convertedId].PriceUSD
+		add.Currency = getCurrency(addSources[convertedId])
+		add.Location_id = Dbmethods.GetLocationByAddress(getAddress(addSources[convertedId].LocationId, ""), 0, 0)
 		add.CategoryId = category.Id
-		add.Images = getImagesUrlList(addSources[id], addSources[id].CarID)
+		add.Images = getImagesUrlList(addSources[convertedId], addSources[convertedId].CarID)
 
 		addsToUpdate = append(addsToUpdate, add)
 
-		delete(addSources, id)
+		delete(addSources, convertedId)
 	}
 
 	log.Println("Bulk updating " + strconv.Itoa(len(addsToUpdate)))

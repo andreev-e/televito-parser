@@ -40,7 +40,7 @@ func CloseDB() {
 	}
 }
 
-func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.Add, error) {
+func GetExistingAdds(sourceIds []uint32, sourceClass string) ([]Models.Add, error) {
 	var sourceIdsString string
 	for _, sourceId := range sourceIds {
 		sourceIdsString = sourceIdsString + strconv.Itoa(int(sourceId)) + ","
@@ -53,7 +53,7 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 	}
 	//defer rows.Close() - OK!
 
-	result := make(map[uint32]Models.Add, 0)
+	result := []Models.Add{}
 	for rows.Next() {
 		var add Models.Add
 
@@ -78,12 +78,12 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 		)
 
 		if err == nil {
-			result[add.Source_id] = add
+			result = append(result, add)
 		}
 	}
 
 	if err := rows.Err(); err != nil {
-		return result, err
+		return nil, err
 	}
 
 	return result, nil
