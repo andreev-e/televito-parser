@@ -134,7 +134,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 		return page - 1, err
 	}
 
-	var addsToUpdate []Main.Add
+	var addsToUpdate = make([]Main.Add, 0)
 	for id, add := range existingAdds {
 		category, err := getCategory(addSources[id])
 		if err != nil {
