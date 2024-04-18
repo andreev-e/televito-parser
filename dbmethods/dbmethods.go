@@ -71,15 +71,9 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 			&add.Source_id,
 		)
 
-		if err != nil {
-			return result, err
+		if err == nil {
+			result[add.Source_id] = add
 		}
-
-		result[add.Source_id] = add
-	}
-
-	if err := rows.Err(); err != nil {
-		return result, err
 	}
 
 	return result, nil
