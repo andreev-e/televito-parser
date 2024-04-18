@@ -21,8 +21,8 @@ func InitDB() {
 		log.Println(err)
 	}
 
-	db.SetMaxOpenConns(100)
-	db.SetMaxIdleConns(50)
+	//db.SetMaxOpenConns(100)
+	//db.SetMaxIdleConns(50)
 }
 
 func GetDbStats() sql.DBStats {
