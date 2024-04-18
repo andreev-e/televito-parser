@@ -43,15 +43,18 @@ func CloseDB() {
 func GetExistingAdds(sourceIds []uint32, sourceClass string) ([]Models.Add, error) {
 	var sourceIdsString string
 	placeholders := make([]string, len(sourceIds))
+	args := make([]interface{}, len(sourceIds)+1)
 	for i, sourceId := range sourceIds {
 		sourceIdsString = sourceIdsString + strconv.Itoa(int(sourceId)) + ","
 		placeholders[i] = "?"
+		args[i] = sourceId
 	}
 	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
 	placeholdersString := strings.Join(placeholders, ",")
+	args[len(args)-1] = sourceClass
 
 	var query = "SELECT * FROM adds WHERE source_id IN (" + placeholdersString + ") AND source_class = ?"
-	rows, err := db.Query(query, sourceIds, sourceClass)
+	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
