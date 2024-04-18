@@ -25,6 +25,10 @@ func InitDB() {
 	db.SetMaxIdleConns(50)
 }
 
+func GetDbStats() sql.DBStats {
+	return db.Stats()
+}
+
 func CloseDB() {
 	if db != nil {
 		err := db.Close()
