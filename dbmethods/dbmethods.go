@@ -190,24 +190,44 @@ func UpdateAddsBulk(adds []Models.Add) {
 		return
 	}
 
-	// Prepare placeholders for multiple updates
-	var placeholders []string
-	var values []interface{}
-
+	var ids []string
+	var userIDs, names, descriptions, prices, priceUsds, currencies, categoryIds, locationIds, images []string
 	for _, add := range adds {
-		// Construct placeholder for each update
-		placeholder := "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-		placeholders = append(placeholders, placeholder)
-		// Collect values for all updates
-		values = append(values, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
+		ids = append(ids, strconv.Itoa(int(add.Id)))
+		userIDs = append(userIDs, fmt.Sprintf("WHEN %d THEN %d", add.Id, add.User_id))
+		names = append(names, fmt.Sprintf("WHEN %d THEN '%s'", add.Id, add.Name))
+		descriptions = append(descriptions, fmt.Sprintf("WHEN %d THEN '%s'", add.Id, add.Description))
+		prices = append(prices, fmt.Sprintf("WHEN %d THEN %f", add.Id, add.Price))
+		priceUsds = append(priceUsds, fmt.Sprintf("WHEN %d THEN %f", add.Id, add.Price_usd))
+		currencies = append(currencies, fmt.Sprintf("WHEN %d THEN '%s'", add.Id, add.Currency))
+		categoryIds = append(categoryIds, fmt.Sprintf("WHEN %d THEN %d", add.Id, add.CategoryId))
+		locationIds = append(locationIds, fmt.Sprintf("WHEN %d THEN %d", add.Id, add.Location_id))
+		images = append(images, fmt.Sprintf("WHEN %d THEN '%s'", add.Id, add.Images))
 	}
 
-	// Construct the bulk update query
-	query := "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
-	query = fmt.Sprintf("%s VALUES %s", query, strings.Join(placeholders, ","))
+	query := fmt.Sprintf(`UPDATE adds SET 
+		user_id = CASE id %s END,
+		name = CASE id %s END,
+		description = CASE id %s END,
+		price = CASE id %s END,
+		price_usd = CASE id %s END,
+		currency = CASE id %s END,
+		category_id = CASE id %s END,
+		location_id = CASE id %s END,
+		images = CASE id %s END
+	WHERE id IN (%s)`,
+		strings.Join(userIDs, " "),
+		strings.Join(names, " "),
+		strings.Join(descriptions, " "),
+		strings.Join(prices, " "),
+		strings.Join(priceUsds, " "),
+		strings.Join(currencies, " "),
+		strings.Join(categoryIds, " "),
+		strings.Join(locationIds, " "),
+		strings.Join(images, " "),
+		strings.Join(ids, ", "))
 
-	// Execute the bulk update query
-	_, err := RunQuery(query, values...)
+	_, err := RunQuery(query)
 	if err != nil {
 		log.Println(err)
 	}
