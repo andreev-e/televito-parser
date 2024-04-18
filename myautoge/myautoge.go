@@ -158,32 +158,34 @@ func ParsePage(page uint16, class string) (uint16, error) {
 
 	//Dbmethods.UpdateAddsBulk(addsToUpdate)
 
-	var addsToInsert = make([]Main.Add, 0)
-	for id, addSource := range addSources {
-		category, err := getCategory(addSources[id])
-		if err != nil {
-			continue
+	if (len(addSources)) == 0 {
+		var addsToInsert = make([]Main.Add, 0)
+		for id, addSource := range addSources {
+			category, err := getCategory(addSources[id])
+			if err != nil {
+				continue
+			}
+
+			var locationId = Dbmethods.GetLocationByAddress(getAddress(addSource.LocationId, ""), 0, 0)
+			add := Main.Add{
+				Name:         getName(addSource),
+				Description:  getDescription(addSource),
+				Price:        addSource.Price,
+				Price_usd:    addSource.PriceUSD,
+				Currency:     getCurrency(addSource),
+				Location_id:  locationId,
+				CategoryId:   category.Id,
+				Source_class: class,
+				Source_id:    id,
+				User_id:      getUser(addSource, locationId).Id,
+				Images:       getImagesUrlList(addSource, addSource.CarID),
+			}
+
+			addsToInsert = append(addsToInsert, add)
 		}
 
-		var locationId = Dbmethods.GetLocationByAddress(getAddress(addSource.LocationId, ""), 0, 0)
-		add := Main.Add{
-			Name:         getName(addSource),
-			Description:  getDescription(addSource),
-			Price:        addSource.Price,
-			Price_usd:    addSource.PriceUSD,
-			Currency:     getCurrency(addSource),
-			Location_id:  locationId,
-			CategoryId:   category.Id,
-			Source_class: class,
-			Source_id:    id,
-			User_id:      getUser(addSource, locationId).Id,
-			Images:       getImagesUrlList(addSource, addSource.CarID),
-		}
-
-		addsToInsert = append(addsToInsert, add)
+		Dbmethods.InsertAddsBulk(addsToInsert)
 	}
-
-	Dbmethods.InsertAddsBulk(addsToInsert)
 
 	return page, nil
 }
