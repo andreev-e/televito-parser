@@ -185,7 +185,8 @@ func queryLocation(address string) (Location, error) {
 
 func UpdateAdd(add Models.Add) {
 	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
-	_, err := RunQuery(query, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
+	rows, err := RunQuery(query, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
+	rows.Close()
 	if err != nil {
 		log.Println(err)
 	}
