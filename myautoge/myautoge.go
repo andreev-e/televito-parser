@@ -157,8 +157,6 @@ func ParsePage(page uint16, class string) (uint16, error) {
 
 	Dbmethods.UpdateAddsBulk(addsToUpdate)
 
-	log.Println(strconv.Itoa(len(addSources)) + " Items adding")
-
 	var addsToInsert []Main.Add
 	for id, addSource := range addSources {
 		category, err := getCategory(addSources[id])

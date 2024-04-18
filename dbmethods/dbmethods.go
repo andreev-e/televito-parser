@@ -184,6 +184,8 @@ func queryLocation(address string) (Location, error) {
 //}
 
 func UpdateAddsBulk(adds []Models.Add) {
+	log.Println("Bulk Items adding" + strconv.Itoa(len(adds)))
+
 	if len(adds) == 0 {
 		return
 	}
@@ -201,7 +203,10 @@ func UpdateAddsBulk(adds []Models.Add) {
 	query := "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
 
 	// Execute the batch insert query
-	_, _ = RunQuery(query, valueArgs...)
+	_, err := RunQuery(query, valueArgs...)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 //func InsertAdd(add Add) {
@@ -228,7 +233,10 @@ func InsertAddsBulk(adds []Models.Add) {
 	query := "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) VALUES " + strings.Join(valueStrings, ", ")
 
 	// Execute the batch insert query
-	_, _ = RunQuery(query, valueArgs...)
+	_, err := RunQuery(query, valueArgs...)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func FindUserByPhone(phone uint64) (Models.User, error) {
