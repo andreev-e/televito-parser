@@ -85,7 +85,7 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) ([]Models.Add, erro
 		)
 
 		if err == nil {
-			result = append(result, add)
+			result[add.Source_id] = add
 		}
 	}
 
