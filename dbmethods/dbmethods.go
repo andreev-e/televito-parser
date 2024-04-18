@@ -3,6 +3,7 @@ package Dbmethods
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"os"
@@ -189,8 +190,26 @@ func UpdateAddsBulk(adds []Models.Add) {
 		return
 	}
 
+	// Prepare placeholders for multiple updates
+	var placeholders []string
+	var values []interface{}
+
 	for _, add := range adds {
-		UpdateAdd(add)
+		// Construct placeholder for each update
+		placeholder := "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+		placeholders = append(placeholders, placeholder)
+		// Collect values for all updates
+		values = append(values, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
+	}
+
+	// Construct the bulk update query
+	query := "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
+	query = fmt.Sprintf("%s VALUES %s", query, strings.Join(placeholders, ","))
+
+	// Execute the bulk update query
+	_, err := RunQuery(query, values...)
+	if err != nil {
+		log.Println(err)
 	}
 }
 
