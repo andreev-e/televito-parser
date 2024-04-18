@@ -46,7 +46,7 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 		sourceIdsString = sourceIdsString + strconv.Itoa(int(sourceId)) + ","
 	}
 
-	rows, err := RunQuery("SELECT * FROM adds WHERE source_id IN (?) AND source_class = (?)", sourceIdsString, sourceClass)
+	rows, err := RunQuery("SELECT * FROM adds WHERE source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
 	if err != nil {
 		return nil, err
 	}
