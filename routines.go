@@ -8,6 +8,10 @@ import (
 )
 
 func reparseFirstPages(class string) {
+	defer func() {
+		log.Println("reparseFirstPages ended " + class)
+	}()
+
 	for {
 		_, err := Myautoge.ParsePage(1, class)
 		if err != nil {
@@ -18,6 +22,10 @@ func reparseFirstPages(class string) {
 }
 
 func reparseAllPages(class string) {
+	defer func() {
+		log.Println("reparseFirstPages ended " + class)
+	}()
+
 	var page uint16
 	storedPage, err := readRedisKey("tvito_database_tvito_cache_:" + class + "_last_page")
 	log.Println("tvito_database_tvito_cache_:"+class+"_last_page: ", storedPage)

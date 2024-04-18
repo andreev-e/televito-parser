@@ -27,9 +27,9 @@ func main() {
 	defer Dbmethods.CloseDB()
 
 	go reparseFirstPages("MyAutoGe")
-	//go reparseFirstPages("MyAutoGeRent")
+	go reparseFirstPages("MyAutoGeRent")
 	go reparseAllPages("MyAutoGe")
-	//go reparseAllPages("MyAutoGeRent")
+	go reparseAllPages("MyAutoGeRent")
 	for {
 		log.Print(".")
 		time.Sleep(30 * time.Second)
