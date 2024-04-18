@@ -129,7 +129,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 	Dbmethods.RestoreTrashedAdds(carIds, class)
 
 	existingAdds, err := Dbmethods.GetExistingAdds(carIds, class)
-	log.Print("Already exists: ", len(carIds), len(existingAdds))
+	log.Print("Already exists: ", len(existingAdds), "of", len(carIds))
 	if err != nil {
 		log.Println(err)
 		return page - 1, err
