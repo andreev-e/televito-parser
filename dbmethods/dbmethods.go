@@ -146,7 +146,7 @@ func storeLocation(address string, lat float32, lng float32) (Location, error) {
 	}
 
 	res, err := stmt.Exec(address, lat, lng)
-	defer stmt.Close()
+	stmt.Close()
 	if err != nil {
 		return location, err
 	}
@@ -268,7 +268,7 @@ func CreateUser(contact uint64, lang string, currency string, locationId uint16)
 	}
 
 	res, err := stmt.Exec(contact, lang, currency, locationId)
-	defer stmt.Close()
+	stmt.Close()
 	if err != nil {
 		return user, err
 	}
@@ -320,7 +320,7 @@ func CreateCategory(name string, parentId uint16) (Models.Category, error) {
 	}
 
 	res, err := stmt.Exec(name, parentId)
-	defer stmt.Close()
+	stmt.Close()
 	if err != nil {
 		return category, err
 	}
