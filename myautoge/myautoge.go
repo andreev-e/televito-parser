@@ -156,6 +156,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 		delete(addSources, id)
 	}
 
+	log.Println("Bulk updating " + strconv.Itoa(len(addsToUpdate)))
 	Dbmethods.UpdateAddsBulk(addsToUpdate)
 
 	if (len(addSources)) != 0 {
@@ -184,6 +185,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 			addsToInsert = append(addsToInsert, add)
 		}
 
+		log.Println("Bulk going to insert " + strconv.Itoa(len(addsToInsert)))
 		//Dbmethods.InsertAddsBulk(addsToInsert)
 	}
 

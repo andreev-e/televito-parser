@@ -54,8 +54,6 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 	}
 	defer rows.Close()
 
-	log.Println(rows)
-
 	result := make(map[uint32]Models.Add, 0)
 	for rows.Next() {
 		var add Models.Add
@@ -185,8 +183,6 @@ func UpdateAdd(add Models.Add) {
 }
 
 func UpdateAddsBulk(adds []Models.Add) {
-	log.Println("Bulk updating " + strconv.Itoa(len(adds)))
-
 	if len(adds) == 0 {
 		return
 	}
@@ -203,8 +199,6 @@ func UpdateAddsBulk(adds []Models.Add) {
 //}
 
 func InsertAddsBulk(adds []Models.Add) {
-	log.Println("Bulk inserting " + strconv.Itoa(len(adds)))
-
 	if len(adds) == 0 {
 		return
 	}
