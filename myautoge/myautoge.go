@@ -156,7 +156,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 		delete(addSources, id)
 	}
 
-	//Dbmethods.UpdateAddsBulk(addsToUpdate)
+	Dbmethods.UpdateAddsBulk(addsToUpdate)
 
 	if (len(addSources)) != 0 {
 		var addsToInsert = make([]Main.Add, 0)
@@ -184,7 +184,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 			addsToInsert = append(addsToInsert, add)
 		}
 
-		Dbmethods.InsertAddsBulk(addsToInsert)
+		//Dbmethods.InsertAddsBulk(addsToInsert)
 	}
 
 	return page, nil
