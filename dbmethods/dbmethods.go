@@ -53,7 +53,7 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) ([]Models.Add, erro
 	}
 	//defer rows.Close() - OK!
 
-	result := []Models.Add{}
+	var result []Models.Add
 	for rows.Next() {
 		var add Models.Add
 
