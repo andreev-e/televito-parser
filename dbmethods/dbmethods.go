@@ -40,7 +40,7 @@ func CloseDB() {
 	}
 }
 
-func GetExistingAdds(sourceIds []uint32, sourceClass string) ([]Models.Add, error) {
+func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.Add, error) {
 	var sourceIdsString string
 	placeholders := make([]string, len(sourceIds))
 	args := make([]interface{}, len(sourceIds)+1)
@@ -60,7 +60,7 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) ([]Models.Add, erro
 	}
 	//defer rows.Close() - OK!
 
-	var result []Models.Add
+	var result = make(map[uint32]Models.Add)
 	for rows.Next() {
 		var add Models.Add
 

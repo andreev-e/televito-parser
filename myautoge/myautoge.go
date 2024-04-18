@@ -137,24 +137,23 @@ func ParsePage(page uint16, class string) (uint16, error) {
 
 	var addsToUpdate = make([]Main.Add, 0)
 	for id, add := range existingAdds {
-		convertedId := uint32(id)
-		category, err := getCategory(addSources[convertedId])
+		category, err := getCategory(addSources[id])
 		if err != nil {
 			continue
 		}
 
-		add.Name = getName(addSources[convertedId])
-		add.Description = getDescription(addSources[convertedId])
-		add.Price = addSources[convertedId].Price
-		add.Price_usd = addSources[convertedId].PriceUSD
-		add.Currency = getCurrency(addSources[convertedId])
-		add.Location_id = Dbmethods.GetLocationByAddress(getAddress(addSources[convertedId].LocationId, ""), 0, 0)
+		add.Name = getName(addSources[id])
+		add.Description = getDescription(addSources[id])
+		add.Price = addSources[id].Price
+		add.Price_usd = addSources[id].PriceUSD
+		add.Currency = getCurrency(addSources[id])
+		add.Location_id = Dbmethods.GetLocationByAddress(getAddress(addSources[id].LocationId, ""), 0, 0)
 		add.CategoryId = category.Id
-		add.Images = getImagesUrlList(addSources[convertedId], addSources[convertedId].CarID)
+		add.Images = getImagesUrlList(addSources[id], addSources[id].CarID)
 
 		addsToUpdate = append(addsToUpdate, add)
 
-		delete(addSources, convertedId)
+		delete(addSources, id)
 	}
 
 	log.Println("Bulk updating " + strconv.Itoa(len(addsToUpdate)))
