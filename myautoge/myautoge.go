@@ -107,7 +107,10 @@ var AutoAppData AppData
 func ParsePage(page uint16, class string) (uint16, error) {
 	loadData()
 
-	addSources := loadPage(page, class)
+	addSources, err := loadPage(page, class)
+	if err != nil {
+		return page, err
+	}
 
 	if len(addSources) == 0 {
 		log.Println(class + ": 0 Items - resetting page to 1")
@@ -331,7 +334,7 @@ func getName(addSource AddSource) string {
 	return strings.Join(name, " ")
 }
 
-func loadPage(page uint16, class string) map[uint32]AddSource {
+func loadPage(page uint16, class string) (map[uint32]AddSource, error) {
 	var forRent = "0"
 	if class == "MyAutoGeRent" {
 		forRent = "1"
@@ -346,13 +349,16 @@ func loadPage(page uint16, class string) map[uint32]AddSource {
 		"Locs":          "2.3.4.7.15.30.113.52.37.36.38.39.40.31.5.41.44.47.48.53.54.8.16.6.14.13.12.11.10.9.55.56.57.59.58.61.62.63.64.66.71.72.74.75.76.77.78.80.81.82.83.84.85.86.87.88.91.96.97.101.109",
 	}
 
-	body := Http.LoadUrl(url+"/ka/products/", params)
+	body, err := Http.LoadUrl(url+"/ka/products/", params)
+	if err != nil {
+		return nil, err
+	}
 
 	var responseObject Response
-	err := json.Unmarshal(body, &responseObject)
+	err = json.Unmarshal(body, &responseObject)
 	if err != nil {
 		log.Printf("Error parsing JSON: %v\n", err)
-		return nil
+		return nil, err
 	}
 
 	result := make(map[uint32]AddSource)
@@ -361,16 +367,16 @@ func loadPage(page uint16, class string) map[uint32]AddSource {
 		result[addSource.CarID] = addSource
 	}
 
-	return result
+	return result, nil
 }
 
 func loadData() {
 	once.Do(func() {
-		body := Http.LoadUrl(url+"/appdata/other_en.json", nil)
+		body, err := Http.LoadUrl(url+"/appdata/other_en.json", nil)
 
 		var loadedAppData LoadedAppData
 
-		err := json.Unmarshal(body, &loadedAppData)
+		err = json.Unmarshal(body, &loadedAppData)
 		if err != nil {
 			log.Printf("Error parsing JSON: %v\n", err)
 			panic("Can't load myAutoGe appdata")

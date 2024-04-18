@@ -3,11 +3,10 @@ package Http
 import (
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
-func LoadUrl(url string, params map[string]string) []byte {
+func LoadUrl(url string, params map[string]string) ([]byte, error) {
 	fullUrl := url + "?"
 	for key, value := range params {
 		fullUrl += key + "=" + value + "&"
@@ -16,8 +15,7 @@ func LoadUrl(url string, params map[string]string) []byte {
 	response, err := http.Get(fullUrl)
 
 	if err != nil {
-		log.Printf("Error fetching data: %v\n", err)
-		return nil
+		return nil, err
 	}
 
 	defer func(Body io.ReadCloser) {
@@ -29,9 +27,8 @@ func LoadUrl(url string, params map[string]string) []byte {
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.Printf("Error reading response body: %v\n", err)
-		return nil
+		return nil, err
 	}
 
-	return body
+	return body, nil
 }
