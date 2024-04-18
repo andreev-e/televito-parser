@@ -58,7 +58,7 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 	if err != nil {
 		return nil, err
 	}
-	//defer rows.Close() - OK!
+	defer rows.Close()
 
 	var result = make(map[uint32]Models.Add)
 	for rows.Next() {
