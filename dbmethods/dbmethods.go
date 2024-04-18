@@ -98,10 +98,11 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 	}
 	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
 
-	rows, err := RunQuery("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
-	rows.Close()
+	rows, err := db.Query("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
 	if err != nil {
 		log.Println(err)
+	} else {
+		rows.Close()
 	}
 }
 
@@ -111,7 +112,6 @@ func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
 	}
 
 	rows, err := db.Query(query, params...)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
