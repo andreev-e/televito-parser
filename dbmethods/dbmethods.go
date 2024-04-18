@@ -111,6 +111,7 @@ func RunQuery(query string, params ...interface{}) (*sql.Rows, error) {
 	}
 
 	rows, err := db.Query(query, params...)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
