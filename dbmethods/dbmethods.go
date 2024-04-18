@@ -54,6 +54,8 @@ func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.
 	}
 	defer rows.Close()
 
+	log.Println(rows)
+
 	result := make(map[uint32]Models.Add, 0)
 	for rows.Next() {
 		var add Models.Add
