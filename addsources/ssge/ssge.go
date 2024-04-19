@@ -279,7 +279,8 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	err = json.Unmarshal(body, &responseObject)
 	if err != nil {
 		log.Printf("Error parsing user JSON: %v\n", err)
-		log.Printf("Raw response body: %s\n", string(body))
+		log.Printf(string(body))
+		token = ""
 		return user, err
 	}
 
