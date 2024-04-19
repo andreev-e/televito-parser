@@ -150,7 +150,7 @@ func ParsePage(page uint16) (uint16, error) {
 
 		add.Name = getName(addSources[id])
 		add.Description = getDescription(addSources[id])
-		add.Price = int(addSources[id].Price.PriceGeo)
+		add.Price = addSources[id].Price.PriceGeo
 		add.Price_usd = float32(addSources[id].Price.PriceUSD)
 		add.Currency = "GEL"
 		add.Location_id = Dbmethods.GetLocationByAddress(getAddress(addSources[id]), 0, 0)
@@ -183,7 +183,7 @@ func ParsePage(page uint16) (uint16, error) {
 			add := Main.Add{
 				Name:         getName(addSource),
 				Description:  getDescription(addSource),
-				Price:        int(addSource.Price.PriceGeo),
+				Price:        addSource.Price.PriceGeo,
 				Price_usd:    float32(addSource.Price.PriceUSD),
 				Currency:     "GEL",
 				Location_id:  locationId,
@@ -409,7 +409,8 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	if err != nil {
 		log.Printf("Error parsing JSON: %v\n", err)
 		log.Printf("Raw response body: %s\n", string(body))
-		log.Println(token)
+		token = ""
+
 		return nil, err
 	}
 
