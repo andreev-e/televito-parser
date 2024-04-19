@@ -421,8 +421,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 		return nil, err
 	}
 
-	log.Printf("Raw response body: %s\n", body)
-	log.Printf("Token: %s\n", token)
+	log.Println(responseObject.AddSources)
 
 	result := make(map[uint32]AddSource)
 
