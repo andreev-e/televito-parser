@@ -3,7 +3,6 @@ package Dbmethods
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"os"
@@ -299,14 +298,20 @@ func FindUserByPhone(phone string) (Models.User, error) {
 
 func FindUserBySourceId(sourceId string) (Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE source_id = ?"
-	row := db.QueryRow(query, sourceId)
-	err := row.Scan(&user.Id)
-	if err == sql.ErrNoRows {
-		return user, fmt.Errorf("user with source ID %s not found", sourceId)
-	}
+	var query = "SELECT * FROM users WHERE source_id = \"?\" LIMIT 1"
+	rows, err := db.Query(query, sourceId)
 	if err != nil {
 		return user, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&user.Id, &user.Contact)
+		if err != nil {
+			return user, err
+		}
+
+		return user, nil
 	}
 	return user, nil
 }
