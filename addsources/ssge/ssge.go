@@ -16,17 +16,17 @@ import (
 )
 
 type Address struct {
-	MunicipalityId    interface{} `json:"municipalityId"`
-	MunicipalityTitle interface{} `json:"municipalityTitle"`
-	CityId            int         `json:"cityId"`
-	CityTitle         string      `json:"cityTitle"`
-	DistrictId        int         `json:"districtId"`
-	DistrictTitle     string      `json:"districtTitle"`
-	SubdistrictId     int         `json:"subdistrictId"`
-	SubdistrictTitle  string      `json:"subdistrictTitle"`
-	StreetId          int         `json:"streetId"`
-	StreetTitle       string      `json:"streetTitle"`
-	StreetNumber      string      `json:"streetNumber"`
+	//MunicipalityId    interface{} `json:"municipalityId"`
+	//MunicipalityTitle interface{} `json:"municipalityTitle"`
+	CityId           int    `json:"cityId"`
+	CityTitle        string `json:"cityTitle"`
+	DistrictId       int    `json:"districtId"`
+	DistrictTitle    string `json:"districtTitle"`
+	SubdistrictId    int    `json:"subdistrictId"`
+	SubdistrictTitle string `json:"subdistrictTitle"`
+	StreetId         int    `json:"streetId"`
+	StreetTitle      string `json:"streetTitle"`
+	StreetNumber     string `json:"streetNumber"`
 }
 
 type Price struct {
