@@ -15,81 +15,76 @@ import (
 	Main "televito-parser/models"
 )
 
+type Response struct {
+	TotalCount int         `json:"totalCount"`
+	AddSources []AddSource `json:"realStateItemModel"`
+}
+
+type AddSource struct {
+	ApplicationID            int         `json:"applicationId"`
+	Status                   int         `json:"status"`
+	Address                  Address     `json:"address"`
+	Price                    Price       `json:"price"`
+	AppImages                []AppImage  `json:"appImages"`
+	ImageCount               int         `json:"imageCount"`
+	Title                    string      `json:"title"`
+	ShortTitle               string      `json:"shortTitle"`
+	Description              string      `json:"description"`
+	TotalArea                float64     `json:"totalArea"`
+	TotalAmountOfFloor       float64     `json:"totalAmountOfFloor"`
+	FloorNumber              string      `json:"floorNumber"`
+	NumberOfBedrooms         int         `json:"numberOfBedrooms"`
+	Type                     int         `json:"type"`
+	DealType                 int         `json:"dealType"`
+	IsMovedUp                bool        `json:"isMovedUp"`
+	IsHighlighted            bool        `json:"isHighlighted"`
+	IsUrgent                 bool        `json:"isUrgent"`
+	VIPStatus                int         `json:"vipStatus"`
+	HasRemoteViewing         bool        `json:"hasRemoteViewing"`
+	VideoLink                interface{} `json:"videoLink"`
+	CommercialRealEstateType int         `json:"commercialRealEstateType"`
+	OrderDate                string      `json:"orderDate"`
+	CreateDate               string      `json:"createDate"`
+	UserID                   string      `json:"userId"`
+	IsFavorite               bool        `json:"isFavorite"`
+	IsForUkraine             bool        `json:"isForUkraine"`
+	IsHidden                 bool        `json:"isHidden"`
+	IsUserHidden             bool        `json:"isUserHidden"`
+	IsConfirmed              bool        `json:"isConfirmed"`
+	DetailURL                string      `json:"detailUrl"`
+	HomeID                   interface{} `json:"homeId"`
+	UserInfo                 interface{} `json:"userInfo"`
+	SimilarityGroup          interface{} `json:"similarityGroup"`
+}
+
 type Address struct {
-	//MunicipalityId    interface{} `json:"municipalityId"`
-	//MunicipalityTitle interface{} `json:"municipalityTitle"`
-	CityId           int    `json:"cityId"`
-	CityTitle        string `json:"cityTitle"`
-	DistrictId       int    `json:"districtId"`
-	DistrictTitle    string `json:"districtTitle"`
-	SubdistrictId    int    `json:"subdistrictId"`
-	SubdistrictTitle string `json:"subdistrictTitle"`
-	StreetId         int    `json:"streetId"`
-	StreetTitle      string `json:"streetTitle"`
-	StreetNumber     string `json:"streetNumber"`
+	MunicipalityID    interface{} `json:"municipalityId"`
+	MunicipalityTitle interface{} `json:"municipalityTitle"`
+	CityID            int         `json:"cityId"`
+	CityTitle         string      `json:"cityTitle"`
+	DistrictID        int         `json:"districtId"`
+	DistrictTitle     string      `json:"districtTitle"`
+	SubdistrictID     int         `json:"subdistrictId"`
+	SubdistrictTitle  string      `json:"subdistrictTitle"`
+	StreetID          int         `json:"streetId"`
+	StreetTitle       string      `json:"streetTitle"`
+	StreetNumber      string      `json:"streetNumber"`
 }
 
 type Price struct {
 	PriceGeo     int `json:"priceGeo"`
 	UnitPriceGeo int `json:"unitPriceGeo"`
-	PriceUsd     int `json:"priceUsd"`
-	UnitPriceUsd int `json:"unitPriceUsd"`
+	PriceUSD     int `json:"priceUsd"`
+	UnitPriceUSD int `json:"unitPriceUsd"`
 	CurrencyType int `json:"currencyType"`
 }
 
-type Image struct {
+type AppImage struct {
 	FileName  string `json:"fileName"`
 	IsMain    bool   `json:"isMain"`
 	Is360     bool   `json:"is360"`
 	OrderNo   int    `json:"orderNo"`
 	ImageType int    `json:"imageType"`
-}
-
-type UserInfo struct {
-	Name     string `json:"name"`
-	Image    string `json:"image"`
-	UserType int    `json:"userType"`
-}
-
-type AddSource struct {
-	ApplicationId int `json:"applicationId"`
-	//Status                   int         `json:"status"`
-	Address   Address `json:"address"`
-	Price     Price   `json:"price"`
-	AppImages []Image `json:"appImages"`
-	//ImageCount               int         `json:"imageCount"`
-	//Title                    string      `json:"title"`
-	//ShortTitle               string      `json:"shortTitle"`
-	Description        string  `json:"description"`
-	TotalArea          float64 `json:"totalArea"`
-	TotalAmountOfFloor float64 `json:"totalAmountOfFloor"`
-	FloorNumber        string  `json:"floorNumber"`
-	NumberOfBedrooms   int     `json:"numberOfBedrooms"`
-	Type               uint8   `json:"type"`
-	DealType           uint8   `json:"dealType"`
-	//IsMovedUp                bool        `json:"isMovedUp"`
-	//IsHighlighted            bool        `json:"isHighlighted"`
-	//IsUrgent                 bool        `json:"isUrgent"`
-	//VipStatus                int         `json:"vipStatus"`
-	//HasRemoteViewing         bool        `json:"hasRemoteViewing"`
-	//VideoLink                interface{} `json:"videoLink"`
-	//CommercialRealEstateType int         `json:"commercialRealEstateType"`
-	//OrderDate                string      `json:"orderDate"`
-	//CreateDate               string      `json:"createDate"`
-	UserId string `json:"userId"`
-	//IsFavorite               bool        `json:"isFavorite"`
-	//IsForUkraine             bool        `json:"isForUkraine"`
-	//IsHidden                 bool        `json:"isHidden"`
-	//IsUserHidden             bool        `json:"isUserHidden"`
-	//IsConfirmed              bool        `json:"isConfirmed"`
-	//DetailUrl                string      `json:"detailUrl"`
-	//HomeId                   interface{} `json:"homeId"`
-	UserInfo UserInfo `json:"userInfo"`
-}
-
-type Response struct {
-	TotalCount int         `json:"totalCount"`
-	AddSources []AddSource `json:"realStateItemModel"`
 }
 
 const (
@@ -102,13 +97,13 @@ const (
 
 var (
 	token    = ""
-	addTypes = map[uint8]string{
-		uint8(1): "Аренда",
-		uint8(2): "Залог",
-		uint8(3): "Посуточно",
-		uint8(4): "Продажа",
+	addTypes = map[int]string{
+		1: "Аренда",
+		2: "Залог",
+		3: "Посуточно",
+		4: "Продажа",
 	}
-	estateTypes = map[uint8]string{
+	estateTypes = map[int]string{
 		1: "дача",
 		2: "гостиница",
 		3: "участок",
@@ -157,7 +152,7 @@ func ParsePage(page uint16) (uint16, error) {
 		add.Name = getName(addSources[id])
 		add.Description = getDescription(addSources[id])
 		add.Price = int(addSources[id].Price.PriceGeo)
-		add.Price_usd = float32(addSources[id].Price.PriceUsd)
+		add.Price_usd = float32(addSources[id].Price.PriceUSD)
 		add.Currency = "GEL"
 		add.Location_id = Dbmethods.GetLocationByAddress(getAddress(addSources[id]), 0, 0)
 		add.CategoryId = category.Id
@@ -188,7 +183,7 @@ func ParsePage(page uint16) (uint16, error) {
 				Name:         getName(addSource),
 				Description:  getDescription(addSource),
 				Price:        int(addSource.Price.PriceGeo),
-				Price_usd:    float32(addSource.Price.PriceUsd),
+				Price_usd:    float32(addSource.Price.PriceUSD),
 				Currency:     "GEL",
 				Location_id:  locationId,
 				CategoryId:   category.Id,
@@ -228,7 +223,7 @@ type UserResponse struct {
 func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	var user Main.User
 	var err error
-	user, err = Dbmethods.FindUserBySourceId(addSource.UserId)
+	user, err = Dbmethods.FindUserBySourceId(addSource.UserID)
 	if err == nil {
 		return user, nil
 	}
@@ -240,7 +235,7 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 
 	requestBodyData := map[string]interface{}{
 		"pageSize": "0", // Assuming pageSize is defined elsewhere
-		"userId":   addSource.UserId,
+		"userId":   addSource.UserID,
 		"page":     "1",
 	}
 
@@ -424,7 +419,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	result := make(map[uint32]AddSource)
 
 	for _, addSource := range responseObject.AddSources {
-		result[uint32(addSource.ApplicationId)] = addSource
+		result[uint32(addSource.ApplicationID)] = addSource
 	}
 
 	return result, nil
