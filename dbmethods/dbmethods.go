@@ -277,32 +277,32 @@ func InsertAddsBulk(adds []Models.Add) {
 //	}
 //}
 
-func FindUserByPhone(phone string) (*Models.User, error) {
+func FindUserByPhone(phone string) (Models.User, error) {
 	var user Models.User
 	var query = "SELECT * FROM users WHERE contact = ?"
 	row := db.QueryRow(query, phone)
 	err := row.Scan(&user.Id, &user.Contact)
 	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("user with phone %s not found", phone)
+		return user, fmt.Errorf("user with phone %s not found", phone)
 	}
 	if err != nil {
-		return nil, err
+		return user, err
 	}
-	return &user, nil
+	return user, nil
 }
 
-func FindUserBySourceId(sourceId string) (*Models.User, error) {
+func FindUserBySourceId(sourceId string) (Models.User, error) {
 	var user Models.User
 	var query = "SELECT * FROM users WHERE source_id = ?"
 	row := db.QueryRow(query, sourceId)
 	err := row.Scan(&user.Id, &user.Contact)
 	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("user with source ID %s not found", sourceId)
+		return user, fmt.Errorf("user with source ID %s not found", sourceId)
 	}
 	if err != nil {
-		return nil, err
+		return user, err
 	}
-	return &user, nil
+	return user, nil
 }
 
 func CreateUser(contact string, lang string, currency string, locationId uint16, sourceId interface{}) (Models.User, error) {
