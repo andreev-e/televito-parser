@@ -119,7 +119,6 @@ var (
 )
 
 func ParsePage(page uint16) (uint16, error) {
-
 	addSources, err := loadPage(page)
 	if err != nil {
 		return page, err
@@ -369,9 +368,9 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	}
 
 	requestBodyData := map[string]interface{}{
+		"page":     page,
 		"pageSize": pageSize,
 		"order":    1,
-		"page":     page,
 	}
 
 	requestBodyJSON, err := json.Marshal(requestBodyData)
@@ -386,8 +385,6 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 		"Authorization":   "Bearer " + token,
 		"Content-Type":    "application/json",
 		"User-Agent":      "PostmanRuntime/7.29.4",
-		"OS":              "web",
-		"Referer":         "https://home.ss.ge/",
 	}
 
 	client := &http.Client{}
