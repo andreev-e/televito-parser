@@ -169,6 +169,7 @@ func ParsePage(page uint16) (uint16, error) {
 		for id, addSource := range addSources {
 			category, err := getCategory(addSources[id])
 			if err != nil {
+				log.Println(err)
 				continue
 			}
 
