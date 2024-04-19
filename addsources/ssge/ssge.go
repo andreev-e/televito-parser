@@ -280,7 +280,7 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	if err != nil {
 		log.Printf("Error parsing user JSON: %v\n", err)
 		log.Printf(string(body))
-		token = ""
+		log.Println(token)
 		return user, err
 	}
 
