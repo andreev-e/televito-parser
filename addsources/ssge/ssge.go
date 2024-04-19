@@ -16,7 +16,6 @@ import (
 )
 
 type Response struct {
-	TotalCount int         `json:"totalCount"`
 	AddSources []AddSource `json:"realStateItemModel"`
 }
 
@@ -58,33 +57,33 @@ type AddSource struct {
 }
 
 type Address struct {
-	MunicipalityID    interface{} `json:"municipalityId"`
-	MunicipalityTitle interface{} `json:"municipalityTitle"`
-	CityID            int         `json:"cityId"`
-	CityTitle         string      `json:"cityTitle"`
-	DistrictID        int         `json:"districtId"`
-	DistrictTitle     string      `json:"districtTitle"`
-	SubdistrictID     int         `json:"subdistrictId"`
-	SubdistrictTitle  string      `json:"subdistrictTitle"`
-	StreetID          int         `json:"streetId"`
-	StreetTitle       string      `json:"streetTitle"`
-	StreetNumber      string      `json:"streetNumber"`
+	//MunicipalityID    interface{} `json:"municipalityId"`
+	//MunicipalityTitle interface{} `json:"municipalityTitle"`
+	//CityID            int         `json:"cityId"`
+	CityTitle string `json:"cityTitle"`
+	//DistrictID        int         `json:"districtId"`
+	//DistrictTitle     string      `json:"districtTitle"`
+	//SubdistrictID     int         `json:"subdistrictId"`
+	//SubdistrictTitle  string      `json:"subdistrictTitle"`
+	//StreetID          int         `json:"streetId"`
+	//StreetTitle       string      `json:"streetTitle"`
+	//StreetNumber      string      `json:"streetNumber"`
 }
 
 type Price struct {
-	PriceGeo     int `json:"priceGeo"`
-	UnitPriceGeo int `json:"unitPriceGeo"`
-	PriceUSD     int `json:"priceUsd"`
-	UnitPriceUSD int `json:"unitPriceUsd"`
-	CurrencyType int `json:"currencyType"`
+	PriceGeo int `json:"priceGeo"`
+	//UnitPriceGeo int `json:"unitPriceGeo"`
+	PriceUSD int `json:"priceUsd"`
+	//UnitPriceUSD int `json:"unitPriceUsd"`
+	//CurrencyType int `json:"currencyType"`
 }
 
 type AppImage struct {
-	FileName  string `json:"fileName"`
-	IsMain    bool   `json:"isMain"`
-	Is360     bool   `json:"is360"`
-	OrderNo   int    `json:"orderNo"`
-	ImageType int    `json:"imageType"`
+	FileName string `json:"fileName"`
+	//IsMain    bool   `json:"isMain"`
+	//Is360     bool   `json:"is360"`
+	//OrderNo   int    `json:"orderNo"`
+	//ImageType int    `json:"imageType"`
 }
 
 const (
@@ -196,6 +195,7 @@ func ParsePage(page uint16) (uint16, error) {
 			addsToInsert = append(addsToInsert, add)
 		}
 
+		log.Println(addsToInsert)
 		Dbmethods.InsertAddsBulk(addsToInsert)
 	}
 
