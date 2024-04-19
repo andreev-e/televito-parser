@@ -421,7 +421,8 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 		return nil, err
 	}
 
-	log.Println(responseObject)
+	log.Println(responseObject.Status)
+	log.Println(responseObject.AddSources)
 
 	result := make(map[uint32]AddSource)
 
