@@ -28,12 +28,12 @@ func main() {
 	defer logFile.Close()
 	defer Dbmethods.CloseDB()
 
-	//go reparseFirstPages("MyAutoGe")
-	//go reparseFirstPages("MyAutoGeRent")
-	//go reparseFirstPages("SSGe")
-	//
-	//go reparseAllPages("MyAutoGe")
-	//go reparseAllPages("MyAutoGeRent")
+	go reparseFirstPages("MyAutoGe")
+	go reparseFirstPages("MyAutoGeRent")
+	go reparseFirstPages("SSGe")
+
+	go reparseAllPages("MyAutoGe")
+	go reparseAllPages("MyAutoGeRent")
 	go reparseAllPages("SSGe")
 	for {
 		log.Print(Dbmethods.GetDbStats())
