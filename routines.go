@@ -40,6 +40,11 @@ func reparseAllPages(class string) {
 		page = 1
 	}
 
+	err = writeRedisKey("_tvito_database_tvito_cache_:"+class+"_last_page", strconv.Itoa(int(page)))
+	if err != nil {
+		log.Println("Error writing last page to redis: ", err)
+	}
+
 	var delay time.Duration
 	switch class {
 	case "MyAutoGe":
