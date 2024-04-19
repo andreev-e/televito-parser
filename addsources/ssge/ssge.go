@@ -370,9 +370,9 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	}
 
 	requestBodyData := map[string]interface{}{
-		"pageSize": strconv.Itoa(pageSize), // Assuming pageSize is defined elsewhere
-		"order":    "1",
-		"page":     strconv.Itoa(int(page)), // Assuming page is defined elsewhere
+		"pageSize": pageSize,
+		"order":    1,
+		"page":     page,
 	}
 
 	requestBodyJSON, err := json.Marshal(requestBodyData)
