@@ -276,7 +276,7 @@ func InsertAddsBulk(adds []Models.Add) {
 //	}
 //}
 
-func FindUserByPhone(phone uint64) (Models.User, error) {
+func FindUserByPhone(phone string) (Models.User, error) {
 	var user Models.User
 	var query = "SELECT * FROM users WHERE contact = \"?\" LIMIT 1"
 	rows, err := db.Query(query, phone)
@@ -297,7 +297,28 @@ func FindUserByPhone(phone uint64) (Models.User, error) {
 	return user, errors.New("user not found")
 }
 
-func CreateUser(contact uint64, lang string, currency string, locationId uint16) (Models.User, error) {
+func FindUserBySourceId(userId string) (Models.User, error) {
+	var user Models.User
+	var query = "SELECT * FROM users WHERE source_id = \"?\" LIMIT 1"
+	rows, err := db.Query(query, userId)
+	if err != nil {
+		return user, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&user.Id, &user.Contact)
+		if err != nil {
+			return user, err
+		}
+
+		return user, nil
+	}
+
+	return user, errors.New("user not found")
+}
+
+func CreateUser(contact string, lang string, currency string, locationId uint16) (Models.User, error) {
 	var user Models.User
 
 	if db == nil {

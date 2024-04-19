@@ -3,12 +3,14 @@ package Myautoge
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"sync"
 	"televito-parser/dbmethods"
-	Http "televito-parser/http"
 	Main "televito-parser/models"
 )
 
@@ -100,7 +102,7 @@ type GearType struct {
 
 const url = "https://api2.myauto.ge"
 const NumberOfPhotos uint = 5
-const MainCategory = 12
+const mainCategory = 12
 
 var AutoAppData AppData
 
@@ -200,9 +202,9 @@ func getImagesUrlList(source AddSource, id uint32) string {
 }
 
 func getUser(addSource AddSource, locationId uint16) Main.User {
-	var user, err = Dbmethods.FindUserByPhone(addSource.ClientPhone)
+	var user, err = Dbmethods.FindUserByPhone(strconv.FormatUint(addSource.ClientPhone, 10))
 	if err != nil {
-		user, err = Dbmethods.CreateUser(addSource.ClientPhone, "ge", getCurrency(addSource), locationId)
+		user, err = Dbmethods.CreateUser(strconv.FormatUint(addSource.ClientPhone, 10), "ge", getCurrency(addSource), locationId)
 	}
 	return user
 }
@@ -232,9 +234,9 @@ func getCategory(addSource AddSource) (Main.Category, error) {
 	var subCategory Main.Category
 	var err = fmt.Errorf("Get category error")
 
-	category, err = Dbmethods.FindCategoryByNameAndParent(manufacturer.Name, MainCategory)
+	category, err = Dbmethods.FindCategoryByNameAndParent(manufacturer.Name, mainCategory)
 	if err != nil {
-		createdCategory, err := Dbmethods.CreateCategory(manufacturer.Name, MainCategory)
+		createdCategory, err := Dbmethods.CreateCategory(manufacturer.Name, mainCategory)
 		if err != nil {
 			return Main.Category{}, err
 		}
@@ -338,6 +340,7 @@ func loadPage(page uint16, class string) (map[uint32]AddSource, error) {
 	if class == "MyAutoGeRent" {
 		forRent = "1"
 	}
+
 	params := map[string]string{
 		"ForRent":       forRent,
 		"CurrencyID":    "1",
@@ -348,7 +351,25 @@ func loadPage(page uint16, class string) (map[uint32]AddSource, error) {
 		"Locs":          "2.3.4.7.15.30.113.52.37.36.38.39.40.31.5.41.44.47.48.53.54.8.16.6.14.13.12.11.10.9.55.56.57.59.58.61.62.63.64.66.71.72.74.75.76.77.78.80.81.82.83.84.85.86.87.88.91.96.97.101.109",
 	}
 
-	body, err := Http.LoadUrl(url+"/ka/products/", params)
+	fullUrl := url + "/ka/products/?"
+	for key, value := range params {
+		fullUrl += key + "=" + value + "&"
+	}
+
+	response, err := http.Get(fullUrl)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(response.Body)
+
+	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -371,7 +392,23 @@ func loadPage(page uint16, class string) (map[uint32]AddSource, error) {
 
 func loadData() {
 	once.Do(func() {
-		body, err := Http.LoadUrl(url+"/appdata/other_en.json", nil)
+		response, err := http.Get(url + "/appdata/other_en.json")
+
+		if err != nil {
+			return
+		}
+
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+
+			}
+		}(response.Body)
+
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return
+		}
 
 		var loadedAppData LoadedAppData
 

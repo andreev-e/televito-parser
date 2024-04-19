@@ -32,7 +32,7 @@ type Category struct {
 
 type User struct {
 	Id          int
-	Contact     uint64
+	Contact     interface{}
 	Lang        string
 	Currency    string
 	Location_id uint16

@@ -3,7 +3,8 @@ package main
 import (
 	"log"
 	"strconv"
-	Myautoge "televito-parser/myautoge"
+	"televito-parser/addsources/myautoge"
+	Ssge "televito-parser/addsources/ssge"
 	"time"
 )
 
@@ -13,7 +14,14 @@ func reparseFirstPages(class string) {
 	}()
 
 	for {
-		_, err := Myautoge.ParsePage(1, class)
+		err := error(nil)
+		switch class {
+		case "MyAutoGe":
+			_, err = Myautoge.ParsePage(1, class)
+		case Ssge.Class:
+			_, err = Ssge.ParsePage(1)
+		}
+
 		if err != nil {
 			log.Println("Error parsing first pages: ", err)
 		}
