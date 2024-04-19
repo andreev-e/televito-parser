@@ -89,7 +89,6 @@ type AddSource struct {
 }
 
 type Response struct {
-	Status     interface{} `json:"status"`
 	AddSources []AddSource `json:"realStateItemModel"`
 }
 
@@ -423,7 +422,6 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 
 	log.Println(body)
 	log.Println(responseObject)
-	log.Println(responseObject.Status)
 	log.Println(responseObject.AddSources)
 
 	result := make(map[uint32]AddSource)
