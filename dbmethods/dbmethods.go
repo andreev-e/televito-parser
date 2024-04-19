@@ -302,7 +302,7 @@ func FindUserBySourceId(sourceId string) (Models.User, error) {
 	var query = "SELECT * FROM users WHERE source_id = '?' LIMIT 1"
 	rows, err := db.Query(query, sourceId)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 		return user, err
 	}
 	defer rows.Close()
