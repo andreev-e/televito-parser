@@ -228,7 +228,6 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	if err == nil {
 		return user, nil
 	}
-	log.Println("User not found by source id: ", addSource.UserID)
 
 	token, err = getToken()
 	if err != nil {
