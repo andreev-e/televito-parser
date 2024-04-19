@@ -275,7 +275,7 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	body, err := io.ReadAll(response.Body)
 
 	var responseObject UserResponse
-	err = json.Unmarshal(body, &response)
+	err = json.Unmarshal(body, &responseObject)
 	if err != nil {
 		log.Printf("Error parsing JSON: %v\n", err)
 		return user, err
@@ -404,7 +404,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	}
 
 	var responseObject Response
-	err = json.Unmarshal(body, &response)
+	err = json.Unmarshal(body, &responseObject)
 	if err != nil {
 		log.Printf("Error parsing JSON: %v\n", err)
 		log.Printf("Raw response body: %s\n", body)
