@@ -412,8 +412,6 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 		return nil, err
 	}
 
-	log.Println(response.Body)
-
 	var responseObject Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -423,7 +421,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 		return nil, err
 	}
 
-	//log.Println(body)
+	log.Println(body)
 	log.Println(responseObject)
 	log.Println(token)
 
