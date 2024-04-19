@@ -40,12 +40,19 @@ func reparseAllPages(class string) {
 		page = 1
 	}
 
+	var delay time.Duration
+	switch class {
+	case "MyAutoGe":
+		delay = 5 * time.Second
+	case "MyAutoGeRent":
+		delay = 20 * time.Second
+	}
 	for {
 		page, err = Myautoge.ParsePage(page, class)
 		if err != nil {
 			log.Println("Error parsing "+class+", p "+strconv.Itoa(int(page)), err)
-			time.Sleep(30 * time.Second)
+			time.Sleep(60 * time.Second)
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(delay)
 	}
 }

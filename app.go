@@ -32,6 +32,6 @@ func main() {
 	go reparseAllPages("MyAutoGeRent")
 	for {
 		log.Print(Dbmethods.GetDbStats())
-		time.Sleep(10 * time.Second)
+		time.Sleep(1 * time.Minute)
 	}
 }
