@@ -228,7 +228,6 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 
 	requestBodyJSON, err := json.Marshal(requestBodyData)
 	if err != nil {
-		fmt.Println("Error marshaling JSON:", err)
 		return user, err
 	}
 
@@ -379,7 +378,6 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 
 	requestBodyJSON, err := json.Marshal(requestBodyData)
 	if err != nil {
-		fmt.Println("Error marshaling JSON:", err)
 		return nil, err
 	}
 
@@ -417,6 +415,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		log.Printf("Error parsing JSON: %v\n", err)
+		log.Printf(string(body))
 		return nil, err
 	}
 
