@@ -17,19 +17,8 @@ import (
 
 type AddSource struct {
 	ApplicationId uint32 `json:"applicationId"`
-	Status        uint8  `json:"status"`
 	Address       struct {
-		MunicipalityId    interface{} `json:"municipalityId"`
-		MunicipalityTitle interface{} `json:"municipalityTitle"`
-		CityId            uint16      `json:"cityId"`
-		CityTitle         string      `json:"cityTitle"`
-		DistrictId        uint16      `json:"districtId"`
-		DistrictTitle     string      `json:"districtTitle"`
-		SubdistrictId     uint16      `json:"subdistrictId"`
-		SubdistrictTitle  string      `json:"subdistrictTitle"`
-		StreetId          uint16      `json:"streetId"`
-		StreetTitle       string      `json:"streetTitle"`
-		StreetNumber      string      `json:"streetNumber"`
+		CityTitle string `json:"cityTitle"`
 	} `json:"address"`
 	Price struct {
 		PriceGeo     uint32 `json:"priceGeo"`
