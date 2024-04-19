@@ -175,6 +175,7 @@ func ParsePage(page uint16) (uint16, error) {
 			var locationId = Dbmethods.GetLocationByAddress(getAddress(addSource), 0, 0)
 			user, err := getUser(addSource, locationId)
 			if err != nil {
+				log.Println(err)
 				continue
 			}
 
@@ -195,7 +196,6 @@ func ParsePage(page uint16) (uint16, error) {
 			addsToInsert = append(addsToInsert, add)
 		}
 
-		log.Println(addsToInsert)
 		Dbmethods.InsertAddsBulk(addsToInsert)
 	}
 
