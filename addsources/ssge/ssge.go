@@ -419,7 +419,6 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	if err != nil {
 		log.Printf("Error parsing JSON: %v\n", err)
 		log.Printf(string(body))
-		log.Printf(string(body))
 		return nil, err
 	}
 

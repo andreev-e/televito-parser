@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func main() {
+func init() {
 	logFile, err := os.Create("main.log")
 	if err != nil {
 		log.Println("Error creating log file:", err)
@@ -25,6 +25,9 @@ func main() {
 
 	Dbmethods.InitDB()
 	defer Dbmethods.CloseDB()
+}
+
+func main() {
 
 	//go reparseFirstPages("MyAutoGe")
 	//go reparseFirstPages("MyAutoGeRent")
