@@ -92,7 +92,7 @@ const (
 	url                = "https://api-gateway.ss.ge/v1/RealEstate/"
 	numberOfPhotos int = 5
 	mainCategory       = 1
-	pageSize           = 1
+	pageSize           = 30
 )
 
 var (
@@ -407,14 +407,10 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	err = json.Unmarshal(body, &responseObject)
 	if err != nil {
 		log.Printf("Error parsing JSON: %v\n", err)
-		log.Printf("Raw response body: %s\n", body)
+		log.Printf("Raw response body: %s\n", string(body))
 		log.Println(token)
 		return nil, err
 	}
-
-	log.Println(string(body))
-	log.Println(responseObject)
-	log.Println(token)
 
 	result := make(map[uint32]AddSource)
 
