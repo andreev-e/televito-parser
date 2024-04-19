@@ -417,7 +417,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 		return nil, err
 	}
 
-	log.Println(body[:100])
+	log.Println(body[:10])
 	log.Println(responseObject)
 	log.Println(token)
 
