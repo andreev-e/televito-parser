@@ -385,7 +385,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 		"Accept-Language": "ru",
 		"Authorization":   "Bearer " + token,
 		"Content-Type":    "application/json",
-		"User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537." + strconv.Itoa(rand.Intn(40)),
+		"User-Agent":      "PostmanRuntime/7.29.4",
 		"OS":              "web",
 		"Referer":         "https://home.ss.ge/",
 	}
