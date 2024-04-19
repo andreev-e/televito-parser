@@ -409,11 +409,16 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 
 	var responseObject Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		log.Printf("Error parsing JSON: %v\n", err)
+		log.Printf(string(body))
 		log.Printf(string(body))
 		return nil, err
 	}
