@@ -235,9 +235,9 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	}
 
 	requestBodyData := map[string]interface{}{
-		"pageSize": "0", // Assuming pageSize is defined elsewhere
+		"pageSize": 0, // Assuming pageSize is defined elsewhere
 		"userId":   addSource.UserID,
-		"page":     "1",
+		"page":     1,
 	}
 
 	requestBodyJSON, err := json.Marshal(requestBodyData)
@@ -278,7 +278,7 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	var responseObject UserResponse
 	err = json.Unmarshal(body, &responseObject)
 	if err != nil {
-		log.Printf("Error parsing user JSON: %v\n", err)
+		log.Printf("Error parsing user %v JSON: %v\n", addSource.UserID, err)
 		log.Printf(string(body))
 		log.Println(token)
 		return user, err
