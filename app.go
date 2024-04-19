@@ -8,12 +8,15 @@ import (
 )
 
 func init() {
-	logFile, err := os.Create("main.log")
+	Dbmethods.InitDB()
+}
+
+func main() {
+	logFile, err := os.Create("1.log")
 	if err != nil {
 		log.Println("Error creating log file:", err)
 		return
 	}
-	defer logFile.Close()
 
 	log.SetOutput(logFile)
 
@@ -22,19 +25,15 @@ func init() {
 			log.Println("Recovered from panic:", r)
 		}
 	}()
-
-	Dbmethods.InitDB()
+	defer logFile.Close()
 	defer Dbmethods.CloseDB()
-}
 
-func main() {
-
-	go reparseFirstPages("MyAutoGe")
-	go reparseFirstPages("MyAutoGeRent")
-	go reparseFirstPages("SSGe")
-
-	go reparseAllPages("MyAutoGe")
-	go reparseAllPages("MyAutoGeRent")
+	//go reparseFirstPages("MyAutoGe")
+	//go reparseFirstPages("MyAutoGeRent")
+	//go reparseFirstPages("SSGe")
+	//
+	//go reparseAllPages("MyAutoGe")
+	//go reparseAllPages("MyAutoGeRent")
 	go reparseAllPages("SSGe")
 	for {
 		log.Print(Dbmethods.GetDbStats())
