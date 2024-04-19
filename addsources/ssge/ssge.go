@@ -420,7 +420,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 		return nil, err
 	}
 
-	log.Println(body)
+	//log.Println(body)
 	log.Println(responseObject)
 	log.Println(responseObject.AddSources)
 
