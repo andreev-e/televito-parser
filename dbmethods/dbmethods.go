@@ -278,7 +278,7 @@ func InsertAddsBulk(adds []Models.Add) {
 
 func FindUserByPhone(phone string) (Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE contact = \"?\" LIMIT 1"
+	var query = "SELECT * FROM users WHERE contact = ? LIMIT 1"
 	rows, err := db.Query(query, phone)
 	if err != nil {
 		return user, err
@@ -299,7 +299,7 @@ func FindUserByPhone(phone string) (Models.User, error) {
 
 func FindUserBySourceId(userId string) (Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE source_id = \"?\" LIMIT 1"
+	var query = "SELECT * FROM users WHERE source_id = ? LIMIT 1"
 	rows, err := db.Query(query, userId)
 	if err != nil {
 		return user, err
