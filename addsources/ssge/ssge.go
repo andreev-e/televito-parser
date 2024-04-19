@@ -235,9 +235,9 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	}
 
 	requestBodyData := map[string]interface{}{
-		"pageSize": 0, // Assuming pageSize is defined elsewhere
-		"userId":   addSource.UserID,
 		"page":     1,
+		"pageSize": 1,
+		"userId":   addSource.UserID,
 	}
 
 	requestBodyJSON, err := json.Marshal(requestBodyData)
