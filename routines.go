@@ -26,8 +26,11 @@ func reparseAllPages(class string) {
 		log.Println("reparseAllPages ended " + class)
 	}()
 
+	redisClient := NewRedisClient()
+	defer redisClient.Close()
+
 	var page uint16
-	storedPage, err := readRedisKey("tvito_database_tvito_cache_:" + class + "_last_page")
+	storedPage, err := redisClient.ReadKey("tvito_database_tvito_cache_:" + class + "_last_page")
 	log.Println("tvito_database_tvito_cache_:"+class+"_last_page: ", storedPage)
 	if err == nil {
 		pageInt, err := strconv.Atoi(storedPage)
@@ -40,7 +43,7 @@ func reparseAllPages(class string) {
 		page = 1
 	}
 
-	err = writeRedisKey("_tvito_database_tvito_cache_:"+class+"_last_page", strconv.Itoa(int(page)))
+	err = redisClient.WriteKey("_tvito_database_tvito_cache_:"+class+"_last_page", strconv.Itoa(int(page)))
 	if err != nil {
 		log.Println("Error writing last page to redis: ", err)
 	}

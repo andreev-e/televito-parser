@@ -5,17 +5,28 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-func readRedisKey(key string) (string, error) {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
-		Password: "",
-		DB:       1,
-	})
-	defer rdb.Close()
+type RedisClient struct {
+	client *redis.Client
+}
 
+func NewRedisClient() *RedisClient {
+	return &RedisClient{
+		client: redis.NewClient(&redis.Options{
+			Addr:     "127.0.0.1:6379",
+			Password: "",
+			DB:       1,
+		}),
+	}
+}
+
+func (rc *RedisClient) Close() {
+	rc.client.Close()
+}
+
+func (rc *RedisClient) ReadKey(key string) (string, error) {
 	ctx := context.Background()
 
-	val, err := rdb.Get(ctx, key).Result()
+	val, err := rc.client.Get(ctx, key).Result()
 	if err != nil {
 		return "", err
 	}
@@ -23,16 +34,9 @@ func readRedisKey(key string) (string, error) {
 	return val, nil
 }
 
-func writeRedisKey(key string, value string) error {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
-		Password: "",
-		DB:       1,
-	})
-	defer rdb.Close()
-
+func (rc *RedisClient) WriteKey(key string, value string) error {
 	ctx := context.Background()
 
-	err := rdb.Set(ctx, key, value, 0).Err()
+	err := rc.client.Set(ctx, key, value, 0).Err()
 	return err
 }
