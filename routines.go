@@ -16,7 +16,7 @@ func reparseFirstPages(class string) {
 	for {
 		err := error(nil)
 		switch class {
-		case "MyAutoGe":
+		case "MyAutoGe", "MyAutoGeRent":
 			_, err = Myautoge.ParsePage(1, class)
 		case Ssge.Class:
 			_, err = Ssge.ParsePage(1)
@@ -62,9 +62,17 @@ func reparseAllPages(class string) {
 		delay = 5 * time.Second
 	case "MyAutoGeRent":
 		delay = 20 * time.Second
+	case Ssge.Class:
+		delay = 1 * time.Second
 	}
 	for {
-		page, err = Myautoge.ParsePage(page, class)
+		switch class {
+		case "MyAutoGe", "MyAutoGeRent":
+			page, err = Myautoge.ParsePage(page, class)
+		case Ssge.Class:
+			page, err = Ssge.ParsePage(page)
+		}
+
 		if err != nil {
 			log.Println("Error parsing "+class+", p "+strconv.Itoa(int(page)), err)
 			time.Sleep(60 * time.Second)
