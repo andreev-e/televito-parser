@@ -279,14 +279,20 @@ func InsertAddsBulk(adds []Models.Add) {
 
 func FindUserByPhone(phone string) (Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE contact = ?"
-	row := db.QueryRow(query, phone)
-	err := row.Scan(&user.Id)
-	if err == sql.ErrNoRows {
-		return user, fmt.Errorf("user with phone %s not found", phone)
-	}
+	var query = "SELECT * FROM users WHERE contact = \"?\" LIMIT 1"
+	rows, err := db.Query(query, phone)
 	if err != nil {
 		return user, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&user.Id, &user.Contact)
+		if err != nil {
+			return user, err
+		}
+
+		return user, nil
 	}
 	return user, nil
 }
