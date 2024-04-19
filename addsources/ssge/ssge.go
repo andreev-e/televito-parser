@@ -381,10 +381,9 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	requestBody := bytes.NewReader(requestBodyJSON)
 
 	headers := map[string]string{
-		"Accept-Language": "ru",
+		"Accept-Language": "ka",
 		"Authorization":   "Bearer " + token,
 		"Content-Type":    "application/json",
-		"User-Agent":      "PostmanRuntime/7.29.4",
 	}
 
 	client := &http.Client{}
