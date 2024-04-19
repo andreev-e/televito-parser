@@ -15,58 +15,77 @@ import (
 	Main "televito-parser/models"
 )
 
+type Address struct {
+	MunicipalityId    interface{} `json:"municipalityId"`
+	MunicipalityTitle interface{} `json:"municipalityTitle"`
+	CityId            int         `json:"cityId"`
+	CityTitle         string      `json:"cityTitle"`
+	DistrictId        int         `json:"districtId"`
+	DistrictTitle     string      `json:"districtTitle"`
+	SubdistrictId     int         `json:"subdistrictId"`
+	SubdistrictTitle  string      `json:"subdistrictTitle"`
+	StreetId          int         `json:"streetId"`
+	StreetTitle       string      `json:"streetTitle"`
+	StreetNumber      string      `json:"streetNumber"`
+}
+
+type Price struct {
+	PriceGeo     int `json:"priceGeo"`
+	UnitPriceGeo int `json:"unitPriceGeo"`
+	PriceUsd     int `json:"priceUsd"`
+	UnitPriceUsd int `json:"unitPriceUsd"`
+	CurrencyType int `json:"currencyType"`
+}
+
+type Image struct {
+	FileName  string `json:"fileName"`
+	IsMain    bool   `json:"isMain"`
+	Is360     bool   `json:"is360"`
+	OrderNo   int    `json:"orderNo"`
+	ImageType int    `json:"imageType"`
+}
+
+type UserInfo struct {
+	Name     string `json:"name"`
+	Image    string `json:"image"`
+	UserType int    `json:"userType"`
+}
+
 type AddSource struct {
-	ApplicationId uint32 `json:"applicationId"`
-	Address       struct {
-		CityTitle string `json:"cityTitle"`
-	} `json:"address"`
-	Price struct {
-		PriceGeo     uint32 `json:"priceGeo"`
-		UnitPriceGeo uint8  `json:"unitPriceGeo"`
-		PriceUSD     uint32 `json:"priceUsd"`
-		UnitPriceUSD uint8  `json:"unitPriceUsd"`
-		CurrencyType uint8  `json:"currencyType"`
-	} `json:"price"`
-	AppImages []struct {
-		FileName  string `json:"fileName"`
-		IsMain    bool   `json:"isMain"`
-		Is360     bool   `json:"is360"`
-		OrderNo   uint8  `json:"orderNo"`
-		ImageType uint8  `json:"imageType"`
-	} `json:"appImages"`
-	ImageCount           uint8       `json:"imageCount"`
-	Title                string      `json:"title"`
-	ShortTitle           string      `json:"shortTitle"`
-	Description          string      `json:"description"`
-	TotalArea            float32     `json:"totalArea"`
-	TotalAmountOfFloor   float32     `json:"totalAmountOfFloor"`
-	FloorNumber          string      `json:"floorNumber"`
-	NumberOfBedrooms     uint8       `json:"numberOfBedrooms"`
-	Type                 uint8       `json:"type"`
-	DealType             uint8       `json:"dealType"`
-	IsMovedUp            bool        `json:"isMovedUp"`
-	IsHighlighted        bool        `json:"isHighlighted"`
-	IsUrgent             bool        `json:"isUrgent"`
-	VipStatus            uint8       `json:"vipStatus"`
-	HasRemoteViewing     bool        `json:"hasRemoteViewing"`
-	VideoLink            string      `json:"videoLink"`
-	CommercialRealEstate uint8       `json:"commercialRealEstateType"`
-	OrderDate            string      `json:"orderDate"`
-	CreateDate           string      `json:"createDate"`
-	UserId               string      `json:"userId"`
-	IsFavorite           bool        `json:"isFavorite"`
-	IsForUkraine         bool        `json:"isForUkraine"`
-	IsHidden             bool        `json:"isHidden"`
-	IsUserHidden         bool        `json:"isUserHidden"`
-	IsConfirmed          bool        `json:"isConfirmed"`
-	DetailUrl            string      `json:"detailUrl"`
-	HomeId               interface{} `json:"homeId"`
-	UserInfo             struct {
-		Name     string `json:"name"`
-		Image    string `json:"image"`
-		UserType uint8  `json:"userType"`
-	} `json:"userInfo"`
-	SimilarityGroup interface{} `json:"similarityGroup"`
+	ApplicationId            int         `json:"applicationId"`
+	Status                   int         `json:"status"`
+	Address                  Address     `json:"address"`
+	Price                    Price       `json:"price"`
+	AppImages                []Image     `json:"appImages"`
+	ImageCount               int         `json:"imageCount"`
+	Title                    string      `json:"title"`
+	ShortTitle               string      `json:"shortTitle"`
+	Description              string      `json:"description"`
+	TotalArea                float64     `json:"totalArea"`
+	TotalAmountOfFloor       float64     `json:"totalAmountOfFloor"`
+	FloorNumber              string      `json:"floorNumber"`
+	NumberOfBedrooms         int         `json:"numberOfBedrooms"`
+	Type                     uint8       `json:"type"`
+	DealType                 uint8       `json:"dealType"`
+	IsMovedUp                bool        `json:"isMovedUp"`
+	IsHighlighted            bool        `json:"isHighlighted"`
+	IsUrgent                 bool        `json:"isUrgent"`
+	VipStatus                int         `json:"vipStatus"`
+	HasRemoteViewing         bool        `json:"hasRemoteViewing"`
+	VideoLink                interface{} `json:"videoLink"`
+	CommercialRealEstateType int         `json:"commercialRealEstateType"`
+	OrderDate                string      `json:"orderDate"`
+	CreateDate               string      `json:"createDate"`
+	UserId                   string      `json:"userId"`
+	IsFavorite               bool        `json:"isFavorite"`
+	IsForUkraine             bool        `json:"isForUkraine"`
+	IsHidden                 bool        `json:"isHidden"`
+	IsUserHidden             bool        `json:"isUserHidden"`
+	IsConfirmed              bool        `json:"isConfirmed"`
+	DetailUrl                string      `json:"detailUrl"`
+	HomeId                   interface{} `json:"homeId"`
+	UserInfo                 UserInfo    `json:"userInfo"`
+	SimilarityGroup          interface{} `json:"similarityGroup"`
 }
 
 type Response struct {
@@ -139,7 +158,7 @@ func ParsePage(page uint16) (uint16, error) {
 		add.Name = getName(addSources[id])
 		add.Description = getDescription(addSources[id])
 		add.Price = int(addSources[id].Price.PriceGeo)
-		add.Price_usd = float32(addSources[id].Price.PriceUSD)
+		add.Price_usd = float32(addSources[id].Price.PriceUsd)
 		add.Currency = "GEL"
 		add.Location_id = Dbmethods.GetLocationByAddress(getAddress(addSources[id]), 0, 0)
 		add.CategoryId = category.Id
@@ -170,7 +189,7 @@ func ParsePage(page uint16) (uint16, error) {
 				Name:         getName(addSource),
 				Description:  getDescription(addSource),
 				Price:        int(addSource.Price.PriceGeo),
-				Price_usd:    float32(addSource.Price.PriceUSD),
+				Price_usd:    float32(addSource.Price.PriceUsd),
 				Currency:     "GEL",
 				Location_id:  locationId,
 				CategoryId:   category.Id,
@@ -415,14 +434,13 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		log.Printf("Error parsing JSON: %v\n", err)
-		log.Printf(response.Header.Get("www-authenticate"))
 		return nil, err
 	}
 
 	result := make(map[uint32]AddSource)
 
 	for _, addSource := range responseObject.AddSources {
-		result[addSource.ApplicationId] = addSource
+		result[uint32(addSource.ApplicationId)] = addSource
 	}
 
 	return result, nil
