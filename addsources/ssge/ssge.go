@@ -418,9 +418,11 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	if err != nil {
 		log.Printf("Error parsing JSON: %v\n", err)
 		log.Printf("Raw response body: %s\n", body)
-		log.Printf("Token: %s\n", token)
 		return nil, err
 	}
+
+	log.Printf("Raw response body: %s\n", body)
+	log.Printf("Token: %s\n", token)
 
 	result := make(map[uint32]AddSource)
 
