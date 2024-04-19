@@ -97,7 +97,7 @@ const (
 	url                = "https://api-gateway.ss.ge/v1/RealEstate/"
 	numberOfPhotos int = 5
 	mainCategory       = 1
-	pageSize           = 16
+	pageSize           = 1
 )
 
 var (
@@ -381,7 +381,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	requestBody := bytes.NewReader(requestBodyJSON)
 
 	headers := map[string]string{
-		"Accept-Language": "ka",
+		"Accept-Language": "ru",
 		"Authorization":   "Bearer " + token,
 		"Content-Type":    "application/json",
 	}
@@ -417,7 +417,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 		return nil, err
 	}
 
-	log.Println(body[:10])
+	log.Println(string(body))
 	log.Println(responseObject)
 	log.Println(token)
 
