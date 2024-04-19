@@ -3,6 +3,7 @@ package Dbmethods
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"os"
@@ -276,47 +277,32 @@ func InsertAddsBulk(adds []Models.Add) {
 //	}
 //}
 
-func FindUserByPhone(phone string) (Models.User, error) {
+func FindUserByPhone(phone string) (*Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE source_id = '" + phone + "'"
-	rows, err := db.Query(query)
+	var query = "SELECT * FROM users WHERE contact = ?"
+	row := db.QueryRow(query, phone)
+	err := row.Scan(&user.Id, &user.Contact)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("user with phone %s not found", phone)
+	}
 	if err != nil {
-		return user, err
+		return nil, err
 	}
-	defer rows.Close()
-
-	for rows.Next() {
-		err := rows.Scan(&user.Id, &user.Contact)
-		if err != nil {
-			return user, err
-		}
-
-		return user, nil
-	}
-
-	return user, errors.New("user not found")
+	return &user, nil
 }
 
-func FindUserBySourceId(sourceId string) (Models.User, error) {
+func FindUserBySourceId(sourceId string) (*Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE source_id = '" + sourceId + "'"
-	rows, err := db.Query(query)
+	var query = "SELECT * FROM users WHERE source_id = ?"
+	row := db.QueryRow(query, sourceId)
+	err := row.Scan(&user.Id, &user.Contact)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("user with source ID %s not found", sourceId)
+	}
 	if err != nil {
-		log.Println(err)
-		return user, err
+		return nil, err
 	}
-	defer rows.Close()
-
-	for rows.Next() {
-		err := rows.Scan(&user.Id, &user.Contact)
-		if err != nil {
-			return user, err
-		}
-
-		return user, nil
-	}
-
-	return user, errors.New("user not found")
+	return &user, nil
 }
 
 func CreateUser(contact string, lang string, currency string, locationId uint16, sourceId interface{}) (Models.User, error) {
@@ -350,7 +336,7 @@ func CreateUser(contact string, lang string, currency string, locationId uint16,
 
 func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category, error) {
 	var category Models.Category
-	var query = "SELECT * FROM categories WHERE name = ? AND parent_id = ? AND deleted_at IS NULL LIMIT 1"
+	var query = "SELECT * FROM categories WHERE name = ? AND parent_id = ? AND deleted_at IS NULL"
 	rows, err := db.Query(query, name, parentId)
 	if err != nil {
 		return category, err
