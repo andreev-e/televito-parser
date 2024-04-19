@@ -292,7 +292,7 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 
 	user, err = Dbmethods.FindUserByPhone(userPhone)
 
-	return Dbmethods.CreateUser(userPhone, "ge", "GEL", locationId)
+	return Dbmethods.CreateUser(userPhone, "ge", "GEL", locationId, addSource.UserID)
 }
 
 func getAddress(addSource AddSource) string {

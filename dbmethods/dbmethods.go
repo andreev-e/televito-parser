@@ -318,20 +318,20 @@ func FindUserBySourceId(userId string) (Models.User, error) {
 	return user, errors.New("user not found")
 }
 
-func CreateUser(contact string, lang string, currency string, locationId uint16) (Models.User, error) {
+func CreateUser(contact string, lang string, currency string, locationId uint16, sourceId interface{}) (Models.User, error) {
 	var user Models.User
 
 	if db == nil {
 		return user, errors.New("database connection not initialized")
 	}
 
-	stmt, err := db.Prepare("INSERT INTO users (contact, lang, currency, location_id, created_at, updated_at, timezone) " +
-		"VALUES (?,?,?,?, NOW(), NOW(), 'Asia/Tbilisi');")
+	stmt, err := db.Prepare("INSERT INTO users (contact, lang, currency, location_id, created_at, updated_at, timezone, source_id) " +
+		"VALUES (?,?,?,?, NOW(), NOW(), 'Asia/Tbilisi', ?);")
 	if err != nil {
 		return user, err
 	}
 
-	res, err := stmt.Exec(contact, lang, currency, locationId)
+	res, err := stmt.Exec(contact, lang, currency, locationId, sourceId)
 	if err != nil {
 		return user, err
 	}
