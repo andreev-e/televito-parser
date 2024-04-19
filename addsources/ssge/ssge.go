@@ -89,6 +89,7 @@ type AddSource struct {
 }
 
 type Response struct {
+	Status     interface{} `json:"status"`
 	AddSources []AddSource `json:"realStateItemModel"`
 }
 
@@ -221,7 +222,7 @@ func getImagesUrlList(addSource AddSource) string {
 }
 
 type UserResponse struct {
-	userInformation struct {
+	UserInformation struct {
 		Phones []string `json:"phones"`
 	} `json:"userInformatino"`
 }
@@ -287,36 +288,14 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	}
 
 	var userPhone = ""
-	for _, phone := range responseObject.userInformation.Phones {
+	for _, phone := range responseObject.UserInformation.Phones {
 		userPhone = phone
 		break
 	}
 
 	user, err = Dbmethods.FindUserByPhone(userPhone)
 
-	if err != nil {
-		user, err = Dbmethods.CreateUser(userPhone, "ge", "GEL", locationId)
-	}
-	return user, nil
-
-	//        $userData = json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR);
-	//
-	//        $location = $this->getLocation($addSource);
-	//
-	//        $user = User::query()->firstOrCreate([
-	//            'contact' => $userData->userInformatino->phones[0],
-	//        ], [
-	//            'source_id' => $addSource->userId,
-	//            'lang' => Languages::ge->name,
-	//            'currency' => Currencies::gel,
-	//            'location_id' => $location->id,
-	//        ]);
-	//
-	//        if ($user instanceof User) {
-	//            return $user;
-	//        }
-	//
-	//        throw new RuntimeException('User not found');
+	return Dbmethods.CreateUser(userPhone, "ge", "GEL", locationId)
 }
 
 func getAddress(addSource AddSource) string {
