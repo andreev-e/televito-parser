@@ -88,6 +88,7 @@ type AddSource struct {
 }
 
 type Response struct {
+	TotalCount int         `json:"totalCount"`
 	AddSources []AddSource `json:"realStateItemModel"`
 }
 
