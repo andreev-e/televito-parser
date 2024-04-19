@@ -24,6 +24,6 @@ jobs:
             git pull &&
             export PATH=$PATH:/usr/local/go/bin &&
             go build &&
-            rm -f main.log &&
+            rm -f 1.log &&
             MYSQL_CONNECTION_STRING="${{ secrets.MYSQL_CONNECTION_STRING }}" pm2 start televito-parser --update-env
 

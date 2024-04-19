@@ -410,7 +410,6 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 
@@ -418,7 +417,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		log.Printf("Error parsing JSON: %v\n", err)
-		log.Printf(string(body))
+		log.Printf("Raw response body: %s\n", body)
 		return nil, err
 	}
 
