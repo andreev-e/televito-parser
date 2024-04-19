@@ -276,7 +276,7 @@ func InsertAddsBulk(adds []Models.Add) {
 //	}
 //}
 
-func FindUserByPhone(phone string) (Models.User, error) {
+func FindUserByPhone(phone interface{}) (Models.User, error) {
 	var user Models.User
 	var query = "SELECT * FROM users WHERE contact = \"?\" LIMIT 1"
 	rows, err := db.Query(query, phone)
