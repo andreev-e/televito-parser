@@ -226,9 +226,9 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	var err error
 	user, err = Dbmethods.FindUserBySourceId(addSource.UserID)
 	if err == nil {
-		log.Println("User found by source id: ", addSource.UserID)
 		return user, nil
 	}
+	log.Println("User not found by source id: ", addSource.UserID)
 
 	token, err = getToken()
 	if err != nil {
