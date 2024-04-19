@@ -297,9 +297,9 @@ func FindUserByPhone(phone interface{}) (Models.User, error) {
 	return user, errors.New("user not found")
 }
 
-func FindUserBySourceId(sourceId string) (Models.User, error) {
+func FindUserBySourceId(sourceId interface{}) (Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE source_id = '?' LIMIT 1"
+	var query = "SELECT * FROM users WHERE source_id = ? LIMIT 1"
 	rows, err := db.Query(query, sourceId)
 	if err != nil {
 		log.Println(err)
