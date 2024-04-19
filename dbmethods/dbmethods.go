@@ -349,7 +349,7 @@ func CreateUser(contact string, lang string, currency string, locationId uint16)
 
 func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category, error) {
 	var category Models.Category
-	var query = "SELECT * FROM categories WHERE contact = ? AND parent_id = ? AND deleted_at IS NULL LIMIT 1"
+	var query = "SELECT * FROM categories WHERE name = ? AND parent_id = ? AND deleted_at IS NULL LIMIT 1"
 	rows, err := db.Query(query, name, parentId)
 	if err != nil {
 		return category, err
