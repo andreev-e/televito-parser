@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"os"
+	Myhomege "televito-parser/addsources/myhomege"
+	Ssge "televito-parser/addsources/ssge"
 	Dbmethods "televito-parser/dbmethods"
 	"time"
 )
@@ -30,11 +32,13 @@ func main() {
 
 	go reparseFirstPages("MyAutoGe")
 	go reparseFirstPages("MyAutoGeRent")
-	go reparseFirstPages("SSGe")
+	go reparseFirstPages(Ssge.Class)
+	go reparseFirstPages(Myhomege.Class)
 
 	go reparseAllPages("MyAutoGe")
 	go reparseAllPages("MyAutoGeRent")
-	go reparseAllPages("SSGe")
+	go reparseAllPages(Ssge.Class)
+	go reparseAllPages(Myhomege.Class)
 	for {
 		log.Print(Dbmethods.GetDbStats())
 		time.Sleep(1 * time.Minute)
