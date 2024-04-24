@@ -255,13 +255,23 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 		currency = "USD"
 	}
 
-	var user, err = Dbmethods.FindUserByPhone(userData[addSource.UserID].Username)
+	userName := getUsernameByUserID(addSource.UserID)
+	var user, err = Dbmethods.FindUserByPhone(userName)
 	if err != nil {
 		log.Println(err)
-		user, err = Dbmethods.CreateUser(userData[addSource.UserID].Username, "ge", currency, locationId, nil)
+		user, err = Dbmethods.CreateUser(userName, "ge", currency, locationId, nil)
 	}
 
 	return user, nil
+}
+
+func getUsernameByUserID(userID string) string {
+	for _, user := range userData {
+		if user.UserID == userID {
+			return user.Username
+		}
+	}
+	return ""
 }
 
 func getCategory(addSource AddSource) (Main.Category, error) {
