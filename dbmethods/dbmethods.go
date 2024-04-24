@@ -196,12 +196,6 @@ func UpdateAddsBulk(adds []Models.Add) {
 	}
 }
 
-//func InsertAdd(add Add) {
-//	var query = "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) " +
-//		"VALUES (?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, ? , ?, NOW(), NOW());"
-//	_, _ = RunQuery(query, add.user_id, add.location_id, add.name, add.description, add.price, add.price_usd, sourceClass, add.source_id, add.categoryId, add.images, add.currency)
-//}
-
 func InsertAddsBulk(adds []Models.Add) {
 	if len(adds) == 0 {
 		return
@@ -216,17 +210,14 @@ func InsertAddsBulk(adds []Models.Add) {
 		valueArgs = append(valueArgs, add.User_id, add.Location_id, add.Name, add.Description, add.Price, add.Price_usd, add.Source_class, add.Source_id, add.CategoryId, add.Images, add.Currency)
 	}
 
-	// Construct the query with multiple value strings
 	query := "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) VALUES " + strings.Join(valueStrings, ", ")
 
-	// Begin transaction
 	tx, err := db.Begin()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	// Prepare the statement
 	stmt, err := tx.Prepare(query)
 	if err != nil {
 		log.Println(err)
@@ -235,7 +226,6 @@ func InsertAddsBulk(adds []Models.Add) {
 	}
 	defer stmt.Close()
 
-	// Execute the batch insert query
 	_, err = stmt.Exec(valueArgs...)
 	if err != nil {
 		log.Println(err)
@@ -243,7 +233,6 @@ func InsertAddsBulk(adds []Models.Add) {
 		return
 	}
 
-	// Commit the transaction
 	err = tx.Commit()
 	if err != nil {
 		log.Println(err)
@@ -254,7 +243,7 @@ func InsertAddsBulk(adds []Models.Add) {
 
 func FindUserByPhone(phone string) (Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE contact = \"?\" LIMIT 1"
+	var query = "SELECT * FROM users WHERE contact = ? LIMIT 1"
 	rows, err := db.Query(query, phone)
 	if err != nil {
 		return user, err
@@ -274,7 +263,7 @@ func FindUserByPhone(phone string) (Models.User, error) {
 
 func FindUserBySourceId(sourceId string) (Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE source_id = \"?\" LIMIT 1"
+	var query = "SELECT * FROM users WHERE source_id = ? LIMIT 1"
 	rows, err := db.Query(query, sourceId)
 	if err != nil {
 		return user, err
