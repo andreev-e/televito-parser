@@ -203,8 +203,8 @@ func getImagesUrlList(source AddSource, id uint32) string {
 func getUser(addSource AddSource, locationId uint16) Main.User {
 	var phone = strconv.FormatUint(addSource.ClientPhone, 10)
 	var user, err = Dbmethods.FindUserByPhone(phone)
-	log.Println(phone)
 	if err != nil {
+		log.Println(err)
 		user, err = Dbmethods.CreateUser(phone, "ge", getCurrency(addSource), locationId, nil)
 	}
 	return user

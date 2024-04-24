@@ -290,10 +290,13 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 		break
 	}
 
-	log.Println(userPhone)
 	user, err = Dbmethods.FindUserByPhone(userPhone)
+	if err != nil {
+		log.Println(err)
+		user, err = Dbmethods.CreateUser(userPhone, "ge", "GEL", locationId, addSource.UserID)
+	}
 
-	return Dbmethods.CreateUser(userPhone, "ge", "GEL", locationId, addSource.UserID)
+	return user, nil
 }
 
 func getAddress(addSource AddSource) string {
