@@ -77,7 +77,6 @@ type AddSource struct {
 }
 
 type Currency struct {
-	CurrencyID     uint   `json:"currency_id"`
 	CurrencySymbol string `json:"currency_symbol"`
 	CurrencyRate   string `json:"currency_rate"`
 	Title          string `json:"title"`
