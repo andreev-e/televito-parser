@@ -43,7 +43,7 @@ type AddSource struct {
 	Price          string              `json:"price"`
 	Photo          string              `json:"photo"`
 	PhotoVer       string              `json:"photo_ver"`
-	PhotosCount    uint                `json:"photos_count"`
+	PhotosCount    string              `json:"photos_count"`
 	AreaSizeValue  string              `json:"area_size_value"`
 	CurrencyID     string              `json:"currency_id"`
 	OrderDate      string              `json:"order_date"`
@@ -101,10 +101,10 @@ type Pagination struct {
 }
 
 const (
-	Class               = "MyHomeGe"
-	url                 = "https://api.myhome.ge/ka/"
-	numberOfPhotos uint = 5
-	mainCategory        = 1
+	Class              = "MyHomeGe"
+	url                = "https://api.myhome.ge/ka/"
+	numberOfPhotos int = 5
+	mainCategory       = 1
 )
 
 var userData map[string]UserData
@@ -252,7 +252,8 @@ func ParsePage(page uint16) (uint16, error) {
 
 func getImagesUrlList(addSource AddSource) string {
 	images := make([]string, 0)
-	for i := uint(1); i <= min(addSource.PhotosCount, numberOfPhotos); i++ {
+	photosCount, _ := strconv.Atoi(addSource.PhotosCount)
+	for i := 1; i <= min(photosCount, numberOfPhotos); i++ {
 		images = append(images, "https://static.my.ge/myhome/photos/"+addSource.Photo+"/large/"+addSource.ProductID+"_"+strconv.Itoa(int(i))+".jpg")
 	}
 
