@@ -13,9 +13,9 @@ import (
 )
 
 type Response struct {
-	Prs        Prs        `json:"Prs"`
-	Cnt        string     `json:"Cnt"`
-	Pagination Pagination `json:"Pagination"`
+	Prs Prs    `json:"Prs"`
+	Cnt string `json:"Cnt"`
+	//Pagination Pagination `json:"Pagination"`
 }
 
 type Prs struct {
@@ -90,11 +90,11 @@ type UserData struct {
 	Username string `json:"username"`
 }
 
-type Pagination struct {
-	CurrentPage  string `json:"CurrentPage"`
-	PerPage      int    `json:"PerPage"`
-	ContentCount string `json:"ContentCount"`
-}
+//type Pagination struct {
+//	CurrentPage  string `json:"CurrentPage"`
+//	PerPage      int    `json:"PerPage"`
+//	ContentCount string `json:"ContentCount"`
+//}
 
 const (
 	Class              = "MyHomeGe"
