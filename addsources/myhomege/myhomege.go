@@ -12,81 +12,75 @@ import (
 	Main "televito-parser/models"
 )
 
-type Response struct {
-	Prs Prs    `json:"Prs"`
-	Cnt string `json:"Cnt"`
-}
-
-type Prs struct {
-	Maklers []interface{} `json:"Maklers"`
-	Prs     []AddSource   `json:"Prs"`
-	Users   Users         `json:"Users"`
-}
-
-type AddSource struct {
-	ProductID      string              `json:"product_id"`
-	UserID         string              `json:"user_id"`
-	ParentID       interface{}         `json:"parent_id"`
-	MaklerID       interface{}         `json:"makler_id"`
-	HasLogo        interface{}         `json:"has_logo"`
-	MaklerName     interface{}         `json:"makler_name"`
-	LocID          string              `json:"loc_id"`
-	StreetAddress  string              `json:"street_address"`
-	YardSize       string              `json:"yard_size"`
-	YardSizeTypeID string              `json:"yard_size_type_id"`
-	AdtypeID       string              `json:"adtype_id"`
-	ProductTypeID  string              `json:"product_type_id"`
-	Price          string              `json:"price"`
-	Photo          string              `json:"photo"`
-	PhotoVer       string              `json:"photo_ver"`
-	PhotosCount    string              `json:"photos_count"`
-	AreaSizeValue  string              `json:"area_size_value"`
-	CurrencyID     string              `json:"currency_id"`
-	OrderDate      string              `json:"order_date"`
-	PriceTypeID    string              `json:"price_type_id"`
-	Vip            string              `json:"vip"`
-	Color          string              `json:"color"`
-	EstateTypeID   string              `json:"estate_type_id"`
-	AreaSize       string              `json:"area_size"`
-	AreaSizeTypeID string              `json:"area_size_type_id"`
-	Comment        string              `json:"comment"`
-	MapLat         string              `json:"map_lat"`
-	MapLon         string              `json:"map_lon"`
-	LLiving        string              `json:"l_living"`
-	SpecialPersons string              `json:"special_persons"`
-	Rooms          string              `json:"rooms"`
-	Bedrooms       string              `json:"bedrooms"`
-	Floor          string              `json:"floor"`
-	ParkingID      string              `json:"parking_id"`
-	Canalization   string              `json:"canalization"`
-	Water          string              `json:"water"`
-	Road           string              `json:"road"`
-	Electricity    string              `json:"electricity"`
-	OwnerTypeID    string              `json:"owner_type_id"`
-	OsmID          string              `json:"osm_id"`
-	NameJSON       string              `json:"name_json"`
-	PathwayJSON    string              `json:"pathway_json"`
-	Homeselfie     string              `json:"homeselfie"`
-	Currencies     map[string]Currency `json:"Currencies"`
-	Name           string              `json:"name"`
-	Pathway        string              `json:"pathway"`
-}
-
 type Currency struct {
+	CurrencyID     string `json:"currency_id"`
 	CurrencySymbol string `json:"currency_symbol"`
 	CurrencyRate   string `json:"currency_rate"`
 	Title          string `json:"title"`
 }
 
-type Users struct {
-	StatusCode    int        `json:"StatusCode"`
-	StatusMessage string     `json:"StatusMessage"`
-	Data          []UserData `json:"Data"` // Change map to slice
+type User struct {
+	UserID                string `json:"user_id"`
+	Username              string `json:"username"`
+	GenderID              string `json:"gender_id"`
+	PersonalDataAgreement string `json:"personal_data_agreement"`
+	AgreeTBCTerms         string `json:"AgreeTBCTerms"`
 }
 
-type UserData struct {
-	UserID   string `json:"user_id"`
-	Username string `json:"username"`
+type AddSource struct {
+	ProductID     string              `json:"product_id"`
+	UserID        string              `json:"user_id"`
+	LocID         string              `json:"loc_id"`
+	StreetAddress string              `json:"street_address"`
+	Price         string              `json:"price"`
+	AreaSize      string              `json:"area_size"`
+	Rooms         string              `json:"rooms"`
+	Bedrooms      string              `json:"bedrooms"`
+	Floor         string              `json:"floor"`
+	MapLat        string              `json:"map_lat"`
+	MapLon        string              `json:"map_lon"`
+	Name          string              `json:"name"`
+	Pathway       string              `json:"pathway"`
+	Currencies    map[string]Currency `json:"Currencies"`
+	CurrencyID    string              `json:"currency_id"`
+	PhotosCount   string              `json:"photos_count"`
+	Photo         string              `json:"photo"`
+	AdtypeID      string              `json:"adtype_id"`
+	EstateTypeID  string              `json:"estate_type_id"`
+	Comment       string              `json:"comment"`
+	YardSize      string              `json:"yard_size"`
+	Water         string              `json:"water"`
+	Road          string              `json:"road"`
+	Electricity   string              `json:"electricity"`
+	Canalization  string              `json:"canalization"`
+	AreaSizeValue string              `json:"area_size_value"`
+}
+
+type Prs struct {
+	Maklers  []interface{} `json:"Maklers"`
+	Prs      []AddSource   `json:"Prs"`
+	Users    Users         `json:"Users"`
+	Cnt      string        `json:"Cnt"`
+	Page     int           `json:"Page"`
+	Filtered bool          `json:"Filtered"`
+}
+
+type Users struct {
+	StatusCode    int             `json:"StatusCode"`
+	StatusMessage string          `json:"StatusMessage"`
+	Data          map[string]User `json:"Data"`
+}
+
+type Pagination struct {
+	CurrentPage  int    `json:"CurrentPage"`
+	PerPage      int    `json:"PerPage"`
+	ContentCount string `json:"ContentCount"`
+}
+
+type Response struct {
+	Prs        Prs        `json:"Prs"`
+	Cnt        string     `json:"Cnt"`
+	Pagination Pagination `json:"Pagination"`
 }
 
 const (
@@ -96,7 +90,7 @@ const (
 	mainCategory       = 1
 )
 
-var userData []UserData
+var userData map[string]User
 
 var (
 	currencies = map[string]string{
