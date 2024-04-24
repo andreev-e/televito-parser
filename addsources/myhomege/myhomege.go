@@ -40,7 +40,7 @@ type AddSource struct {
 	YardSizeTypeID string              `json:"yard_size_type_id"`
 	AdtypeID       string              `json:"adtype_id"`
 	ProductTypeID  string              `json:"product_type_id"`
-	Price          int                 `json:"price"`
+	Price          string              `json:"price"`
 	Photo          string              `json:"photo"`
 	PhotoVer       string              `json:"photo_ver"`
 	PhotosCount    uint                `json:"photos_count"`
@@ -187,10 +187,11 @@ func ParsePage(page uint16) (uint16, error) {
 			currency = "USD"
 		}
 
+		price, _ := strconv.ParseInt(addSources[id].Price, 10, 32)
 		add.Name = getName(addSources[id])
 		add.Description = getDescription(addSources[id])
-		add.Price = addSources[id].Price
-		add.Price_usd = float32(addSources[id].Price)
+		add.Price = int(price)
+		add.Price_usd = float32(price)
 		add.Currency = currency
 		add.Location_id = Dbmethods.GetLocationByAddress(addSources[id].StreetAddress, 0, 0)
 		add.CategoryId = category.Id
@@ -224,11 +225,13 @@ func ParsePage(page uint16) (uint16, error) {
 				currency = "USD"
 			}
 
+			price, _ := strconv.ParseInt(addSource.Price, 10, 32)
+
 			add := Main.Add{
 				Name:         getName(addSource),
 				Description:  getDescription(addSource),
-				Price:        addSource.Price,
-				Price_usd:    float32(addSource.Price),
+				Price:        int(price),
+				Price_usd:    float32(price),
 				Currency:     currency,
 				Location_id:  locationId,
 				CategoryId:   category.Id,
