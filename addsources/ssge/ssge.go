@@ -45,45 +45,22 @@ type AddSource struct {
 	OrderDate                string      `json:"orderDate"`
 	CreateDate               string      `json:"createDate"`
 	UserID                   string      `json:"userId"`
-	IsFavorite               bool        `json:"isFavorite"`
-	IsForUkraine             bool        `json:"isForUkraine"`
-	IsHidden                 bool        `json:"isHidden"`
-	IsUserHidden             bool        `json:"isUserHidden"`
-	IsConfirmed              bool        `json:"isConfirmed"`
-	DetailURL                string      `json:"detailUrl"`
 	HomeID                   interface{} `json:"homeId"`
 	UserInfo                 interface{} `json:"userInfo"`
 	SimilarityGroup          interface{} `json:"similarityGroup"`
 }
 
 type Address struct {
-	//MunicipalityID    interface{} `json:"municipalityId"`
-	//MunicipalityTitle interface{} `json:"municipalityTitle"`
-	//CityID            int         `json:"cityId"`
 	CityTitle string `json:"cityTitle"`
-	//DistrictID        int         `json:"districtId"`
-	//DistrictTitle     string      `json:"districtTitle"`
-	//SubdistrictID     int         `json:"subdistrictId"`
-	//SubdistrictTitle  string      `json:"subdistrictTitle"`
-	//StreetID          int         `json:"streetId"`
-	//StreetTitle       string      `json:"streetTitle"`
-	//StreetNumber      string      `json:"streetNumber"`
 }
 
 type Price struct {
 	PriceGeo int `json:"priceGeo"`
-	//UnitPriceGeo int `json:"unitPriceGeo"`
 	PriceUSD int `json:"priceUsd"`
-	//UnitPriceUSD int `json:"unitPriceUsd"`
-	//CurrencyType int `json:"currencyType"`
 }
 
 type AppImage struct {
 	FileName string `json:"fileName"`
-	//IsMain    bool   `json:"isMain"`
-	//Is360     bool   `json:"is360"`
-	//OrderNo   int    `json:"orderNo"`
-	//ImageType int    `json:"imageType"`
 }
 
 const (

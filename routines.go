@@ -4,6 +4,7 @@ import (
 	"log"
 	"strconv"
 	"televito-parser/addsources/myautoge"
+	Myhomege "televito-parser/addsources/myhomege"
 	Ssge "televito-parser/addsources/ssge"
 	"time"
 )
@@ -20,6 +21,8 @@ func reparseFirstPages(class string) {
 			_, err = Myautoge.ParsePage(1, class)
 		case Ssge.Class:
 			_, err = Ssge.ParsePage(1)
+		case Myhomege.Class:
+			_, err = Myhomege.ParsePage(1)
 		}
 
 		if err != nil {
@@ -64,6 +67,8 @@ func reparseAllPages(class string) {
 		delay = 20 * time.Second
 	case Ssge.Class:
 		delay = 1 * time.Second
+	case Myhomege.Class:
+		delay = 1 * time.Second
 	}
 	for {
 		switch class {
@@ -71,6 +76,8 @@ func reparseAllPages(class string) {
 			page, err = Myautoge.ParsePage(page, class)
 		case Ssge.Class:
 			page, err = Ssge.ParsePage(page)
+		case Myhomege.Class:
+			page, err = Myhomege.ParsePage(page)
 		}
 
 		if err != nil {

@@ -103,7 +103,7 @@ const url = "https://api2.myauto.ge"
 const NumberOfPhotos uint = 5
 const mainCategory = 12
 
-var AutoAppData AppData
+var autoAppData AppData
 
 func ParsePage(page uint16, class string) (uint16, error) {
 	loadData()
@@ -191,10 +191,10 @@ func ParsePage(page uint16, class string) (uint16, error) {
 	return page, nil
 }
 
-func getImagesUrlList(source AddSource, id uint32) string {
+func getImagesUrlList(addSource AddSource, id uint32) string {
 	images := make([]string, 0)
-	for i := uint(1); i <= min(source.PhotosCount, NumberOfPhotos); i++ {
-		images = append(images, "https://static.my.ge/myauto/photos/"+source.Photo+"/large/"+strconv.Itoa(int(id))+"_"+strconv.Itoa(int(i))+".jpg")
+	for i := uint(1); i <= min(addSource.PhotosCount, NumberOfPhotos); i++ {
+		images = append(images, "https://static.my.ge/myauto/photos/"+addSource.Photo+"/large/"+strconv.Itoa(int(id))+"_"+strconv.Itoa(int(i))+".jpg")
 	}
 
 	return "[\"" + strings.Join(images, "\",\"") + "\"]"
@@ -211,14 +211,14 @@ func getUser(addSource AddSource, locationId uint16) Main.User {
 }
 
 func getAddress(locationId uint16, address string) string {
-	location, ok := AutoAppData.Locations[locationId]
+	location, ok := autoAppData.Locations[locationId]
 	if ok {
 		address = address + location.Name + ", "
 		if location.ParentId != 0 {
 			return getAddress(location.ParentId, address)
 		}
 	} else {
-		log.Println(AutoAppData.Locations)
+		log.Println(autoAppData.Locations)
 		panic("No location in dictionary " + strconv.Itoa(int(locationId)))
 	}
 
@@ -226,7 +226,7 @@ func getAddress(locationId uint16, address string) string {
 }
 
 func getCategory(addSource AddSource) (Main.Category, error) {
-	manufacturer, manufacturerOk := AutoAppData.Mans[addSource.ManID]
+	manufacturer, manufacturerOk := autoAppData.Mans[addSource.ManID]
 	if !manufacturerOk {
 		return Main.Category{}, fmt.Errorf("Manufacturer not found")
 	}
@@ -244,7 +244,7 @@ func getCategory(addSource AddSource) (Main.Category, error) {
 		category = createdCategory
 	}
 
-	subCategoryAuto, subCatOk := AutoAppData.Categories[addSource.CategoryID]
+	subCategoryAuto, subCatOk := autoAppData.Categories[addSource.CategoryID]
 	if !subCatOk {
 		return category, nil
 	}
@@ -261,7 +261,7 @@ func getCategory(addSource AddSource) (Main.Category, error) {
 }
 
 func getCurrency(addSource AddSource) string {
-	currency, ok := AutoAppData.Currencies[addSource.Currency]
+	currency, ok := autoAppData.Currencies[addSource.Currency]
 	if ok {
 		return currency.Name
 	}
@@ -285,12 +285,12 @@ func getDescription(addSource AddSource) string {
 func getName(addSource AddSource) string {
 	var name []string
 
-	manufacturer, ok := AutoAppData.Mans[addSource.ManID]
+	manufacturer, ok := autoAppData.Mans[addSource.ManID]
 	if ok {
 		name = append(name, manufacturer.Name)
 	}
 
-	model, ok := AutoAppData.Models[addSource.ModelID]
+	model, ok := autoAppData.Models[addSource.ModelID]
 	if ok {
 		name = append(name, model.Name)
 	}
@@ -303,7 +303,7 @@ func getName(addSource AddSource) string {
 		name = append(name, strconv.Itoa(int(addSource.ProdYear)))
 	}
 
-	gearType, transmissionOk := AutoAppData.GearTypes[addSource.GearTypeID]
+	gearType, transmissionOk := autoAppData.GearTypes[addSource.GearTypeID]
 
 	if ok && addSource.EngineVolume != 0 {
 		var transmission = ""
@@ -449,7 +449,7 @@ func loadData() {
 			currencies[currency.ID] = currency
 		}
 
-		AutoAppData = AppData{
+		autoAppData = AppData{
 			Categories: categories,
 			Mans:       mans,
 			Locations:  locations,
