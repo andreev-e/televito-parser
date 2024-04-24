@@ -15,7 +15,6 @@ import (
 type Response struct {
 	Prs Prs    `json:"Prs"`
 	Cnt string `json:"Cnt"`
-	//Pagination Pagination `json:"Pagination"`
 }
 
 type Prs struct {
@@ -80,21 +79,15 @@ type Currency struct {
 }
 
 type Users struct {
-	StatusCode    int                 `json:"StatusCode"`
-	StatusMessage string              `json:"StatusMessage"`
-	Data          map[string]UserData `json:"Data"`
+	StatusCode    int        `json:"StatusCode"`
+	StatusMessage string     `json:"StatusMessage"`
+	Data          []UserData `json:"Data"` // Change map to slice
 }
 
 type UserData struct {
 	UserID   string `json:"user_id"`
 	Username string `json:"username"`
 }
-
-//type Pagination struct {
-//	CurrentPage  string `json:"CurrentPage"`
-//	PerPage      int    `json:"PerPage"`
-//	ContentCount string `json:"ContentCount"`
-//}
 
 const (
 	Class              = "MyHomeGe"
@@ -103,7 +96,7 @@ const (
 	mainCategory       = 1
 )
 
-var userData map[string]UserData
+var userData []UserData
 
 var (
 	currencies = map[string]string{
