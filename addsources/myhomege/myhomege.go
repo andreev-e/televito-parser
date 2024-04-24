@@ -28,7 +28,7 @@ type Prs struct {
 }
 
 type AddSource struct {
-	ProductID      uint32              `json:"product_id"`
+	ProductID      string              `json:"product_id"`
 	UserID         string              `json:"user_id"`
 	ParentID       interface{}         `json:"parent_id"`
 	MaklerID       interface{}         `json:"makler_id"`
@@ -250,7 +250,7 @@ func ParsePage(page uint16) (uint16, error) {
 func getImagesUrlList(addSource AddSource) string {
 	images := make([]string, 0)
 	for i := uint(1); i <= min(addSource.PhotosCount, numberOfPhotos); i++ {
-		images = append(images, "https://static.my.ge/myhome/photos/"+addSource.Photo+"/large/"+strconv.Itoa(int(addSource.ProductID))+"_"+strconv.Itoa(int(i))+".jpg")
+		images = append(images, "https://static.my.ge/myhome/photos/"+addSource.Photo+"/large/"+addSource.ProductID+"_"+strconv.Itoa(int(i))+".jpg")
 	}
 
 	return "[\"" + strings.Join(images, "\",\"") + "\"]"
@@ -410,7 +410,10 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	userData = responseObject.Prs.Users.Data
 
 	for _, addSource := range responseObject.Prs.Prs {
-		result[addSource.ProductID] = addSource
+		id, err := strconv.ParseUint(addSource.ProductID, 10, 32)
+		if err == nil {
+			result[uint32(id)] = addSource
+		}
 	}
 
 	return result, nil
