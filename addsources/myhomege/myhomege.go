@@ -57,12 +57,9 @@ type AddSource struct {
 }
 
 type Prs struct {
-	Maklers  []interface{} `json:"Maklers"`
-	Prs      []AddSource   `json:"Prs"`
-	Users    Users         `json:"Users"`
-	Cnt      string        `json:"Cnt"`
-	Page     int           `json:"Page"`
-	Filtered bool          `json:"Filtered"`
+	Maklers []interface{} `json:"Maklers"`
+	Prs     []AddSource   `json:"Prs"`
+	Users   Users         `json:"Users"`
 }
 
 type Users struct {
@@ -71,16 +68,9 @@ type Users struct {
 	Data          map[string]User `json:"Data"`
 }
 
-type Pagination struct {
-	CurrentPage  int    `json:"CurrentPage"`
-	PerPage      int    `json:"PerPage"`
-	ContentCount string `json:"ContentCount"`
-}
-
 type Response struct {
-	Prs        Prs        `json:"Prs"`
-	Cnt        string     `json:"Cnt"`
-	Pagination Pagination `json:"Pagination"`
+	Prs Prs    `json:"Prs"`
+	Cnt string `json:"Cnt"`
 }
 
 const (
