@@ -19,12 +19,9 @@ type Response struct {
 }
 
 type Prs struct {
-	Maklers  []interface{} `json:"Maklers"`
-	Prs      []AddSource   `json:"Prs"`
-	Users    Users         `json:"Users"`
-	Cnt      string        `json:"Cnt"`
-	Page     string        `json:"Page"`
-	Filtered bool          `json:"Filtered"`
+	Maklers []interface{} `json:"Maklers"`
+	Prs     []AddSource   `json:"Prs"`
+	Users   Users         `json:"Users"`
 }
 
 type AddSource struct {
