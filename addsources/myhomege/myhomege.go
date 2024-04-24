@@ -38,19 +38,19 @@ type AddSource struct {
 	StreetAddress  string              `json:"street_address"`
 	YardSize       string              `json:"yard_size"`
 	YardSizeTypeID string              `json:"yard_size_type_id"`
-	AdtypeID       uint                `json:"adtype_id"`
+	AdtypeID       string              `json:"adtype_id"`
 	ProductTypeID  string              `json:"product_type_id"`
 	Price          int                 `json:"price"`
 	Photo          string              `json:"photo"`
 	PhotoVer       string              `json:"photo_ver"`
 	PhotosCount    uint                `json:"photos_count"`
 	AreaSizeValue  string              `json:"area_size_value"`
-	CurrencyID     uint                `json:"currency_id"`
+	CurrencyID     string              `json:"currency_id"`
 	OrderDate      string              `json:"order_date"`
 	PriceTypeID    string              `json:"price_type_id"`
 	Vip            string              `json:"vip"`
 	Color          string              `json:"color"`
-	EstateTypeID   uint                `json:"estate_type_id"`
+	EstateTypeID   string              `json:"estate_type_id"`
 	AreaSize       string              `json:"area_size"`
 	AreaSizeTypeID string              `json:"area_size_type_id"`
 	Comment        string              `json:"comment"`
@@ -110,39 +110,39 @@ const (
 var userData map[string]UserData
 
 var (
-	currencies = map[uint]string{
-		1: "USD",
-		2: "EUR",
-		3: "GEL",
+	currencies = map[string]string{
+		"1": "USD",
+		"2": "EUR",
+		"3": "GEL",
 	}
 
-	estateTypes = map[uint]string{
-		0:  "отель",
-		1:  "квартира",
-		2:  "строительство",
-		3:  "квартира",
-		4:  "торговое",
-		5:  "магазин",
-		6:  "подвал",
-		7:  "производство",
-		8:  "склад",
-		9:  "коммерческая(?9)",
-		10: "коммерческая",
-		12: "гараж",
-		13: "участок сельхоз",
-		14: "участок",
-		15: "участок коммерческий",
-		17: "новостройка",
-		18: "вилла",
-		21: "участок под застройку",
+	estateTypes = map[string]string{
+		"0":  "отель",
+		"1":  "квартира",
+		"2":  "строительство",
+		"3":  "квартира",
+		"4":  "торговое",
+		"5":  "магазин",
+		"6":  "подвал",
+		"7":  "производство",
+		"8":  "склад",
+		"9":  "коммерческая(?9)",
+		"10": "коммерческая",
+		"12": "гараж",
+		"13": "участок сельхоз",
+		"14": "участок",
+		"15": "участок коммерческий",
+		"17": "новостройка",
+		"18": "вилла",
+		"21": "участок под застройку",
 	}
 
-	addTypes = map[uint]string{
-		1: "Продажа",
-		2: "Залог",
-		3: "Аренда",
-		7: "Посуточно",
-		8: "Аренда",
+	addTypes = map[string]string{
+		"1": "Продажа",
+		"2": "Залог",
+		"3": "Аренда",
+		"7": "Посуточно",
+		"8": "Аренда",
 	}
 )
 
