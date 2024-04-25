@@ -214,7 +214,6 @@ func InsertAddsBulk(adds []Models.Add) {
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Println(query)
 		log.Println(err)
 		return
 	}
@@ -229,6 +228,7 @@ func InsertAddsBulk(adds []Models.Add) {
 
 	_, err = stmt.Exec(valueArgs...)
 	if err != nil {
+		log.Println(query)
 		log.Println(err)
 		tx.Rollback()
 		return
