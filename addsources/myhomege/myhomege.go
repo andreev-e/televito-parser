@@ -63,9 +63,9 @@ type Prs struct {
 }
 
 type Users struct {
-	StatusCode    int             `json:"StatusCode"`
-	StatusMessage string          `json:"StatusMessage"`
-	Data          map[string]User `json:"Data"`
+	StatusCode    int         `json:"StatusCode"`
+	StatusMessage string      `json:"StatusMessage"`
+	Data          interface{} `json:"Data"`
 }
 
 type Response struct {
@@ -394,7 +394,9 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 
 	result := make(map[uint32]AddSource)
 
-	userData = responseObject.Prs.Users.Data
+	if userData, ok := responseObject.Prs.Users.Data.([]User); ok {
+		fmt.Println("Data is a slice:", userData)
+	}
 
 	for _, addSource := range responseObject.Prs.Prs {
 		id, err := strconv.ParseUint(addSource.ProductID, 10, 32)
