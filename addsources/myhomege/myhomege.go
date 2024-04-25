@@ -394,9 +394,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 
 	result := make(map[uint32]AddSource)
 
-	if userData, ok := responseObject.Prs.Users.Data.([]User); ok {
-		fmt.Println("Data is a slice:", userData)
-	}
+	userData = responseObject.Prs.Users.Data.(map[string]User)
 
 	for _, addSource := range responseObject.Prs.Prs {
 		id, err := strconv.ParseUint(addSource.ProductID, 10, 32)
