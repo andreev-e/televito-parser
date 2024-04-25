@@ -245,7 +245,7 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 		user, err = Dbmethods.CreateUser(userName, "ge", currency, locationId, nil)
 	}
 
-	return user, nil
+	return user, err
 }
 
 func getUsernameByUserID(userID string) string {

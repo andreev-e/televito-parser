@@ -291,19 +291,16 @@ func CreateUser(contact string, lang string, currency string, locationId uint16,
 	stmt, err := db.Prepare("INSERT INTO users (contact, lang, currency, location_id, created_at, updated_at, timezone, source_id) " +
 		"VALUES (?,?,?,?, NOW(), NOW(), 'Asia/Tbilisi', ?);")
 	if err != nil {
-		log.Println(err)
 		return user, err
 	}
 
 	res, err := stmt.Exec(contact, lang, currency, locationId, sourceId)
 	if err != nil {
-		log.Println(err)
 		return user, err
 	}
 
 	userId, err := res.LastInsertId()
 	if err != nil {
-		log.Println(err)
 		return user, err
 	}
 
@@ -313,7 +310,6 @@ func CreateUser(contact string, lang string, currency string, locationId uint16,
 	user.Currency = currency
 	user.Location_id = locationId
 
-	log.Println("User created: ", user)
 	return user, nil
 }
 

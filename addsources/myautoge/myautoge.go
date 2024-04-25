@@ -168,6 +168,12 @@ func ParsePage(page uint16, class string) (uint16, error) {
 			}
 
 			var locationId = Dbmethods.GetLocationByAddress(getAddress(addSource.LocationId, ""), 0, 0)
+			user, err := getUser(addSource, locationId)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+
 			add := Main.Add{
 				Name:         getName(addSource),
 				Description:  getDescription(addSource),
@@ -178,7 +184,7 @@ func ParsePage(page uint16, class string) (uint16, error) {
 				CategoryId:   category.Id,
 				Source_class: class,
 				Source_id:    id,
-				User_id:      getUser(addSource, locationId).Id,
+				User_id:      user.Id,
 				Images:       getImagesUrlList(addSource, addSource.CarID),
 			}
 
@@ -200,14 +206,14 @@ func getImagesUrlList(addSource AddSource, id uint32) string {
 	return "[\"" + strings.Join(images, "\",\"") + "\"]"
 }
 
-func getUser(addSource AddSource, locationId uint16) Main.User {
+func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	var phone = strconv.FormatUint(addSource.ClientPhone, 10)
 	var user, err = Dbmethods.FindUserByPhone(phone)
 	if err != nil {
 		log.Println(err)
 		user, err = Dbmethods.CreateUser(phone, "ge", getCurrency(addSource), locationId, nil)
 	}
-	return user
+	return user, err
 }
 
 func getAddress(locationId uint16, address string) string {
