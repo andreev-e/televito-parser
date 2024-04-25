@@ -291,6 +291,7 @@ func CreateUser(contact string, lang string, currency string, locationId uint16,
 	stmt, err := db.Prepare("INSERT INTO users (contact, lang, currency, location_id, created_at, updated_at, timezone, source_id) " +
 		"VALUES (?,?,?,?, NOW(), NOW(), 'Asia/Tbilisi', ?);")
 	if err != nil {
+		log.Println(err)
 		return user, err
 	}
 
@@ -300,7 +301,11 @@ func CreateUser(contact string, lang string, currency string, locationId uint16,
 		return user, err
 	}
 
-	userId, _ := res.LastInsertId()
+	userId, err := res.LastInsertId()
+	if err != nil {
+		log.Println(err)
+		return user, err
+	}
 
 	user.Id = int(userId)
 	user.Contact = contact
