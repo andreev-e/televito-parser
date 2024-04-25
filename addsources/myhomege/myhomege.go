@@ -389,7 +389,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	err = json.Unmarshal(body, &responseObject)
 	if err != nil {
 		log.Printf(string(body))
-		return make(map[uint32]AddSource), err
+		return make(map[uint32]AddSource), nil
 	}
 
 	result := make(map[uint32]AddSource)
