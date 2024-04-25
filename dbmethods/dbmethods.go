@@ -296,6 +296,7 @@ func CreateUser(contact string, lang string, currency string, locationId uint16,
 
 	res, err := stmt.Exec(contact, lang, currency, locationId, sourceId)
 	if err != nil {
+		log.Println(err)
 		return user, err
 	}
 
