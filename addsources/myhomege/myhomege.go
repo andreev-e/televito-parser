@@ -242,7 +242,7 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	userName := getUsernameByUserID(addSource.UserID)
 	var user, err = Dbmethods.FindUserByPhone(userName)
 	if err != nil {
-		log.Println(err)
+		log.Println("Trying to add user " + userName)
 		user, err = Dbmethods.CreateUser(userName, "ge", currency, locationId, nil)
 	}
 
