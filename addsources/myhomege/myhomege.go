@@ -121,6 +121,7 @@ var (
 
 func ParsePage(page uint16) (uint16, error) {
 	addSources, err := loadPage(page)
+	page++
 	if err != nil {
 		return page, err
 	}
@@ -129,8 +130,6 @@ func ParsePage(page uint16) (uint16, error) {
 	if len(addSources) == 0 {
 		log.Println(Class + ": 0 - resetting page to 1")
 		return uint16(1), nil
-	} else {
-		page++
 	}
 
 	carIds := make([]uint32, 0)
@@ -389,7 +388,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	err = json.Unmarshal(body, &responseObject)
 	if err != nil {
 		log.Printf(string(body))
-		return make(map[uint32]AddSource), nil
+		return make(map[uint32]AddSource), err
 	}
 
 	result := make(map[uint32]AddSource)
