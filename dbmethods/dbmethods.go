@@ -308,6 +308,7 @@ func CreateUser(contact string, lang string, currency string, locationId uint16,
 	user.Currency = currency
 	user.Location_id = locationId
 
+	log.Println("User created: ", user)
 	return user, nil
 }
 
