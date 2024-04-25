@@ -258,7 +258,7 @@ func FindUserByPhone(phone string) (Models.User, error) {
 
 		return user, nil
 	}
-	return user, nil
+	return user, errors.New("user not found")
 }
 
 func FindUserBySourceId(sourceId string) (Models.User, error) {
@@ -278,7 +278,7 @@ func FindUserBySourceId(sourceId string) (Models.User, error) {
 
 		return user, nil
 	}
-	return user, nil
+	return user, errors.New("user not found")
 }
 
 func CreateUser(contact string, lang string, currency string, locationId uint16, sourceId interface{}) (Models.User, error) {
