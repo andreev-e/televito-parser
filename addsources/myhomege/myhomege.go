@@ -187,6 +187,7 @@ func ParsePage(page uint16) (uint16, error) {
 
 			var locationId = Dbmethods.GetLocationByAddress(addSource.StreetAddress, 0, 0)
 			user, err := getUser(addSource, locationId)
+			log.Println("User: ", user, "Error: ", err)
 			if err != nil {
 				log.Println(err)
 				continue
