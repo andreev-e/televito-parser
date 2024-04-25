@@ -263,7 +263,7 @@ func FindUserByPhone(phone string) (Models.User, error) {
 
 func FindUserBySourceId(sourceId string) (Models.User, error) {
 	var user Models.User
-	var query = "SELECT * FROM users WHERE source_id = ? LIMIT 1"
+	var query = "SELECT id, contact FROM users WHERE source_id = ? LIMIT 1"
 	rows, err := db.Query(query, sourceId)
 	if err != nil {
 		return user, err
@@ -312,7 +312,7 @@ func CreateUser(contact string, lang string, currency string, locationId uint16,
 
 func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category, error) {
 	var category Models.Category
-	var query = "SELECT * FROM categories WHERE name = ? AND parent_id = ? AND deleted_at IS NULL"
+	var query = "SELECT id FROM categories WHERE name = ? AND parent_id = ? AND deleted_at IS NULL"
 	rows, err := db.Query(query, name, parentId)
 	if err != nil {
 		return category, err
