@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	Myhomege "televito-parser/addsources/myhomege"
+	Ssge "televito-parser/addsources/ssge"
 	Dbmethods "televito-parser/dbmethods"
 	"time"
 )
@@ -29,14 +30,14 @@ func main() {
 	defer logFile.Close()
 	defer Dbmethods.CloseDB()
 
-	//go reparseFirstPages("MyAutoGe")
-	//go reparseFirstPages("MyAutoGeRent")
-	//go reparseFirstPages(Ssge.Class)
-	//go reparseFirstPages(Myhomege.Class)
-	//
-	//go reparseAllPages("MyAutoGe")
-	//go reparseAllPages("MyAutoGeRent")
-	//go reparseAllPages(Ssge.Class)
+	go reparseFirstPages("MyAutoGe")
+	go reparseFirstPages("MyAutoGeRent")
+	go reparseFirstPages(Ssge.Class)
+	go reparseFirstPages(Myhomege.Class)
+
+	go reparseAllPages("MyAutoGe")
+	go reparseAllPages("MyAutoGeRent")
+	go reparseAllPages(Ssge.Class)
 	go reparseAllPages(Myhomege.Class)
 	for {
 		log.Print(Dbmethods.GetDbStats())

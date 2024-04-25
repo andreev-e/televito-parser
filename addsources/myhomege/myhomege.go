@@ -187,7 +187,6 @@ func ParsePage(page uint16) (uint16, error) {
 
 			var locationId = Dbmethods.GetLocationByAddress(addSource.StreetAddress, 0, 0)
 			user, err := getUser(addSource, locationId)
-			log.Println("User: ", user, "Error: ", err)
 			if err != nil {
 				log.Println(err)
 				continue
@@ -242,7 +241,6 @@ func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
 	userName := getUsernameByUserID(addSource.UserID)
 	var user, err = Dbmethods.FindUserByPhone(userName)
 	if err != nil {
-		log.Println("Trying to add user " + userName)
 		user, err = Dbmethods.CreateUser(userName, "ge", currency, locationId, nil)
 	}
 
