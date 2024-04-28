@@ -85,6 +85,29 @@ func reparseAllPages(class string) {
 			log.Println("Error writing last page to redis: ", err)
 		}
 
+		if page == 1 {
+			err = redisClient.WriteKey("tvito_database_tvito_cache_:max_page_"+class, strconv.Itoa(int(page+1)))
+			if err != nil {
+				log.Println("Error writing max_page page to redis: ", err)
+			}
+
+			err = redisClient.WriteKey("tvito_database_tvito_cache_:reparse_start_"+class, time.Now().String())
+			if err != nil {
+				log.Println("Error reparse_start last page to redis: ", err)
+			}
+
+			err = redisClient.DeleteKey("tvito_database_tvito_cache_:" + class + "_last_page")
+			if err != nil {
+				log.Println("Error deleting last page from redis: ", err)
+			}
+
+			//$lastPageCacheKey = $shortClassName . '_last_page';
+			//            Add::where('source_class', $shortClassName)
+			//                ->where('updated_at', '<',
+			//                    Cache::get('reparse_start_' . $shortClassName, now()->subDays(static::VALIDITY_PERIOD)))
+			//                ->delete();
+		}
+
 		time.Sleep(delay)
 	}
 }

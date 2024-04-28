@@ -40,3 +40,10 @@ func (rc *RedisClient) WriteKey(key string, value string) error {
 	err := rc.client.Set(ctx, key, value, 0).Err()
 	return err
 }
+
+func (rc *RedisClient) DeleteKey(key string) error {
+	ctx := context.Background()
+
+	err := rc.client.Del(ctx, key).Err()
+	return err
+}
