@@ -118,7 +118,8 @@ func reparseAllPages(class string) {
 				log.Println("Error writing last page to redis: ", err)
 			}
 
-			err = redisClient.WriteKey("resent_check_"+class, time.Now().Format("2006-01-02 15:04:05"))
+			var timeString = time.Now().Format("2006-01-02 15:04:05")
+			err = redisClient.WriteKey("resent_check_"+class, "s:"+strconv.Itoa(len(timeString))+":\""+timeString+"\"")
 			if err != nil {
 				log.Println("Error writing resent check to redis: ", err)
 			}
