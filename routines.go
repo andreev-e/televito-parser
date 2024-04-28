@@ -80,11 +80,6 @@ func reparseAllPages(class string) {
 			time.Sleep(60 * time.Second)
 		}
 
-		err = redisClient.WriteKey("tvito_database_tvito_cache_:"+class+"_last_page", strconv.Itoa(int(page)))
-		if err != nil {
-			log.Println("Error writing last page to redis: ", err)
-		}
-
 		if page == 1 {
 			err = redisClient.WriteKey("tvito_database_tvito_cache_:max_page_"+class, strconv.Itoa(int(page+1)))
 			if err != nil {
@@ -106,6 +101,22 @@ func reparseAllPages(class string) {
 			//                ->where('updated_at', '<',
 			//                    Cache::get('reparse_start_' . $shortClassName, now()->subDays(static::VALIDITY_PERIOD)))
 			//                ->delete();
+		} else {
+			maxPage, err := redisClient.ReadKey("tvito_database_tvito_cache_:max_page_" + class)
+			if err != nil {
+				maxPage = "0"
+			}
+			maxPageInteger, err := strconv.Atoi(maxPage)
+
+			err = redisClient.WriteKey("tvito_database_tvito_cache_:max_page_"+class, strconv.Itoa(max(int(page+1), maxPageInteger)))
+			if err != nil {
+				log.Println("Error writing max_page page to redis: ", err)
+			}
+
+			err = redisClient.WriteKey("tvito_database_tvito_cache_:"+class+"_last_page", strconv.Itoa(int(page)))
+			if err != nil {
+				log.Println("Error writing last page to redis: ", err)
+			}
 		}
 
 		time.Sleep(delay)
