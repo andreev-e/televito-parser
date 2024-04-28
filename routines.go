@@ -54,7 +54,7 @@ func reparseAllPages(class string) {
 		page = 1
 	}
 
-	err = redisClient.WriteKey("_tvito_database_tvito_cache_:"+class+"_last_page", strconv.Itoa(int(page)))
+	err = redisClient.WriteKey("tvito_database_tvito_cache_:"+class+"_last_page", strconv.Itoa(int(page)))
 	if err != nil {
 		log.Println("Error writing last page to redis: ", err)
 	}
