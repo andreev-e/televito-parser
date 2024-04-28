@@ -56,6 +56,6 @@ func (rc *RedisClient) WriteTime(key string, value time.Time) error {
 	redisClient := NewRedisClient()
 	defer redisClient.Close()
 
-	var timeString = value.Format("2006-01-02 15:04:05 -0700 MST")
+	var timeString = value.Format("2006-01-02 15:04:05 -0700")
 	return redisClient.WriteKey(key, "s:"+strconv.Itoa(len(timeString))+":\""+timeString+"\";")
 }
