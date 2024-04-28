@@ -5,6 +5,8 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
+var commonPrefix = "tvito_database_tvito_cache_:"
+
 type RedisClient struct {
 	client *redis.Client
 }
@@ -26,7 +28,7 @@ func (rc *RedisClient) Close() {
 func (rc *RedisClient) ReadKey(key string) (string, error) {
 	ctx := context.Background()
 
-	val, err := rc.client.Get(ctx, key).Result()
+	val, err := rc.client.Get(ctx, commonPrefix+key).Result()
 	if err != nil {
 		return "", err
 	}
@@ -37,13 +39,13 @@ func (rc *RedisClient) ReadKey(key string) (string, error) {
 func (rc *RedisClient) WriteKey(key string, value string) error {
 	ctx := context.Background()
 
-	err := rc.client.Set(ctx, key, value, 0).Err()
+	err := rc.client.Set(ctx, commonPrefix+key, value, 0).Err()
 	return err
 }
 
 func (rc *RedisClient) DeleteKey(key string) error {
 	ctx := context.Background()
 
-	err := rc.client.Del(ctx, key).Err()
+	err := rc.client.Del(ctx, commonPrefix+key).Err()
 	return err
 }

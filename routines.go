@@ -41,8 +41,8 @@ func reparseAllPages(class string) {
 	defer redisClient.Close()
 
 	var page uint16
-	storedPage, err := redisClient.ReadKey("tvito_database_tvito_cache_:" + class + "_last_page")
-	log.Println("tvito_database_tvito_cache_:"+class+"_last_page: ", storedPage)
+	storedPage, err := redisClient.ReadKey(class + "_last_page")
+	log.Println(class+"_last_page: ", storedPage)
 	if err == nil {
 		pageInt, err := strconv.Atoi(storedPage)
 		if err == nil {
@@ -81,17 +81,17 @@ func reparseAllPages(class string) {
 		}
 
 		if page == 1 {
-			err = redisClient.WriteKey("tvito_database_tvito_cache_:max_page_"+class, strconv.Itoa(int(page+1)))
+			err = redisClient.WriteKey("max_page_"+class, strconv.Itoa(int(page+1)))
 			if err != nil {
 				log.Println("Error writing max_page page to redis: ", err)
 			}
 
-			err = redisClient.WriteKey("tvito_database_tvito_cache_:reparse_start_"+class, time.Now().String())
+			err = redisClient.WriteKey("reparse_start_"+class, time.Now().String())
 			if err != nil {
 				log.Println("Error reparse_start last page to redis: ", err)
 			}
 
-			err = redisClient.DeleteKey("tvito_database_tvito_cache_:" + class + "_last_page")
+			err = redisClient.DeleteKey(class + "_last_page")
 			if err != nil {
 				log.Println("Error deleting last page from redis: ", err)
 			}
@@ -102,20 +102,25 @@ func reparseAllPages(class string) {
 			//                    Cache::get('reparse_start_' . $shortClassName, now()->subDays(static::VALIDITY_PERIOD)))
 			//                ->delete();
 		} else {
-			maxPage, err := redisClient.ReadKey("tvito_database_tvito_cache_:max_page_" + class)
+			maxPage, err := redisClient.ReadKey("max_page_" + class)
 			if err != nil {
 				maxPage = "0"
 			}
 			maxPageInteger, err := strconv.Atoi(maxPage)
 
-			err = redisClient.WriteKey("tvito_database_tvito_cache_:max_page_"+class, strconv.Itoa(max(int(page+1), maxPageInteger)))
+			err = redisClient.WriteKey("max_page_"+class, strconv.Itoa(max(int(page+1), maxPageInteger)))
 			if err != nil {
 				log.Println("Error writing max_page page to redis: ", err)
 			}
 
-			err = redisClient.WriteKey("tvito_database_tvito_cache_:"+class+"_last_page", strconv.Itoa(int(page)))
+			err = redisClient.WriteKey(class+"_last_page", strconv.Itoa(int(page)))
 			if err != nil {
 				log.Println("Error writing last page to redis: ", err)
+			}
+
+			err = redisClient.WriteKey("resent_check_"+class, time.Now().String())
+			if err != nil {
+				log.Println("Error writing resent check to redis: ", err)
 			}
 		}
 
