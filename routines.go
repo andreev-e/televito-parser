@@ -54,11 +54,6 @@ func reparseAllPages(class string) {
 		page = 1
 	}
 
-	err = redisClient.WriteKey("tvito_database_tvito_cache_:"+class+"_last_page", strconv.Itoa(int(page)))
-	if err != nil {
-		log.Println("Error writing last page to redis: ", err)
-	}
-
 	var delay time.Duration
 	switch class {
 	case "MyAutoGe":
@@ -66,9 +61,9 @@ func reparseAllPages(class string) {
 	case "MyAutoGeRent":
 		delay = 20 * time.Second
 	case Ssge.Class:
-		delay = 1 * time.Second
+		delay = 5 * time.Second
 	case Myhomege.Class:
-		delay = 1 * time.Second
+		delay = 5 * time.Second
 	}
 	for {
 		switch class {
@@ -84,6 +79,12 @@ func reparseAllPages(class string) {
 			log.Println("Error parsing "+class+", p "+strconv.Itoa(int(page)), err)
 			time.Sleep(60 * time.Second)
 		}
+
+		err = redisClient.WriteKey("tvito_database_tvito_cache_:"+class+"_last_page", strconv.Itoa(int(page)))
+		if err != nil {
+			log.Println("Error writing last page to redis: ", err)
+		}
+
 		time.Sleep(delay)
 	}
 }
