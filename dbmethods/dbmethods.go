@@ -363,3 +363,11 @@ func CreateCategory(name string, parentId uint16) (Models.Category, error) {
 
 	return category, nil
 }
+
+func MarkAddsTrashed(sourceClass string, olderThan string) {
+	rows, err := db.Query("UPDATE adds SET deleted_at = NOW() WHERE deleted_at IS NULL AND source_class = ? AND updated_at < ?", sourceClass, olderThan)
+	if err != nil {
+		log.Println(err)
+	}
+	defer rows.Close()
+}

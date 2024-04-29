@@ -6,6 +6,7 @@ import (
 	"televito-parser/addsources/myautoge"
 	Myhomege "televito-parser/addsources/myhomege"
 	Ssge "televito-parser/addsources/ssge"
+	Dbmethods "televito-parser/dbmethods"
 	"time"
 )
 
@@ -84,21 +85,21 @@ func reparseAllPages(class string) {
 		if page == 0 {
 			page = 1
 
-			err = redisClient.WriteTime("reparse_start_"+class, time.Now())
-			if err != nil {
-				log.Println("Error reparse_start last page to redis: ", err)
-			}
-
 			err = redisClient.DeleteKey(class + "_last_page")
 			if err != nil {
 				log.Println("Error deleting last page from redis: ", err)
 			}
 
-			//$lastPageCacheKey = $shortClassName . '_last_page';
-			//            Add::where('source_class', $shortClassName)
-			//                ->where('updated_at', '<',
-			//                    Cache::get('reparse_start_' . $shortClassName, now()->subDays(static::VALIDITY_PERIOD)))
-			//                ->delete();
+			reparseStart, err := redisClient.ReadKey("reparse_start_" + class)
+			Dbmethods.MarkAddsTrashed(class, reparseStart)
+			if err != nil {
+				log.Println("Error retrieve reparse_start: ", err)
+			}
+
+			err = redisClient.WriteTime("reparse_start_"+class, time.Now())
+			if err != nil {
+				log.Println("Error reparse_start last page to redis: ", err)
+			}
 		} else {
 			maxPage, err := redisClient.ReadKey("max_page_" + class)
 			if err != nil {
