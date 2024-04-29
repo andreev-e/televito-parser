@@ -29,7 +29,7 @@ func reparseFirstPages(class string) {
 		if err != nil {
 			log.Println("Error parsing first pages: ", err)
 		}
-		time.Sleep(10 * time.Minute)
+		time.Sleep(5 * time.Minute)
 	}
 }
 
