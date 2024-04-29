@@ -266,7 +266,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 		"Page": strconv.Itoa(int(page)),
 	}
 
-	fullUrl := url + "/search?"
+	fullUrl := url + "search?"
 	for key, value := range params {
 		fullUrl += key + "=" + value + "&"
 	}
