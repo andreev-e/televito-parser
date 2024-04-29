@@ -12,110 +12,83 @@ import (
 	Main "televito-parser/models"
 )
 
-type Currency struct {
-	CurrencyID     string `json:"currency_id"`
-	CurrencySymbol string `json:"currency_symbol"`
-	CurrencyRate   string `json:"currency_rate"`
-	Title          string `json:"title"`
-}
-
-type User struct {
-	UserID                string `json:"user_id"`
-	Username              string `json:"username"`
-	GenderID              string `json:"gender_id"`
-	PersonalDataAgreement string `json:"personal_data_agreement"`
-	AgreeTBCTerms         string `json:"AgreeTBCTerms"`
+type Response struct {
+	Data struct {
+		Title       string      `json:"title"`
+		Type        string      `json:"type"`
+		Children    []AddSource `json:"children"`
+		CurrentPage int         `json:"current_page"`
+		LastPage    int         `json:"last_page"`
+		PerPage     int         `json:"per_page"`
+		Total       int         `json:"total"`
+		From        int         `json:"from"`
+		To          int         `json:"to"`
+	} `json:"data"`
+	Success bool `json:"success"`
 }
 
 type AddSource struct {
-	ProductID     string              `json:"product_id"`
-	UserID        string              `json:"user_id"`
-	LocID         string              `json:"loc_id"`
-	StreetAddress string              `json:"street_address"`
-	Price         string              `json:"price"`
-	AreaSize      string              `json:"area_size"`
-	Rooms         string              `json:"rooms"`
-	Bedrooms      string              `json:"bedrooms"`
-	Floor         string              `json:"floor"`
-	MapLat        string              `json:"map_lat"`
-	MapLon        string              `json:"map_lon"`
-	Name          string              `json:"name"`
-	Pathway       string              `json:"pathway"`
-	Currencies    map[string]Currency `json:"Currencies"`
-	CurrencyID    string              `json:"currency_id"`
-	PhotosCount   string              `json:"photos_count"`
-	Photo         string              `json:"photo"`
-	AdtypeID      string              `json:"adtype_id"`
-	EstateTypeID  string              `json:"estate_type_id"`
-	Comment       string              `json:"comment"`
-	YardSize      string              `json:"yard_size"`
-	Water         string              `json:"water"`
-	Road          string              `json:"road"`
-	Electricity   string              `json:"electricity"`
-	Canalization  string              `json:"canalization"`
-	AreaSizeValue string              `json:"area_size_value"`
-}
-
-type Prs struct {
-	Maklers []interface{} `json:"Maklers"`
-	Prs     []AddSource   `json:"Prs"`
-	Users   Users         `json:"Users"`
-}
-
-type Users struct {
-	StatusCode    int             `json:"StatusCode"`
-	StatusMessage string          `json:"StatusMessage"`
-	Data          map[string]User `json:"Data"`
-}
-
-type Response struct {
-	Prs Prs    `json:"Prs"`
-	Cnt string `json:"Cnt"`
+	ID    int    `json:"id"`
+	Title string `json:"title"`
+	Price struct {
+		TotalPrice struct {
+			Gel int `json:"gel"`
+			USD int `json:"usd"`
+		} `json:"total_price"`
+		SQMPrice struct {
+			Gel float64 `json:"gel"`
+			USD float64 `json:"usd"`
+		} `json:"sqm_price"`
+	} `json:"price"`
+	ProductTypeID int    `json:"product_type_id"`
+	AdtypeID      int    `json:"adtype_id"`
+	DescText      string `json:"desc_text"`
+	Place         string `json:"place"`
+	Date          int    `json:"date"`
+	OwnerTypeID   int    `json:"owner_type_id"`
+	UserID        int    `json:"user_id"`
+	Images        struct {
+		Val      int    `json:"val"`
+		PhotoVer int    `json:"photo_ver"`
+		Path     string `json:"path"`
+	} `json:"images"`
 }
 
 const (
 	Class              = "MyHomeGe"
-	url                = "https://api.myhome.ge/ka/"
+	url                = "https://api2.myhome.ge/api/ru/"
 	numberOfPhotos int = 5
 	mainCategory       = 1
 )
 
-var userData map[string]User
-
 var (
-	currencies = map[string]string{
-		"1": "USD",
-		"2": "EUR",
-		"3": "GEL",
+	estateTypes = map[int]string{
+		0:  "отель",
+		1:  "квартира",
+		2:  "строительство",
+		3:  "квартира",
+		4:  "торговое",
+		5:  "магазин",
+		6:  "подвал",
+		7:  "производство",
+		8:  "склад",
+		9:  "коммерческая(?9)",
+		10: "коммерческая",
+		12: "гараж",
+		13: "участок сельхоз",
+		14: "участок",
+		15: "участок коммерческий",
+		17: "новостройка",
+		18: "вилла",
+		21: "участок под застройку",
 	}
 
-	estateTypes = map[string]string{
-		"0":  "отель",
-		"1":  "квартира",
-		"2":  "строительство",
-		"3":  "квартира",
-		"4":  "торговое",
-		"5":  "магазин",
-		"6":  "подвал",
-		"7":  "производство",
-		"8":  "склад",
-		"9":  "коммерческая(?9)",
-		"10": "коммерческая",
-		"12": "гараж",
-		"13": "участок сельхоз",
-		"14": "участок",
-		"15": "участок коммерческий",
-		"17": "новостройка",
-		"18": "вилла",
-		"21": "участок под застройку",
-	}
-
-	addTypes = map[string]string{
-		"1": "Продажа",
-		"2": "Залог",
-		"3": "Аренда",
-		"7": "Посуточно",
-		"8": "Аренда",
+	addTypes = map[int]string{
+		1: "Продажа",
+		2: "Залог",
+		3: "Аренда",
+		7: "Посуточно",
+		8: "Аренда",
 	}
 )
 
@@ -154,18 +127,12 @@ func ParsePage(page uint16) (uint16, error) {
 			continue
 		}
 
-		currency, ok := currencies[addSources[id].CurrencyID]
-		if !ok {
-			currency = "USD"
-		}
-
-		price, _ := strconv.ParseInt(addSources[id].Price, 10, 32)
 		add.Name = getName(addSources[id])
 		add.Description = getDescription(addSources[id])
-		add.Price = int(price)
-		add.Price_usd = float32(price)
-		add.Currency = currency
-		add.Location_id = Dbmethods.GetLocationByAddress(addSources[id].StreetAddress, 0, 0)
+		add.Price = addSources[id].Price.TotalPrice.Gel
+		add.Price_usd = float32(addSources[id].Price.TotalPrice.USD)
+		add.Currency = "GEL"
+		add.Location_id = Dbmethods.GetLocationByAddress(addSources[id].Place, 0, 0)
 		add.CategoryId = category.Id
 		add.Images = getImagesUrlList(addSources[id])
 
@@ -185,26 +152,19 @@ func ParsePage(page uint16) (uint16, error) {
 				continue
 			}
 
-			var locationId = Dbmethods.GetLocationByAddress(addSource.StreetAddress, 0, 0)
+			var locationId = Dbmethods.GetLocationByAddress(addSource.Place, 0, 0)
 			user, err := getUser(addSource, locationId)
 			if err != nil {
 				log.Println(err)
 				continue
 			}
 
-			currency, ok := currencies[addSources[id].CurrencyID]
-			if !ok {
-				currency = "USD"
-			}
-
-			price, _ := strconv.ParseInt(addSource.Price, 10, 32)
-
 			add := Main.Add{
 				Name:         getName(addSource),
 				Description:  getDescription(addSource),
-				Price:        int(price),
-				Price_usd:    float32(price),
-				Currency:     currency,
+				Price:        addSource.Price.TotalPrice.Gel,
+				Price_usd:    float32(addSource.Price.TotalPrice.USD),
+				Currency:     "GEL",
 				Location_id:  locationId,
 				CategoryId:   category.Id,
 				Source_class: Class,
@@ -224,36 +184,21 @@ func ParsePage(page uint16) (uint16, error) {
 
 func getImagesUrlList(addSource AddSource) string {
 	images := make([]string, 0)
-	photosCount, _ := strconv.Atoi(addSource.PhotosCount)
-	for i := 1; i <= min(photosCount, numberOfPhotos); i++ {
-		images = append(images, "https://static.my.ge/myhome/photos/"+addSource.Photo+"/large/"+addSource.ProductID+"_"+strconv.Itoa(int(i))+".jpg")
+	for i := 1; i <= min(addSource.Images.Val, numberOfPhotos); i++ {
+		images = append(images, "https://static.my.ge/myhome/photos/"+addSource.Images.Path+"/large/"+strconv.Itoa(addSource.ID)+"_"+strconv.Itoa(int(i))+".jpg")
 	}
 
 	return "[\"" + strings.Join(images, "\",\"") + "\"]"
 }
 
 func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
-	currency, ok := currencies[addSource.CurrencyID]
-	if !ok {
-		currency = "USD"
-	}
-
-	userName := getUsernameByUserID(addSource.UserID)
+	userName := strconv.Itoa(addSource.UserID)
 	var user, err = Dbmethods.FindUserByPhone(userName)
 	if err != nil {
-		user, err = Dbmethods.CreateUser(userName, "ge", currency, locationId, nil)
+		user, err = Dbmethods.CreateUser(userName, "ge", "GEL", locationId, nil)
 	}
 
 	return user, err
-}
-
-func getUsernameByUserID(userID string) string {
-	for _, user := range userData {
-		if user.UserID == userID {
-			return user.Username
-		}
-	}
-	return ""
 }
 
 func getCategory(addSource AddSource) (Main.Category, error) {
@@ -275,7 +220,7 @@ func getCategory(addSource AddSource) (Main.Category, error) {
 		category = createdCategory
 	}
 
-	subCategoryAuto, subCatOk := estateTypes[addSource.EstateTypeID]
+	subCategoryAuto, subCatOk := estateTypes[addSource.ProductTypeID]
 	if !subCatOk {
 		return category, nil
 	}
@@ -293,35 +238,7 @@ func getCategory(addSource AddSource) (Main.Category, error) {
 
 func getDescription(addSource AddSource) string {
 	var description []string
-	description = append(description, addSource.Comment)
-
-	if addSource.Rooms != "" && addSource.Rooms != "0" {
-		description = append(description, "Комнат: "+addSource.Rooms)
-	}
-
-	if addSource.Bedrooms != "" && addSource.Bedrooms != "0" {
-		description = append(description, "Спален: "+addSource.Bedrooms)
-	}
-
-	if addSource.YardSize != "" && addSource.YardSize != "0" {
-		description = append(description, "Площадь двора: "+addSource.YardSize)
-	}
-
-	if addSource.Water == "1" {
-		description = append(description, "Вода")
-	}
-
-	if addSource.Road == "1" {
-		description = append(description, "Дорога")
-	}
-
-	if addSource.Electricity == "1" {
-		description = append(description, "Электричество")
-	}
-
-	if addSource.Canalization == "1" {
-		description = append(description, "Канализация")
-	}
+	description = append(description, addSource.DescText)
 
 	return strings.Join(description, "\n")
 }
@@ -329,24 +246,16 @@ func getDescription(addSource AddSource) string {
 func getName(addSource AddSource) string {
 	var name []string
 
+	name = append(name, addSource.Title)
+
 	addType, ok := addTypes[addSource.AdtypeID]
 	if ok {
 		name = append(name, addType)
 	}
 
-	estateType, ok := estateTypes[addSource.EstateTypeID]
+	estateType, ok := estateTypes[addSource.ProductTypeID]
 	if ok {
 		name = append(name, estateType)
-	}
-
-	if addSource.Rooms != "" && addSource.Rooms != "0" {
-		name = append(name, addSource.Rooms+"к")
-	}
-
-	name = append(name, addSource.AreaSizeValue+"m²")
-
-	if addSource.Floor != "" {
-		name = append(name, "эт."+addSource.Floor)
 	}
 
 	return strings.Join(name, " ")
@@ -354,13 +263,10 @@ func getName(addSource AddSource) string {
 
 func loadPage(page uint16) (map[uint32]AddSource, error) {
 	params := map[string]string{
-		"Page":      strconv.Itoa(int(page)),
-		"Ajax":      "1",
-		"WithPhoto": "1",
-		"WithMap":   "1",
+		"Page": strconv.Itoa(int(page)),
 	}
 
-	fullUrl := url + "/products/?"
+	fullUrl := url + "/search?"
 	for key, value := range params {
 		fullUrl += key + "=" + value + "&"
 	}
@@ -392,10 +298,8 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 
 	result := make(map[uint32]AddSource)
 
-	userData = responseObject.Prs.Users.Data
-
-	for _, addSource := range responseObject.Prs.Prs {
-		id, err := strconv.ParseUint(addSource.ProductID, 10, 32)
+	for _, addSource := range responseObject.Data.Children {
+		id, err := strconv.ParseUint(strconv.Itoa(addSource.ID), 10, 32)
 		if err == nil {
 			result[uint32(id)] = addSource
 		}
