@@ -82,7 +82,8 @@ func reparseAllPages(class string) {
 		}
 
 		if page == 0 {
-			err = redisClient.WriteKey("max_page_"+class, strconv.Itoa(int(page+1)))
+			page = 1
+			err = redisClient.WriteKey("max_page_"+class, strconv.Itoa(int(page)))
 			if err != nil {
 				log.Println("Error writing max_page page to redis: ", err)
 			}
