@@ -96,7 +96,6 @@ func ParsePage(page uint16) (uint16, error) {
 	addSources, err := loadPage(page)
 	page++
 	if err != nil {
-		log.Println(err)
 		return page, err
 	}
 
@@ -300,10 +299,7 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 	result := make(map[uint32]AddSource)
 
 	for _, addSource := range responseObject.Data.Children {
-		id, err := strconv.ParseUint(strconv.Itoa(addSource.ID), 10, 32)
-		if err == nil {
-			result[uint32(id)] = addSource
-		}
+		result[uint32(addSource.ID)] = addSource
 	}
 
 	return result, nil
