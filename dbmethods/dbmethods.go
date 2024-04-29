@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	Lrucache "televito-parser/lrucache"
 	Models "televito-parser/models"
 )
 
@@ -111,13 +112,23 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 }
 
 func GetLocationByAddress(address string, lat float32, lng float32) uint16 {
+	locationId, err := Lrucache.CachedLocations.Get(address)
+	if err == nil {
+		id, err := strconv.Atoi(locationId)
+		if err == nil {
+			return uint16(id)
+		}
+	}
+
 	location, err := queryLocation(address)
 	if err == nil {
+		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
 		return location.id
 	}
 
 	location, err = storeLocation(address, lat, lng)
 	if err == nil {
+		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
 		return location.id
 	}
 	panic("location store failed")

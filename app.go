@@ -6,11 +6,13 @@ import (
 	Myhomege "televito-parser/addsources/myhomege"
 	Ssge "televito-parser/addsources/ssge"
 	Dbmethods "televito-parser/dbmethods"
+	Lrucache "televito-parser/lrucache"
 	"time"
 )
 
 func init() {
 	Dbmethods.InitDB()
+	Lrucache.CachedLocations = Lrucache.Constructor(10)
 }
 
 func main() {
@@ -41,6 +43,7 @@ func main() {
 	go reparseAllPages(Myhomege.Class)
 	for {
 		log.Print(Dbmethods.GetDbStats())
+		log.Print(Lrucache.CachedLocations)
 		time.Sleep(1 * time.Minute)
 	}
 }
