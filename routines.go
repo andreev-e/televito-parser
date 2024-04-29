@@ -60,7 +60,7 @@ func reparseAllPages(class string) {
 	case "MyAutoGe":
 		delay = 5 * time.Second
 	case "MyAutoGeRent":
-		delay = 20 * time.Second
+		delay = 120 * time.Second
 	case Ssge.Class:
 		delay = 5 * time.Second
 	case Myhomege.Class:
