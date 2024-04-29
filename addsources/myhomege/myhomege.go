@@ -96,6 +96,7 @@ func ParsePage(page uint16) (uint16, error) {
 	addSources, err := loadPage(page)
 	page++
 	if err != nil {
+		log.Println(err)
 		return page, err
 	}
 
