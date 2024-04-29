@@ -43,7 +43,6 @@ func main() {
 	go reparseAllPages(Myhomege.Class)
 	for {
 		log.Print(Dbmethods.GetDbStats())
-		log.Print(Lrucache.CachedLocations)
 		time.Sleep(1 * time.Minute)
 	}
 }
