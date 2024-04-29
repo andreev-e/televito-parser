@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-redis/redis/v8"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -58,4 +60,40 @@ func (rc *RedisClient) WriteTime(key string, value time.Time) error {
 
 	var timeString = value.Format("2006-01-02 15:04:05 -0700")
 	return redisClient.WriteKey(key, "s:"+strconv.Itoa(len(timeString))+":\""+timeString+"\";")
+}
+
+func (rc *RedisClient) ReadTime(key string) (string, error) {
+	redisClient := NewRedisClient()
+	defer redisClient.Close()
+
+	timestring, err := redisClient.ReadKey(key)
+
+	if err != nil {
+		return "", err
+	}
+
+	return extractTimeString(timestring)
+}
+
+func extractTimeString(input string) (string, error) {
+	// Find the start and end indexes of the timeString
+	startIndex := strings.Index(input, ":\"") + 2
+	endIndex := startIndex + strings.Index(input[startIndex:], "\"")
+
+	// Extract the timeString
+	if startIndex < 0 || endIndex < 0 {
+		return "", fmt.Errorf("unable to extract timeString")
+	}
+	timeString := input[startIndex:endIndex]
+
+	// Check if the length matches the length mentioned in the string
+	length, err := strconv.Atoi(input[2:strings.Index(input, ":\"")])
+	if err != nil {
+		return "", err
+	}
+	if len(timeString) != length {
+		return "", fmt.Errorf("length mismatch")
+	}
+
+	return timeString, nil
 }

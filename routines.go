@@ -90,7 +90,7 @@ func reparseAllPages(class string) {
 				log.Println("Error deleting last page from redis: ", err)
 			}
 
-			reparseStart, err := redisClient.ReadKey("reparse_start_" + class)
+			reparseStart, err := redisClient.ReadTime("reparse_start_" + class)
 			Dbmethods.MarkAddsTrashed(class, reparseStart)
 			if err != nil {
 				log.Println("Error retrieve reparse_start: ", err)
