@@ -296,8 +296,9 @@ func loadPage(page uint16) (map[uint32]AddSource, error) {
 		return make(map[uint32]AddSource), err
 	}
 
-	result := make(map[uint32]AddSource)
+	log.Println(responseObject.Data.Children)
 
+	result := make(map[uint32]AddSource)
 	for _, addSource := range responseObject.Data.Children {
 		result[uint32(addSource.ID)] = addSource
 	}
