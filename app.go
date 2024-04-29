@@ -12,7 +12,7 @@ import (
 
 func init() {
 	Dbmethods.InitDB()
-	Lrucache.CachedLocations = Lrucache.Constructor(10)
+	Lrucache.CachedLocations = Lrucache.Constructor(1000)
 }
 
 func main() {
