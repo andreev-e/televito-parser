@@ -21,7 +21,7 @@ func InitDB() {
 		log.Println(err)
 	}
 
-	db.SetMaxOpenConns(50)
+	db.SetMaxOpenConns(25)
 	db.SetMaxIdleConns(10)
 }
 

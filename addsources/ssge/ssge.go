@@ -55,8 +55,8 @@ type Address struct {
 }
 
 type Price struct {
-	PriceGeo int `json:"priceGeo"`
-	PriceUSD int `json:"priceUsd"`
+	PriceGeo float32 `json:"priceGeo"`
+	PriceUSD int     `json:"priceUsd"`
 }
 
 type AppImage struct {
@@ -127,7 +127,7 @@ func ParsePage(page uint16) (uint16, error) {
 
 		add.Name = getName(addSources[id])
 		add.Description = getDescription(addSources[id])
-		add.Price = addSources[id].Price.PriceGeo
+		add.Price = int(addSources[id].Price.PriceGeo)
 		add.Price_usd = float32(addSources[id].Price.PriceUSD)
 		add.Currency = "GEL"
 		add.Location_id = Dbmethods.GetLocationByAddress(getAddress(addSources[id]), 0, 0)
@@ -160,7 +160,7 @@ func ParsePage(page uint16) (uint16, error) {
 			add := Main.Add{
 				Name:         getName(addSource),
 				Description:  getDescription(addSource),
-				Price:        addSource.Price.PriceGeo,
+				Price:        int(addSource.Price.PriceGeo),
 				Price_usd:    float32(addSource.Price.PriceUSD),
 				Currency:     "GEL",
 				Location_id:  locationId,

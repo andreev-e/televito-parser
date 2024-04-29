@@ -76,8 +76,9 @@ func reparseAllPages(class string) {
 		}
 
 		if err != nil {
-			log.Println("Error parsing "+class+", p "+strconv.Itoa(int(page)), err)
-			time.Sleep(60 * time.Second)
+			log.Println("Error parsing " + class + ", p " + strconv.Itoa(int(page)))
+			log.Println(err)
+			time.Sleep(120 * time.Second)
 		}
 
 		if page == 0 {
