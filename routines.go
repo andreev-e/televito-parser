@@ -46,7 +46,7 @@ func reparseAllPages(class string) {
 	log.Println(class+"_last_page: ", storedPage)
 	if err == nil {
 		pageInt, err := strconv.Atoi(storedPage)
-		if err == nil {
+		if err == nil && pageInt > 0 {
 			page = uint16(pageInt)
 		} else {
 			page = 1

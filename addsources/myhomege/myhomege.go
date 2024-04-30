@@ -32,8 +32,8 @@ type AddSource struct {
 	Title string `json:"title"`
 	Price struct {
 		TotalPrice struct {
-			Gel int `json:"gel"`
-			USD int `json:"usd"`
+			Gel int     `json:"gel"`
+			USD float32 `json:"usd"`
 		} `json:"total_price"`
 		SQMPrice struct {
 			Gel float64 `json:"gel"`
@@ -131,7 +131,7 @@ func ParsePage(page uint16) (uint16, error) {
 		add.Name = getName(addSources[id])
 		add.Description = getDescription(addSources[id])
 		add.Price = addSources[id].Price.TotalPrice.Gel
-		add.Price_usd = float32(addSources[id].Price.TotalPrice.USD)
+		add.Price_usd = addSources[id].Price.TotalPrice.USD
 		add.Currency = "GEL"
 		add.Location_id = Dbmethods.GetLocationByAddress(addSources[id].Place, 0, 0)
 		add.CategoryId = category.Id
