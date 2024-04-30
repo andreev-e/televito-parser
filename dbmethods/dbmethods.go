@@ -16,12 +16,13 @@ import (
 
 type Location struct {
 	gorm.Model
-	id        uint16
+	id        uint16 `gorm:"primaryKey"`
 	lat       float32
 	lng       float32
 	address   string
-	CreatedAt time.Time `gorm:"type:datetime"`
-	UpdatedAt time.Time `gorm:"type:datetime"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 var db *sql.DB
