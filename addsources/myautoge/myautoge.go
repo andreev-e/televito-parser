@@ -239,29 +239,23 @@ func getCategory(addSource AddSource) (Main.Category, error) {
 	var subCategory Main.Category
 	var err = fmt.Errorf("Get category error")
 
-	category, err = Dbmethods.FindCategoryByNameAndParent(manufacturer.Name, mainCategory)
+	createdCategory, err := Dbmethods.RetrieveCategory(manufacturer.Name, mainCategory)
 	if err != nil {
-		createdCategory, err := Dbmethods.CreateCategory(manufacturer.Name, mainCategory)
-		if err != nil {
-			return Main.Category{}, err
-		}
-		category = createdCategory
+		return Main.Category{}, err
 	}
+	category = createdCategory
 
 	subCategoryAuto, subCatOk := autoAppData.Categories[addSource.CategoryID]
 	if !subCatOk {
 		return category, nil
 	}
 
-	subCategory, err = Dbmethods.FindCategoryByNameAndParent(subCategoryAuto.Name, category.Id)
+	subCategory, err = Dbmethods.RetrieveCategory(subCategoryAuto.Name, category.Id)
 	if err != nil {
-		subCategory, err = Dbmethods.CreateCategory(subCategoryAuto.Name, category.Id)
-		if err != nil {
-			return category, err
-		}
+		return category, err
 	}
 
-	return subCategory, nil // Return subcategory if found or created successfully
+	return subCategory, nil
 }
 
 func getCurrency(addSource AddSource) string {

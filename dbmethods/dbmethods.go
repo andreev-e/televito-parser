@@ -288,7 +288,7 @@ func CreateUser(contact string, lang string, currency string, locationId uint64,
 	return user, nil
 }
 
-func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category, error) {
+func RetrieveCategory(name string, parentId uint16) (Models.Category, error) {
 	var category Models.Category
 
 	gormDb.First(&category, "name = ? AND parent_id = ?", name, parentId)
@@ -296,12 +296,6 @@ func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category,
 		fmt.Println("Category found: ", category.Name, category.ID)
 		return category, nil
 	}
-
-	return category, errors.New("category not found")
-}
-
-func CreateCategory(name string, parentId uint16) (Models.Category, error) {
-	var category Models.Category
 
 	gormDb.Create(&Models.Category{Name: name, ParentId: parentId})
 	if category.ID != 0 {

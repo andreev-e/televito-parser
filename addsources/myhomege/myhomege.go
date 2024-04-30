@@ -213,26 +213,20 @@ func getCategory(addSource AddSource) (Main.Category, error) {
 	var subCategory Main.Category
 	var err = fmt.Errorf("Get category error")
 
-	category, err = Dbmethods.FindCategoryByNameAndParent(addType, mainCategory)
+	createdCategory, err := Dbmethods.RetrieveCategory(addType, mainCategory)
 	if err != nil {
-		createdCategory, err := Dbmethods.CreateCategory(addType, mainCategory)
-		if err != nil {
-			return Main.Category{}, err
-		}
-		category = createdCategory
+		return Main.Category{}, err
 	}
+	category = createdCategory
 
 	subCategoryAuto, subCatOk := estateTypes[addSource.ProductTypeID]
 	if !subCatOk {
 		return category, nil
 	}
 
-	subCategory, err = Dbmethods.FindCategoryByNameAndParent(addType+" "+subCategoryAuto, category.Id)
+	subCategory, err = Dbmethods.RetrieveCategory(addType+" "+subCategoryAuto, category.Id)
 	if err != nil {
-		subCategory, err = Dbmethods.CreateCategory(addType+" "+subCategoryAuto, category.Id)
-		if err != nil {
-			return category, err
-		}
+		return category, err
 	}
 
 	return subCategory, nil

@@ -281,11 +281,7 @@ func getAddress(addSource AddSource) string {
 
 func getCategory(addSource AddSource) (Main.Category, error) {
 	var categoryName = getCategoryName(addSource)
-	category, err := Dbmethods.FindCategoryByNameAndParent(categoryName, mainCategory)
-	if err == nil {
-		return category, nil
-	}
-	return Dbmethods.CreateCategory(categoryName, mainCategory)
+	return Dbmethods.RetrieveCategory(categoryName, mainCategory)
 }
 
 func getCategoryName(addSource AddSource) string {
