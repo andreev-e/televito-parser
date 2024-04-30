@@ -3,7 +3,8 @@ package Dbmethods
 import (
 	"database/sql"
 	"errors"
-	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"log"
 	"os"
 	"strconv"
@@ -12,7 +13,18 @@ import (
 	Models "televito-parser/models"
 )
 
+type Location struct {
+	gorm.Model
+	id         uint16
+	lat        float32
+	lng        float32
+	address    string
+	created_at string
+	updated_at string
+}
+
 var db *sql.DB
+var gormDb *gorm.DB
 
 func InitDB() {
 	var err error
@@ -24,6 +36,11 @@ func InitDB() {
 
 	db.SetMaxOpenConns(25)
 	db.SetMaxIdleConns(10)
+
+	gormDb, err = gorm.Open(sqlite.Open("MYSQL_CONNECTION_STRING"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
 }
 
 func GetDbStats() sql.DBStats {
@@ -111,7 +128,8 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 	defer rows.Close()
 }
 
-func GetLocationByAddress(address string, lat float32, lng float32) uint16 {
+func GetLocationIdByAddress(address string, lat float32, lng float32) uint16 {
+
 	locationId, err := Lrucache.CachedLocations.Get(address)
 	if err == nil {
 		id, err := strconv.Atoi(locationId)
@@ -120,25 +138,32 @@ func GetLocationByAddress(address string, lat float32, lng float32) uint16 {
 		}
 	}
 
-	location, err := queryLocation(address)
-	if err == nil {
+	var location Location
+
+	gormDb.First(&location, "address = ?", address)
+	if location.id != 0 {
 		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
 		return location.id
 	}
 
-	location, err = storeLocation(address, lat, lng)
-	if err == nil {
+	gormDb.Create(&Location{address: address, lat: lat, lng: lng, created_at: "NOW()", updated_at: "NOW()"})
+	if location.id != 0 {
 		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
 		return location.id
 	}
-	panic("location store failed")
-}
 
-type Location struct {
-	id         uint16
-	address    string
-	created_at string
-	updated_at string
+	//location, err := queryLocation(address)
+	//if err == nil {
+	//	Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
+	//	return location.id
+	//}
+
+	//location, err = storeLocation(address, lat, lng)
+	//if err == nil {
+	//	Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
+	//	return location.id
+	//}
+	panic("location getting failed")
 }
 
 func storeLocation(address string, lat float32, lng float32) (Location, error) {

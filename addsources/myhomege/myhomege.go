@@ -133,7 +133,7 @@ func ParsePage(page uint16) (uint16, error) {
 		add.Price = addSources[id].Price.TotalPrice.Gel
 		add.Price_usd = addSources[id].Price.TotalPrice.USD
 		add.Currency = "GEL"
-		add.Location_id = Dbmethods.GetLocationByAddress(addSources[id].Place, 0, 0)
+		add.Location_id = Dbmethods.GetLocationIdByAddress(addSources[id].Place, 0, 0)
 		add.CategoryId = category.Id
 		add.Images = getImagesUrlList(addSources[id])
 
@@ -153,7 +153,7 @@ func ParsePage(page uint16) (uint16, error) {
 				continue
 			}
 
-			var locationId = Dbmethods.GetLocationByAddress(addSource.Place, 0, 0)
+			var locationId = Dbmethods.GetLocationIdByAddress(addSource.Place, 0, 0)
 			user, err := getUser(addSource, locationId)
 			if err != nil {
 				log.Println(err)
