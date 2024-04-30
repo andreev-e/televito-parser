@@ -114,6 +114,7 @@ func ParsePage(page uint16) (uint16, error) {
 	Dbmethods.RestoreTrashedAdds(carIds, Class)
 
 	existingAdds, err := Dbmethods.GetExistingAdds(carIds, Class)
+
 	log.Print(Class+" already exists: ", len(existingAdds), " of ", len(carIds))
 	if err != nil {
 		log.Println(err)
@@ -176,6 +177,7 @@ func ParsePage(page uint16) (uint16, error) {
 			addsToInsert = append(addsToInsert, add)
 		}
 
+		log.Println(Class + ": " + strconv.Itoa(len(addsToInsert)) + " Items to insert")
 		Dbmethods.InsertAddsBulk(addsToInsert)
 	}
 
