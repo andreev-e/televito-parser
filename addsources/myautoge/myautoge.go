@@ -205,7 +205,7 @@ func getImagesUrlList(addSource AddSource, id uint32) string {
 	return "[\"" + strings.Join(images, "\",\"") + "\"]"
 }
 
-func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
+func getUser(addSource AddSource, locationId uint64) (Main.User, error) {
 	var phone = strconv.FormatUint(addSource.ClientPhone, 10)
 	var user, err = Dbmethods.FindUserByPhone(phone)
 	if err != nil {

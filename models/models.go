@@ -4,7 +4,7 @@ type Add struct {
 	Id           int
 	User_id      int
 	Status       int
-	Location_id  uint16
+	Location_id  uint64
 	Name         string
 	Description  string
 	Price        int
@@ -35,7 +35,7 @@ type User struct {
 	Contact     interface{}
 	Lang        string
 	Currency    string
-	Location_id uint16
+	Location_id uint64
 	Timezone    string
 	Created_at  string
 	Updated_at  string

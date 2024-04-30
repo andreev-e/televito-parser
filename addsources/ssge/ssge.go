@@ -198,7 +198,7 @@ type UserResponse struct {
 	} `json:"userInformatino"`
 }
 
-func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
+func getUser(addSource AddSource, locationId uint64) (Main.User, error) {
 	var user Main.User
 	var err error
 	user, err = Dbmethods.FindUserBySourceId(addSource.UserID)

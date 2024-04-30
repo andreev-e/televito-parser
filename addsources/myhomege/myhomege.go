@@ -193,7 +193,7 @@ func getImagesUrlList(addSource AddSource) string {
 	return "[\"" + strings.Join(images, "\",\"") + "\"]"
 }
 
-func getUser(addSource AddSource, locationId uint16) (Main.User, error) {
+func getUser(addSource AddSource, locationId uint64) (Main.User, error) {
 	userName := strconv.Itoa(addSource.UserID)
 	var user, err = Dbmethods.FindUserByPhone(userName)
 	if err != nil {

@@ -15,7 +15,7 @@ import (
 
 type Location struct {
 	gorm.Model
-	ID      uint16 `gorm:"primaryKey"`
+	ID      uint64 `gorm:"primaryKey"`
 	lat     float32
 	lng     float32
 	address string
@@ -126,12 +126,12 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 	defer rows.Close()
 }
 
-func GetLocationIdByAddress(address string, lat float32, lng float32) uint16 {
+func GetLocationIdByAddress(address string, lat float32, lng float32) uint64 {
 	locationId, err := Lrucache.CachedLocations.Get(address)
 	if err == nil {
 		id, err := strconv.Atoi(locationId)
 		if err == nil {
-			return uint16(id)
+			return uint64(id)
 		}
 	}
 
@@ -256,7 +256,7 @@ func FindUserBySourceId(sourceId string) (Models.User, error) {
 	return user, errors.New("user not found")
 }
 
-func CreateUser(contact string, lang string, currency string, locationId uint16, sourceId interface{}) (Models.User, error) {
+func CreateUser(contact string, lang string, currency string, locationId uint64, sourceId interface{}) (Models.User, error) {
 	var user Models.User
 
 	if db == nil {
