@@ -11,6 +11,7 @@ import (
 	"strings"
 	Lrucache "televito-parser/lrucache"
 	Models "televito-parser/models"
+	"time"
 )
 
 type Location struct {
@@ -19,8 +20,8 @@ type Location struct {
 	lat        float32
 	lng        float32
 	address    string
-	created_at string
-	updated_at string
+	created_at time.Time
+	updated_at time.Time
 }
 
 var db *sql.DB
@@ -146,7 +147,7 @@ func GetLocationIdByAddress(address string, lat float32, lng float32) uint16 {
 		return location.id
 	}
 
-	gormDb.Create(&Location{address: address, lat: lat, lng: lng, created_at: "NOW()", updated_at: "NOW()"})
+	gormDb.Create(&Location{address: address, lat: lat, lng: lng, created_at: time.Now(), updated_at: time.Now()})
 	if location.id != 0 {
 		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
 		return location.id
