@@ -291,18 +291,20 @@ func CreateUser(contact string, lang string, currency string, locationId uint64,
 func RetrieveCategory(name string, parentId uint64) (Models.Category, error) {
 	var category Models.Category
 
-	gormDb.First(&category, "name = ? AND parent_id = ?", name, parentId)
-	if category.ID != 0 {
-		fmt.Println("Category found: ", category.Name, category.ID)
-		return category, nil
+	if err := gormDb.First(&category, "name = ? AND parent_id = ?", name, parentId).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			if err := gormDb.Create(&Models.Category{Name: name, ParentId: parentId}).Error; err != nil {
+				return category, fmt.Errorf("failed to create category: %w", err)
+			}
+			if err := gormDb.First(&category, "name = ? AND parent_id = ?", name, parentId).Error; err != nil {
+				return category, fmt.Errorf("failed to retrieve created category: %w", err)
+			}
+			return category, nil
+		}
+		return category, fmt.Errorf("failed to retrieve category: %w", err)
 	}
 
-	gormDb.Create(&Models.Category{Name: name, ParentId: parentId})
-	if category.ID != 0 {
-		return category, nil
-	}
-
-	return category, errors.New("category not created")
+	return category, nil
 }
 
 func MarkAddsTrashed(sourceClass string, olderThan string) {
