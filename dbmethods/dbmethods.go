@@ -16,12 +16,12 @@ import (
 
 type Location struct {
 	gorm.Model
-	id         uint16
-	lat        float32
-	lng        float32
-	address    string
-	created_at time.Time
-	updated_at time.Time
+	id        uint16
+	lat       float32
+	lng       float32
+	address   string
+	CreatedAt time.Time `gorm:"type:datetime"`
+	UpdatedAt time.Time `gorm:"type:datetime"`
 }
 
 var db *sql.DB
@@ -147,7 +147,7 @@ func GetLocationIdByAddress(address string, lat float32, lng float32) uint16 {
 		return location.id
 	}
 
-	gormDb.Create(&Location{address: address, lat: lat, lng: lng, created_at: time.Now(), updated_at: time.Now()})
+	gormDb.Create(&Location{address: address, lat: lat, lng: lng, CreatedAt: time.Now(), UpdatedAt: time.Now()})
 	if location.id != 0 {
 		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
 		return location.id
