@@ -140,7 +140,7 @@ func GetLocationIdByAddress(address string, lat float32, lng float32) uint16 {
 
 	var location Location
 
-	gormDb.First(&location, "address = ?", address)
+	gormDb.Unscoped().First(&location, "address = ?", address)
 	if location.id != 0 {
 		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
 		return location.id
