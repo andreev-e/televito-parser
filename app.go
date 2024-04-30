@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	Myhomege "televito-parser/addsources/myhomege"
 	Ssge "televito-parser/addsources/ssge"
 	Dbmethods "televito-parser/dbmethods"
 	Lrucache "televito-parser/lrucache"
@@ -40,12 +39,12 @@ func main() {
 	go reparseFirstPages("MyAutoGe")
 	go reparseFirstPages("MyAutoGeRent")
 	go reparseFirstPages(Ssge.Class)
-	go reparseFirstPages(Myhomege.Class)
+	//go reparseFirstPages(Myhomege.Class)
 
 	go reparseAllPages("MyAutoGe")
 	go reparseAllPages("MyAutoGeRent")
 	go reparseAllPages(Ssge.Class)
-	go reparseAllPages(Myhomege.Class)
+	//go reparseAllPages(Myhomege.Class)
 
 	for {
 		log.Print(Dbmethods.GetDbStats())
