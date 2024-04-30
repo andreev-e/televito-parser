@@ -14,8 +14,7 @@ import (
 )
 
 var (
-	once        sync.Once
-	loadedMutex sync.Mutex
+	once sync.Once
 )
 
 type AddSource struct {
