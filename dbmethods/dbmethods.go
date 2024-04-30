@@ -3,6 +3,7 @@ package Dbmethods
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
@@ -292,6 +293,7 @@ func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category,
 
 	gormDb.First(&category, "name = ? AND parent_id = ?", name, parentId)
 	if category.ID != 0 {
+		fmt.Println("Category found: ", category.Name, category.ID)
 		return category, nil
 	}
 
