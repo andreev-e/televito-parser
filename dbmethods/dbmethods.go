@@ -129,27 +129,31 @@ func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
 func GetLocationIdByAddress(address string, lat float32, lng float32) uint64 {
 	locationId, err := Lrucache.CachedLocations.Get(address)
 	if err == nil {
-		id, err := strconv.Atoi(locationId)
+		id, err := strconv.ParseUint(locationId, 10, 64)
 		if err == nil {
-			return uint64(id)
+			return id
 		}
 	}
 
 	var location Models.Location
 
-	gormDb.First(&location, "address = ?", address)
-	if location.ID != 0 {
-		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.ID)))
-		return location.ID
+	if err := gormDb.First(&location, "address = ?", address).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			if err := gormDb.Create(&Models.Location{Address: address, Lat: lat, Lng: lng}).Error; err != nil {
+				return 0
+			}
+
+			if err := gormDb.First(&location, "address = ?", address).Error; err != nil {
+				return 0
+			}
+			Lrucache.CachedLocations.Put(address, strconv.FormatUint(location.ID, 10))
+			return location.ID
+		}
+		return 0
 	}
 
-	gormDb.Create(&Models.Location{Address: address, Lat: lat, Lng: lng})
-	if location.ID != 0 {
-		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.ID)))
-		return location.ID
-	}
-
-	panic("Error creating location")
+	Lrucache.CachedLocations.Put(address, strconv.FormatUint(location.ID, 10))
+	return location.ID
 }
 
 func UpdateAdd(add Models.Add) {
