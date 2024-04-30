@@ -288,7 +288,7 @@ func CreateUser(contact string, lang string, currency string, locationId uint64,
 	return user, nil
 }
 
-func RetrieveCategory(name string, parentId uint16) (Models.Category, error) {
+func RetrieveCategory(name string, parentId uint64) (Models.Category, error) {
 	var category Models.Category
 
 	gormDb.First(&category, "name = ? AND parent_id = ?", name, parentId)

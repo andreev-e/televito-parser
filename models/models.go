@@ -13,7 +13,7 @@ type Add struct {
 	Price_usd    float32
 	Source_class string
 	Source_id    uint32
-	CategoryId   uint16
+	CategoryId   uint64
 	Approved     int
 	Images       string
 	Currency     string
@@ -32,9 +32,9 @@ type Location struct {
 
 type Category struct {
 	gorm.Model
-	Id         uint16
+	Id         uint64 `gorm:"primaryKey"`
 	Name       string
-	ParentId   uint16
+	ParentId   uint64
 	Created_at string
 	Updated_at string
 	Deleted_at string
