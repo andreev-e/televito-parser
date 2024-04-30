@@ -3,7 +3,7 @@ package Dbmethods
 import (
 	"database/sql"
 	"errors"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
 	"os"
@@ -37,7 +37,7 @@ func InitDB() {
 	db.SetMaxOpenConns(25)
 	db.SetMaxIdleConns(10)
 
-	gormDb, err = gorm.Open(sqlite.Open("MYSQL_CONNECTION_STRING"), &gorm.Config{})
+	gormDb, err = gorm.Open(mysql.Open(os.Getenv("MYSQL_CONNECTION_STRING")), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
