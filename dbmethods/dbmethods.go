@@ -11,18 +11,14 @@ import (
 	"strings"
 	Lrucache "televito-parser/lrucache"
 	Models "televito-parser/models"
-	"time"
 )
 
 type Location struct {
 	gorm.Model
-	id        uint16 `gorm:"primaryKey"`
-	lat       float32
-	lng       float32
-	address   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt time.Time
+	id      uint16 `gorm:"primaryKey"`
+	lat     float32
+	lng     float32
+	address string
 }
 
 var db *sql.DB
