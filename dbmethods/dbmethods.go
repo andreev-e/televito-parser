@@ -22,7 +22,7 @@ type Location struct {
 	address   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	DeletedAt time.Time
 }
 
 var db *sql.DB
