@@ -1,5 +1,7 @@
 package Models
 
+import "gorm.io/gorm"
+
 type Add struct {
 	Id           int
 	User_id      int
@@ -20,7 +22,16 @@ type Add struct {
 	Deleted_at   *string
 }
 
+type Location struct {
+	gorm.Model
+	ID      uint64 `gorm:"primaryKey"`
+	Lat     float32
+	Lng     float32
+	Address string
+}
+
 type Category struct {
+	gorm.Model
 	Id         uint16
 	Name       string
 	ParentId   uint16

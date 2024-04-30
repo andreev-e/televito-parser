@@ -13,12 +13,11 @@ import (
 	Models "televito-parser/models"
 )
 
-type Location struct {
+type Category struct {
 	gorm.Model
-	ID      uint64 `gorm:"primaryKey"`
-	lat     float32
-	lng     float32
-	address string
+	ID       uint64 `gorm:"primaryKey"`
+	Name     string
+	ParentId uint64
 }
 
 var db *sql.DB
@@ -135,7 +134,7 @@ func GetLocationIdByAddress(address string, lat float32, lng float32) uint64 {
 		}
 	}
 
-	var location Location
+	var location Models.Location
 
 	gormDb.First(&location, "address = ?", address)
 	if location.ID != 0 {
@@ -143,13 +142,13 @@ func GetLocationIdByAddress(address string, lat float32, lng float32) uint64 {
 		return location.ID
 	}
 
-	gormDb.Create(&Location{address: address, lat: lat, lng: lng})
+	gormDb.Create(&Models.Location{Address: address, Lat: lat, Lng: lng})
 	if location.ID != 0 {
 		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.ID)))
 		return location.ID
 	}
 
-	return 0
+	panic("Error creating location")
 }
 
 func UpdateAdd(add Models.Add) {
@@ -290,19 +289,9 @@ func CreateUser(contact string, lang string, currency string, locationId uint64,
 
 func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category, error) {
 	var category Models.Category
-	var query = "SELECT id FROM categories WHERE name = ? AND parent_id = ? AND deleted_at IS NULL"
-	rows, err := db.Query(query, name, parentId)
-	if err != nil {
-		return category, err
-	}
-	defer rows.Close()
 
-	for rows.Next() {
-		err := rows.Scan(&category.Id)
-		if err != nil {
-			return category, err
-		}
-
+	gormDb.First(&category, "name = ? AND parent_id = ?", name, parentId)
+	if category.ID != 0 {
 		return category, nil
 	}
 
@@ -312,31 +301,12 @@ func FindCategoryByNameAndParent(name string, parentId uint16) (Models.Category,
 func CreateCategory(name string, parentId uint16) (Models.Category, error) {
 	var category Models.Category
 
-	if db == nil {
-		return category, errors.New("database connection not initialized")
+	gormDb.Create(&Models.Category{Name: name, ParentId: parentId})
+	if category.ID != 0 {
+		return category, nil
 	}
 
-	stmt, err := db.Prepare("INSERT INTO categories (name, parent_id, created_at, updated_at) " +
-		"VALUES (?,?, NOW(), NOW());")
-	if err != nil {
-		return category, err
-	}
-
-	res, err := stmt.Exec(name, parentId)
-	if err != nil {
-		return category, err
-	}
-
-	categoryId, err := res.LastInsertId()
-	if err != nil {
-		return category, err
-	}
-
-	category.Id = uint16(int(categoryId))
-	category.Name = name
-	category.ParentId = parentId
-
-	return category, nil
+	return category, errors.New("category not created")
 }
 
 func MarkAddsTrashed(sourceClass string, olderThan string) {
