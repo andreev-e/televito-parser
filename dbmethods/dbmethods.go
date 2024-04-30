@@ -15,7 +15,7 @@ import (
 
 type Location struct {
 	gorm.Model
-	id      uint16 `gorm:"primaryKey"`
+	ID      uint16 `gorm:"primaryKey"`
 	lat     float32
 	lng     float32
 	address string
@@ -138,76 +138,18 @@ func GetLocationIdByAddress(address string, lat float32, lng float32) uint16 {
 	var location Location
 
 	gormDb.First(&location, "address = ?", address)
-	if location.id != 0 {
-		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
-		return location.id
+	if location.ID != 0 {
+		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.ID)))
+		return location.ID
 	}
 
 	gormDb.Create(&Location{address: address, lat: lat, lng: lng})
-	if location.id != 0 {
-		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
-		return location.id
+	if location.ID != 0 {
+		Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.ID)))
+		return location.ID
 	}
 
-	//location, err := queryLocation(address)
-	//if err == nil {
-	//	Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
-	//	return location.id
-	//}
-
-	//location, err = storeLocation(address, lat, lng)
-	//if err == nil {
-	//	Lrucache.CachedLocations.Put(address, strconv.Itoa(int(location.id)))
-	//	return location.id
-	//}
-	panic("location getting failed")
-}
-
-func storeLocation(address string, lat float32, lng float32) (Location, error) {
-	var location Location
-
-	if db == nil {
-		return location, errors.New("database connection not initialized")
-	}
-
-	stmt, err := db.Prepare("INSERT INTO locations (address, lat, lng, created_at, updated_at) " +
-		"VALUES (?,?,?, NOW(), NOW());")
-	if err != nil {
-		return location, err
-	}
-
-	res, err := stmt.Exec(address, lat, lng)
-	if err != nil {
-		return location, err
-	}
-
-	locationId, _ := res.LastInsertId()
-
-	location.id = uint16(int(locationId))
-	location.address = address
-
-	return location, nil
-}
-
-func queryLocation(address string) (Location, error) {
-	var query = "SELECT id, address FROM locations WHERE address = ?"
-	rows, err := db.Query(query, address)
-	if err != nil {
-		return Location{}, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var location Location
-		_ = rows.Scan(
-			&location.id,
-			&location.address,
-		)
-
-		return location, nil
-	}
-
-	return storeLocation(address, 0, 0)
+	return 0
 }
 
 func UpdateAdd(add Models.Add) {
