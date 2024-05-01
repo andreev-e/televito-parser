@@ -105,10 +105,15 @@ func ReparseAllPages(class string) {
 				log.Println("Error reparse_start last page to redis: ", err)
 			}
 		} else {
+			created, updated := 0, 0
 			for _, add := range adds {
-				created, updted := Dbmethods.FirstOrCreate(add)
-				log.Println(class, " created: ", created, " Updated: ", updted)
+				if Dbmethods.FirstOrCreate(add) {
+					created++
+				} else {
+					updated++
+				}
 			}
+			log.Println(class, " created: ", created, " updated: ", updated)
 
 			maxPage, err := redisClient.ReadKey("max_page_" + class)
 			if err != nil {
