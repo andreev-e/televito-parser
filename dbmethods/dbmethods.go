@@ -176,5 +176,12 @@ func MarkAddsTrashed(sourceClass string, olderThan string) {
 }
 
 func FirstOrCreate(add Models.Add) {
-	gormDb.Where(Models.Add{Source_id: add.Source_id, Source_class: add.Source_class}).FirstOrCreate(&add)
+	var existingAdd Models.Add
+	result := gormDb.Where(Models.Add{Source_id: add.Source_id, Source_class: add.Source_class}).First(&existingAdd)
+
+	if result.Error == nil {
+		gormDb.Model(&existingAdd).Updates(add)
+	} else if result.Error == gorm.ErrRecordNotFound {
+		gormDb.Create(&add)
+	}
 }
