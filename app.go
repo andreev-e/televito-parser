@@ -37,16 +37,6 @@ func main() {
 		go reparseAllPages(class)
 	}
 
-	//go reparseFirstPages("MyAutoGe")
-	//go reparseFirstPages("MyAutoGeRent")
-	//go reparseFirstPages(Ssge.Class)
-	//go reparseFirstPages(Myhomege.Class)
-	//
-	//go reparseAllPages("MyAutoGe")
-	//go reparseAllPages("MyAutoGeRent")
-	//go reparseAllPages(Ssge.Class)
-	//go reparseAllPages(Myhomege.Class)
-
 	for {
 		log.Print(Dbmethods.GetDbStats())
 		time.Sleep(1 * time.Minute)

@@ -14,13 +14,6 @@ import (
 	Models "televito-parser/models"
 )
 
-type Category struct {
-	gorm.Model
-	ID       uint64 `gorm:"primaryKey"`
-	Name     string
-	ParentId uint64
-}
-
 var db *sql.DB
 var gormDb *gorm.DB
 
@@ -312,9 +305,7 @@ func RetrieveCategory(name string, parentId uint64) (Models.Category, error) {
 }
 
 func MarkAddsTrashed(sourceClass string, olderThan string) {
-	rows, err := db.Query("UPDATE adds SET deleted_at = NOW() WHERE deleted_at IS NULL AND source_class = ? AND updated_at < ?", sourceClass, olderThan)
-	if err != nil {
-		log.Println(err)
-	}
-	defer rows.Close()
+	gormDb.Model(&Models.Add{}).
+		Where("deleted_at IS NULL AND source_class = ? AND updated_at < ?", sourceClass, olderThan).
+		Updates(map[string]interface{}{"deleted_at": olderThan})
 }

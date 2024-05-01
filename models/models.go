@@ -3,6 +3,7 @@ package Models
 import "gorm.io/gorm"
 
 type Add struct {
+	gorm.Model
 	Id           int
 	User_id      int
 	Status       int
