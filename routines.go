@@ -6,7 +6,6 @@ import (
 	"televito-parser/addsources/myautoge"
 	Myhomege "televito-parser/addsources/myhomege"
 	Ssge "televito-parser/addsources/ssge"
-	Dbmethods "televito-parser/dbmethods"
 	"time"
 )
 
@@ -90,11 +89,11 @@ func reparseAllPages(class string) {
 				log.Println("Error deleting last page from redis: ", err)
 			}
 
-			reparseStart, err := redisClient.ReadTime("reparse_start_" + class)
-			Dbmethods.MarkAddsTrashed(class, reparseStart)
-			if err != nil {
-				log.Println("Error retrieve reparse_start: ", err)
-			}
+			//reparseStart, err := redisClient.ReadTime("reparse_start_" + class)
+			//Dbmethods.MarkAddsTrashed(class, reparseStart)
+			//if err != nil {
+			//	log.Println("Error retrieve reparse_start: ", err)
+			//}
 
 			err = redisClient.WriteTime("reparse_start_"+class, time.Now())
 			if err != nil {
