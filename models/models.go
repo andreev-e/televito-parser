@@ -10,7 +10,7 @@ type Add struct {
 	Location_id  uint64
 	Name         string
 	Description  string
-	Price        int
+	Price        float32
 	Price_usd    float32
 	Source_class string
 	Source_id    uint64

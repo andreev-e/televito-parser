@@ -19,7 +19,7 @@ var (
 
 type AddSource struct {
 	CarID         uint64  `json:"car_id"`
-	Price         int     `json:"price"`
+	Price         float32 `json:"price"`
 	PriceUSD      float32 `json:"price_usd"`
 	Currency      uint8   `json:"currency_id"`
 	ManID         uint16  `json:"man_id"`

@@ -168,7 +168,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			add.Location_id = locationId
 			add.Name = getName(addSource)
 			add.Description = getDescription(addSource)
-			add.Price = int(addSource.Price.PriceGeo)
+			add.Price = addSource.Price.PriceGeo
 			add.Price_usd = addSource.Price.PriceUSD
 			add.Source_class = class
 			add.Source_id = addSource.ApplicationID

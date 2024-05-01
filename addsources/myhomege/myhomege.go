@@ -32,7 +32,7 @@ type AddSource struct {
 	Title string `json:"title"`
 	Price struct {
 		TotalPrice struct {
-			Gel int     `json:"gel"`
+			Gel float32 `json:"gel"`
 			USD float32 `json:"usd"`
 		} `json:"total_price"`
 		SQMPrice struct {
