@@ -175,17 +175,17 @@ func MarkAddsTrashed(sourceClass string, olderThan string) {
 		Updates(map[string]interface{}{"deleted_at": olderThan})
 }
 
-func FirstOrCreate(add Models.Add) bool {
+func FirstOrCreate(add Models.Add) (bool, error) {
 	var existingAdd Models.Add
 	result := gormDb.Where(Models.Add{Source_id: add.Source_id, Source_class: add.Source_class, Deleted_at: nil}).First(&existingAdd)
 
 	if result.Error == nil {
 		gormDb.Model(&existingAdd).Updates(add)
-		return false
+		return false, nil
 	} else if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		gormDb.Create(&add)
-		return true
+		return true, nil
 	}
 
-	panic(result.Error)
+	return false, result.Error
 }
