@@ -352,8 +352,6 @@ func getToken() (string, error) {
 		} else {
 			return "", fmt.Errorf("unable to find token")
 		}
-
-		log.Println("Token: ", token)
 	}
 	return token, nil
 }

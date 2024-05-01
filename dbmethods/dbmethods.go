@@ -180,8 +180,10 @@ func FirstOrCreate(add Models.Add) {
 	result := gormDb.Where(Models.Add{Source_id: add.Source_id, Source_class: add.Source_class, Deleted_at: nil}).First(&existingAdd)
 
 	if result.Error == nil {
+		log.Printf("%s: add %s already exists, updating", add.Source_class, add.Source_id)
 		gormDb.Model(&existingAdd).Updates(add)
 	} else if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		log.Printf("%s: add %s does not exist, creating", add.Source_class, add.Source_id)
 		gormDb.Create(&add)
 	} else {
 		// Handle other errors if necessary
