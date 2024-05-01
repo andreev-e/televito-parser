@@ -32,20 +32,20 @@ func main() {
 	defer logFile.Close()
 	defer Dbmethods.CloseDB()
 
-	//for _, class := range []string{"MyAutoGe", "MyAutoGeRent", Ssge.Class, Myhomege.Class} {
-	//	go reparseFirstPages(class)
-	//	go reparseAllPages(Myhomege.Class)
-	//}
+	for _, class := range []string{"MyAutoGe", "MyAutoGeRent", Ssge.Class, Myhomege.Class} {
+		go reparseFirstPages(class)
+		go reparseAllPages(class)
+	}
 
-	go reparseFirstPages("MyAutoGe")
-	go reparseFirstPages("MyAutoGeRent")
-	go reparseFirstPages(Ssge.Class)
-	go reparseFirstPages(Myhomege.Class)
-
-	go reparseAllPages("MyAutoGe")
-	go reparseAllPages("MyAutoGeRent")
-	go reparseAllPages(Ssge.Class)
-	go reparseAllPages(Myhomege.Class)
+	//go reparseFirstPages("MyAutoGe")
+	//go reparseFirstPages("MyAutoGeRent")
+	//go reparseFirstPages(Ssge.Class)
+	//go reparseFirstPages(Myhomege.Class)
+	//
+	//go reparseAllPages("MyAutoGe")
+	//go reparseAllPages("MyAutoGeRent")
+	//go reparseAllPages(Ssge.Class)
+	//go reparseAllPages(Myhomege.Class)
 
 	for {
 		log.Print(Dbmethods.GetDbStats())
