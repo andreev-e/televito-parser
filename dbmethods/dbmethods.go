@@ -9,7 +9,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strings"
 	Lrucache "televito-parser/lrucache"
 	Models "televito-parser/models"
 )
@@ -49,76 +48,6 @@ func CloseDB() {
 	}
 }
 
-func GetExistingAdds(sourceIds []uint32, sourceClass string) (map[uint32]Models.Add, error) {
-	var sourceIdsString string
-	placeholders := make([]string, len(sourceIds))
-	args := make([]interface{}, len(sourceIds)+1)
-	for i, sourceId := range sourceIds {
-		sourceIdsString = sourceIdsString + strconv.Itoa(int(sourceId)) + ","
-		placeholders[i] = "?"
-		args[i] = sourceId
-	}
-	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
-	placeholdersString := strings.Join(placeholders, ",")
-	args[len(args)-1] = sourceClass
-
-	var query = "SELECT * FROM adds WHERE source_id IN (" + placeholdersString + ") AND source_class = ?"
-	rows, err := db.Query(query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var result = make(map[uint32]Models.Add)
-	for rows.Next() {
-		var add Models.Add
-
-		err := rows.Scan(
-			&add.Id,
-			&add.User_id,
-			&add.Name,
-			&add.Description,
-			&add.Price,
-			&add.Price_usd,
-			&add.Currency,
-			&add.Images,
-			&add.CategoryId,
-			&add.Location_id,
-			&add.Status,
-			&add.Approved,
-			&add.Created_at,
-			&add.Updated_at,
-			&add.Deleted_at,
-			&add.Source_class,
-			&add.Source_id,
-		)
-
-		if err == nil {
-			result[add.Source_id] = add
-		}
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func RestoreTrashedAdds(sourceIds []uint32, sourceClass string) {
-	var sourceIdsString string
-	for _, sourceId := range sourceIds {
-		sourceIdsString = sourceIdsString + strconv.Itoa(int(sourceId)) + ","
-	}
-	sourceIdsString = sourceIdsString[:len(sourceIdsString)-1]
-
-	rows, err := db.Query("UPDATE adds SET deleted_at = null, updated_at = NOW() WHERE deleted_at IS NOT NULL AND source_id IN (?) AND source_class = ?", sourceIdsString, sourceClass)
-	if err != nil {
-		log.Println(err)
-	}
-	defer rows.Close()
-}
-
 func GetLocationIdByAddress(address string, lat float32, lng float32) uint64 {
 	locationId, err := Lrucache.CachedLocations.Get(address)
 	if err == nil {
@@ -147,70 +76,6 @@ func GetLocationIdByAddress(address string, lat float32, lng float32) uint64 {
 
 	Lrucache.CachedLocations.Put(address, strconv.FormatUint(location.ID, 10))
 	return location.ID
-}
-
-func UpdateAdd(add Models.Add) {
-	var query = "UPDATE adds SET user_id = ?, name = ?, description = ?, price = ?, price_usd = ?, currency = ?, category_id = ?, location_id = ?, images = ? WHERE id = ?"
-	rows, err := db.Query(query, add.User_id, add.Name, add.Description, add.Price, add.Price_usd, add.Currency, add.CategoryId, add.Location_id, add.Images, add.Id)
-	if err != nil {
-		log.Println(err)
-	}
-	defer rows.Close()
-}
-
-func UpdateAddsBulk(adds []Models.Add) {
-	if len(adds) == 0 {
-		return
-	}
-
-	for _, add := range adds {
-		UpdateAdd(add)
-	}
-}
-
-func InsertAddsBulk(adds []Models.Add) {
-	if len(adds) == 0 {
-		return
-	}
-
-	var valueStrings []string
-	var valueArgs []interface{}
-
-	for _, add := range adds {
-		valueStrings = append(valueStrings, "(?, 2, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, NOW(), NOW())")
-
-		valueArgs = append(valueArgs, add.User_id, add.Location_id, add.Name, add.Description, add.Price, add.Price_usd, add.Source_class, add.Source_id, add.CategoryId, add.Images, add.Currency)
-	}
-
-	query := "INSERT INTO adds (user_id, status, location_id, name, description, price, price_usd, source_class, source_id, category_id, approved, images, currency, updated_at, created_at) VALUES " + strings.Join(valueStrings, ", ")
-
-	tx, err := db.Begin()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	stmt, err := tx.Prepare(query)
-	if err != nil {
-		log.Println(err)
-		tx.Rollback()
-		return
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(valueArgs...)
-	if err != nil {
-		log.Println(err)
-		tx.Rollback()
-		return
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		log.Println(err)
-		tx.Rollback()
-		return
-	}
 }
 
 func FindUserByPhone(phone string) (Models.User, error) {
@@ -308,4 +173,8 @@ func MarkAddsTrashed(sourceClass string, olderThan string) {
 	gormDb.Model(&Models.Add{}).
 		Where("deleted_at IS NULL AND source_class = ? AND updated_at < ?", sourceClass, olderThan).
 		Updates(map[string]interface{}{"deleted_at": olderThan})
+}
+
+func FirstOrCreate(add Models.Add) {
+	gormDb.Where(Models.Add{Source_id: add.Source_id, Source_class: add.Source_class}).FirstOrCreate(&add)
 }

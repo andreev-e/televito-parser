@@ -18,7 +18,7 @@ var (
 )
 
 type AddSource struct {
-	CarID         uint32  `json:"car_id"`
+	CarID         uint64  `json:"car_id"`
 	Price         int     `json:"price"`
 	PriceUSD      float32 `json:"price_usd"`
 	Currency      uint8   `json:"currency_id"`
@@ -104,99 +104,85 @@ const mainCategory = 12
 
 var autoAppData AppData
 
-func ParsePage(page uint16, class string) (uint16, error) {
+func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	loadData()
+	var forRent = "0"
+	if class == "MyAutoGeRent" {
+		forRent = "1"
+	}
 
-	addSources, err := loadPage(page, class)
+	params := map[string]string{
+		"ForRent":       forRent,
+		"CurrencyID":    "1",
+		"MileageType":   "1",
+		"SortOrder":     "1",
+		"Page":          strconv.Itoa(int(page)),
+		"hideDealPrice": "1",
+		"Locs":          "2.3.4.7.15.30.113.52.37.36.38.39.40.31.5.41.44.47.48.53.54.8.16.6.14.13.12.11.10.9.55.56.57.59.58.61.62.63.64.66.71.72.74.75.76.77.78.80.81.82.83.84.85.86.87.88.91.96.97.101.109",
+	}
+
+	fullUrl := url + "/ka/products/?"
+	for key, value := range params {
+		fullUrl += key + "=" + value + "&"
+	}
+
+	response, err := http.Get(fullUrl)
+
 	if err != nil {
-		return page, err
+		return nil, err
 	}
 
-	log.Println(class + ": " + strconv.Itoa(len(addSources)) + " Items loaded p " + strconv.Itoa(int(page)))
-	if len(addSources) == 0 {
-		log.Println(class + ": 0 - resetting page to 1")
-		return 0, nil
-	} else {
-		page++
-	}
-
-	carIds := make([]uint32, 0)
-
-	for key := range addSources {
-		carIds = append(carIds, key)
-	}
-
-	Dbmethods.RestoreTrashedAdds(carIds, class)
-
-	existingAdds, err := Dbmethods.GetExistingAdds(carIds, class)
-	log.Print(class+" already exists: ", len(existingAdds), " of ", len(carIds))
-	if err != nil {
-		log.Println(err)
-		return page - 1, err
-	}
-
-	var addsToUpdate = make([]Main.Add, 0)
-	for id, add := range existingAdds {
-		category, err := getCategory(addSources[id])
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
 		if err != nil {
-			continue
+
 		}
+	}(response.Body)
 
-		add.Name = getName(addSources[id])
-		add.Description = getDescription(addSources[id])
-		add.Price = addSources[id].Price
-		add.Price_usd = addSources[id].PriceUSD
-		add.Currency = getCurrency(addSources[id])
-		add.Location_id = Dbmethods.GetLocationIdByAddress(getAddress(addSources[id].LocationId, ""), 0, 0)
-		add.CategoryId = category.Id
-		add.Images = getImagesUrlList(addSources[id], addSources[id].CarID)
-
-		addsToUpdate = append(addsToUpdate, add)
-
-		delete(addSources, id)
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
 	}
 
-	Dbmethods.UpdateAddsBulk(addsToUpdate)
-
-	if (len(addSources)) != 0 {
-		var addsToInsert = make([]Main.Add, 0)
-		for id, addSource := range addSources {
-			category, err := getCategory(addSources[id])
-			if err != nil {
-				continue
-			}
-
-			var locationId = Dbmethods.GetLocationIdByAddress(getAddress(addSource.LocationId, ""), 0, 0)
-			user, err := getUser(addSource, locationId)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			add := Main.Add{
-				Name:         getName(addSource),
-				Description:  getDescription(addSource),
-				Price:        addSource.Price,
-				Price_usd:    addSource.PriceUSD,
-				Currency:     getCurrency(addSource),
-				Location_id:  locationId,
-				CategoryId:   category.Id,
-				Source_class: class,
-				Source_id:    id,
-				User_id:      user.Id,
-				Images:       getImagesUrlList(addSource, addSource.CarID),
-			}
-
-			addsToInsert = append(addsToInsert, add)
-		}
-
-		Dbmethods.InsertAddsBulk(addsToInsert)
+	var responseObject Response
+	err = json.Unmarshal(body, &responseObject)
+	if err != nil {
+		log.Printf("Error parsing JSON: %v\n", err)
+		return nil, err
 	}
 
-	return page, nil
+	result := make([]Main.Add, 0)
+
+	for _, addSource := range responseObject.Data.AddSources {
+		address := getAddress(addSource.LocationId, "")
+		locationId := Dbmethods.GetLocationIdByAddress(address, 0, 0)
+		user, userError := getUser(addSource, locationId)
+		category, categoryError := getCategory(addSource)
+
+		if userError == nil && categoryError == nil {
+			var add Main.Add
+			add.User_id = user.Id
+			add.Status = 2
+			add.Approved = 1
+			add.Location_id = locationId
+			add.Name = getName(addSource)
+			add.Description = getDescription(addSource)
+			add.Price = addSource.Price
+			add.Price_usd = addSource.PriceUSD
+			add.Source_class = class
+			add.Source_id = addSource.CarID
+			add.CategoryId = category.Id
+			add.Images = getImagesUrlList(addSource, addSource.CarID)
+			add.Currency = getCurrency(addSource)
+
+			result = append(result, add)
+		}
+
+	}
+	return result, nil
 }
 
-func getImagesUrlList(addSource AddSource, id uint32) string {
+func getImagesUrlList(addSource AddSource, id uint64) string {
 	images := make([]string, 0)
 	for i := uint(1); i <= min(addSource.PhotosCount, NumberOfPhotos); i++ {
 		images = append(images, "https://static.my.ge/myauto/photos/"+addSource.Photo+"/large/"+strconv.Itoa(int(id))+"_"+strconv.Itoa(int(i))+".jpg")
@@ -332,61 +318,6 @@ func getName(addSource AddSource) string {
 	}
 
 	return strings.Join(name, " ")
-}
-
-func loadPage(page uint16, class string) (map[uint32]AddSource, error) {
-	var forRent = "0"
-	if class == "MyAutoGeRent" {
-		forRent = "1"
-	}
-
-	params := map[string]string{
-		"ForRent":       forRent,
-		"CurrencyID":    "1",
-		"MileageType":   "1",
-		"SortOrder":     "1",
-		"Page":          strconv.Itoa(int(page)),
-		"hideDealPrice": "1",
-		"Locs":          "2.3.4.7.15.30.113.52.37.36.38.39.40.31.5.41.44.47.48.53.54.8.16.6.14.13.12.11.10.9.55.56.57.59.58.61.62.63.64.66.71.72.74.75.76.77.78.80.81.82.83.84.85.86.87.88.91.96.97.101.109",
-	}
-
-	fullUrl := url + "/ka/products/?"
-	for key, value := range params {
-		fullUrl += key + "=" + value + "&"
-	}
-
-	response, err := http.Get(fullUrl)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-
-		}
-	}(response.Body)
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var responseObject Response
-	err = json.Unmarshal(body, &responseObject)
-	if err != nil {
-		log.Printf("Error parsing JSON: %v\n", err)
-		return nil, err
-	}
-
-	result := make(map[uint32]AddSource)
-
-	for _, addSource := range responseObject.Data.AddSources {
-		result[addSource.CarID] = addSource
-	}
-
-	return result, nil
 }
 
 func loadData() {

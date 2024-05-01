@@ -1,15 +1,18 @@
-package main
+package Routines
 
 import (
 	"log"
 	"strconv"
-	"televito-parser/addsources/myautoge"
+	Myautoge "televito-parser/addsources/myautoge"
 	Myhomege "televito-parser/addsources/myhomege"
 	Ssge "televito-parser/addsources/ssge"
+	Dbmethods "televito-parser/dbmethods"
+	Models "televito-parser/models"
+	Redis "televito-parser/redis"
 	"time"
 )
 
-func reparseFirstPages(class string) {
+func ReparseFirstPages(class string) {
 	defer func() {
 		log.Println("reparseFirstPages ended " + class)
 	}()
@@ -18,26 +21,26 @@ func reparseFirstPages(class string) {
 		err := error(nil)
 		switch class {
 		case "MyAutoGe", "MyAutoGeRent":
-			_, err = Myautoge.ParsePage(1, class)
+			_, err = Myautoge.LoadPage(1, class)
 		case Ssge.Class:
-			_, err = Ssge.ParsePage(1)
+			_, err = Ssge.LoadPage(1, class)
 		case Myhomege.Class:
-			_, err = Myhomege.ParsePage(1)
+			_, err = Myhomege.LoadPage(1, class)
 		}
-
 		if err != nil {
 			log.Println("Error parsing first pages: ", err)
 		}
+
 		time.Sleep(5 * time.Minute)
 	}
 }
 
-func reparseAllPages(class string) {
+func ReparseAllPages(class string) {
 	defer func() {
 		log.Println("reparseAllPages ended " + class)
 	}()
 
-	redisClient := NewRedisClient()
+	redisClient := Redis.NewRedisClient()
 	defer redisClient.Close()
 
 	var page uint16
@@ -65,14 +68,16 @@ func reparseAllPages(class string) {
 	case Myhomege.Class:
 		delay = 5 * time.Second
 	}
+
 	for {
+		adds := make([]Models.Add, 0)
 		switch class {
 		case "MyAutoGe", "MyAutoGeRent":
-			page, err = Myautoge.ParsePage(page, class)
+			adds, err = Myautoge.LoadPage(page, class)
 		case Ssge.Class:
-			page, err = Ssge.ParsePage(page)
+			adds, err = Ssge.LoadPage(page, class)
 		case Myhomege.Class:
-			page, err = Myhomege.ParsePage(page)
+			adds, err = Myhomege.LoadPage(page, class)
 		}
 
 		if err != nil {
@@ -81,7 +86,7 @@ func reparseAllPages(class string) {
 			time.Sleep(2 * time.Minute)
 		}
 
-		if page == 0 {
+		if (len(adds)) == 0 {
 			page = 1
 
 			err = redisClient.DeleteKey(class + "_last_page")
@@ -89,17 +94,21 @@ func reparseAllPages(class string) {
 				log.Println("Error deleting last page from redis: ", err)
 			}
 
-			//reparseStart, err := redisClient.ReadTime("reparse_start_" + class)
-			//Dbmethods.MarkAddsTrashed(class, reparseStart)
-			//if err != nil {
-			//	log.Println("Error retrieve reparse_start: ", err)
-			//}
+			reparseStart, err := redisClient.ReadTime("reparse_start_" + class)
+			Dbmethods.MarkAddsTrashed(class, reparseStart)
+			if err != nil {
+				log.Println("Error retrieve reparse_start: ", err)
+			}
 
 			err = redisClient.WriteTime("reparse_start_"+class, time.Now())
 			if err != nil {
 				log.Println("Error reparse_start last page to redis: ", err)
 			}
 		} else {
+			for _, add := range adds {
+				Dbmethods.FirstOrCreate(add)
+			}
+
 			maxPage, err := redisClient.ReadKey("max_page_" + class)
 			if err != nil {
 				maxPage = "0"
@@ -120,6 +129,8 @@ func reparseAllPages(class string) {
 			if err != nil {
 				log.Println("Error writing resent check to redis: ", err)
 			}
+
+			page++
 		}
 
 		time.Sleep(delay)

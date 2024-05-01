@@ -15,12 +15,18 @@ import (
 	Main "televito-parser/models"
 )
 
+type UserResponse struct {
+	UserInformation struct {
+		Phones []string `json:"phones"`
+	} `json:"userInformatino"`
+}
+
 type Response struct {
 	AddSources []AddSource `json:"realStateItemModel"`
 }
 
 type AddSource struct {
-	ApplicationID            int         `json:"applicationId"`
+	ApplicationID            uint64      `json:"applicationId"`
 	Status                   int         `json:"status"`
 	Address                  Address     `json:"address"`
 	Price                    Price       `json:"price"`
@@ -89,95 +95,92 @@ var (
 	}
 )
 
-func ParsePage(page uint16) (uint16, error) {
-	addSources, err := loadPage(page)
+func LoadPage(page uint16, class string) ([]Main.Add, error) {
+	var token, err = getToken()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	log.Println(Class + ": " + strconv.Itoa(len(addSources)) + " Items loaded p " + strconv.Itoa(int(page)))
-	if len(addSources) == 0 {
-		log.Println(Class + ": 0 - resetting page to 1")
-		return 0, nil
-	} else {
-		page++
+	requestBodyData := map[string]interface{}{
+		"page":     page,
+		"pageSize": pageSize,
+		"order":    1,
 	}
 
-	carIds := make([]uint32, 0)
-
-	for key := range addSources {
-		carIds = append(carIds, key)
-	}
-
-	Dbmethods.RestoreTrashedAdds(carIds, Class)
-
-	existingAdds, err := Dbmethods.GetExistingAdds(carIds, Class)
-	log.Print(Class+" already exists: ", len(existingAdds), " of ", len(carIds))
+	requestBodyJSON, err := json.Marshal(requestBodyData)
 	if err != nil {
-		log.Println(err)
-		return page - 1, err
+		return nil, err
 	}
 
-	var addsToUpdate = make([]Main.Add, 0)
-	for id, add := range existingAdds {
-		category, err := getCategory(addSources[id])
-		if err != nil {
-			continue
+	requestBody := bytes.NewReader(requestBodyJSON)
+
+	headers := map[string]string{
+		"Accept-Language": "ru",
+		"Authorization":   "Bearer " + token,
+		"Content-Type":    "application/json",
+	}
+
+	client := &http.Client{}
+
+	req, err := http.NewRequest("POST", url+"LegendSearch", requestBody)
+	if err != nil {
+		return nil, err
+	}
+
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+
+	response, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var responseObject Response
+	err = json.Unmarshal(body, &responseObject)
+	if err != nil {
+		log.Printf("Error parsing page JSON: %v\n", err)
+		log.Printf("Raw response body: %s\n", string(body))
+		token = ""
+
+		return nil, err
+	}
+
+	result := make([]Main.Add, 0)
+
+	for _, addSource := range responseObject.AddSources {
+		address := getAddress(addSource)
+		locationId := Dbmethods.GetLocationIdByAddress(address, 0, 0)
+		user, userError := getUser(addSource, locationId)
+		category, categoryError := getCategory(addSource)
+
+		if userError == nil && categoryError == nil {
+			var add Main.Add
+			add.User_id = user.Id
+			add.Status = 2
+			add.Approved = 1
+			add.Location_id = locationId
+			add.Name = getName(addSource)
+			add.Description = getDescription(addSource)
+			add.Price = int(addSource.Price.PriceGeo)
+			add.Price_usd = addSource.Price.PriceUSD
+			add.Source_class = class
+			add.Source_id = addSource.ApplicationID
+			add.CategoryId = category.Id
+			add.Images = getImagesUrlList(addSource)
+			add.Currency = "GEL"
+
+			result = append(result, add)
 		}
 
-		add.Name = getName(addSources[id])
-		add.Description = getDescription(addSources[id])
-		add.Price = int(addSources[id].Price.PriceGeo)
-		add.Price_usd = addSources[id].Price.PriceUSD
-		add.Currency = "GEL"
-		add.Location_id = Dbmethods.GetLocationIdByAddress(getAddress(addSources[id]), 0, 0)
-		add.CategoryId = category.Id
-		add.Images = getImagesUrlList(addSources[id])
-
-		addsToUpdate = append(addsToUpdate, add)
-
-		delete(addSources, id)
 	}
-
-	Dbmethods.UpdateAddsBulk(addsToUpdate)
-
-	if (len(addSources)) != 0 {
-		var addsToInsert = make([]Main.Add, 0)
-		for id, addSource := range addSources {
-			category, err := getCategory(addSources[id])
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			var locationId = Dbmethods.GetLocationIdByAddress(getAddress(addSource), 0, 0)
-			user, err := getUser(addSource, locationId)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			add := Main.Add{
-				Name:         getName(addSource),
-				Description:  getDescription(addSource),
-				Price:        int(addSource.Price.PriceGeo),
-				Price_usd:    addSource.Price.PriceUSD,
-				Currency:     "GEL",
-				Location_id:  locationId,
-				CategoryId:   category.Id,
-				Source_class: Class,
-				Source_id:    id,
-				User_id:      user.Id,
-				Images:       getImagesUrlList(addSource),
-			}
-
-			addsToInsert = append(addsToInsert, add)
-		}
-
-		Dbmethods.InsertAddsBulk(addsToInsert)
-	}
-
-	return page, nil
+	return result, nil
 }
 
 func getImagesUrlList(addSource AddSource) string {
@@ -190,12 +193,6 @@ func getImagesUrlList(addSource AddSource) string {
 
 	}
 	return "[\"" + strings.Join(images, "\",\"") + "\"]"
-}
-
-type UserResponse struct {
-	UserInformation struct {
-		Phones []string `json:"phones"`
-	} `json:"userInformatino"`
 }
 
 func getUser(addSource AddSource, locationId uint64) (Main.User, error) {
@@ -333,72 +330,6 @@ func getName(addSource AddSource) string {
 	}
 
 	return strings.Join(name, " ")
-}
-
-func loadPage(page uint16) (map[uint32]AddSource, error) {
-	var token, err = getToken()
-	if err != nil {
-		return nil, err
-	}
-
-	requestBodyData := map[string]interface{}{
-		"page":     page,
-		"pageSize": pageSize,
-		"order":    1,
-	}
-
-	requestBodyJSON, err := json.Marshal(requestBodyData)
-	if err != nil {
-		return nil, err
-	}
-
-	requestBody := bytes.NewReader(requestBodyJSON)
-
-	headers := map[string]string{
-		"Accept-Language": "ru",
-		"Authorization":   "Bearer " + token,
-		"Content-Type":    "application/json",
-	}
-
-	client := &http.Client{}
-
-	req, err := http.NewRequest("POST", url+"LegendSearch", requestBody)
-	if err != nil {
-		return nil, err
-	}
-
-	for key, value := range headers {
-		req.Header.Set(key, value)
-	}
-
-	response, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var responseObject Response
-	err = json.Unmarshal(body, &responseObject)
-	if err != nil {
-		log.Printf("Error parsing page JSON: %v\n", err)
-		log.Printf("Raw response body: %s\n", string(body))
-		token = ""
-
-		return nil, err
-	}
-
-	result := make(map[uint32]AddSource)
-
-	for _, addSource := range responseObject.AddSources {
-		result[uint32(addSource.ApplicationID)] = addSource
-	}
-
-	return result, nil
 }
 
 func getToken() (string, error) {

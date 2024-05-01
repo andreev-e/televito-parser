@@ -7,6 +7,7 @@ import (
 	Ssge "televito-parser/addsources/ssge"
 	Dbmethods "televito-parser/dbmethods"
 	Lrucache "televito-parser/lrucache"
+	Routines "televito-parser/routines"
 	"time"
 )
 
@@ -33,8 +34,8 @@ func main() {
 	defer Dbmethods.CloseDB()
 
 	for _, class := range []string{"MyAutoGe", "MyAutoGeRent", Ssge.Class, Myhomege.Class} {
-		go reparseFirstPages(class)
-		go reparseAllPages(class)
+		go Routines.ReparseFirstPages(class)
+		go Routines.ReparseAllPages(class)
 	}
 
 	for {

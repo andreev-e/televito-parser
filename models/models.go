@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Add struct {
 	gorm.Model
-	Id           int
+	Id           uint64
 	User_id      int
 	Status       int
 	Location_id  uint64
@@ -13,7 +13,7 @@ type Add struct {
 	Price        int
 	Price_usd    float32
 	Source_class string
-	Source_id    uint32
+	Source_id    uint64
 	CategoryId   uint64
 	Approved     int
 	Images       string

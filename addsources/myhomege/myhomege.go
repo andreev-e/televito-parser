@@ -28,7 +28,7 @@ type Response struct {
 }
 
 type AddSource struct {
-	ID    int    `json:"id"`
+	ID    uint64 `json:"id"`
 	Title string `json:"title"`
 	Price struct {
 		TotalPrice struct {
@@ -92,102 +92,75 @@ var (
 	}
 )
 
-func ParsePage(page uint16) (uint16, error) {
-	addSources, err := loadPage(page)
-	page++
+func LoadPage(page uint16, class string) ([]Main.Add, error) {
+	params := map[string]string{
+		"Page": strconv.Itoa(int(page)),
+	}
+
+	fullUrl := url + "search?"
+	for key, value := range params {
+		fullUrl += key + "=" + value + "&"
+	}
+
+	response, err := http.Get(fullUrl)
+
 	if err != nil {
-		return page, err
+		return nil, err
 	}
 
-	log.Println(Class + ": " + strconv.Itoa(len(addSources)) + " Items loaded p " + strconv.Itoa(int(page)))
-	if len(addSources) == 0 {
-		log.Println(Class + ": 0 - resetting page to 1")
-		return 0, nil
-	}
-
-	carIds := make([]uint32, 0)
-
-	for key := range addSources {
-		carIds = append(carIds, key)
-	}
-
-	Dbmethods.RestoreTrashedAdds(carIds, Class)
-
-	existingAdds, err := Dbmethods.GetExistingAdds(carIds, Class)
-
-	log.Print(Class+" already exists: ", len(existingAdds), " of ", len(carIds))
-	if err != nil {
-		log.Println(err)
-		return page - 1, err
-	}
-
-	var addsToUpdate = make([]Main.Add, 0)
-	for id, add := range existingAdds {
-		category, err := getCategory(addSources[id])
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
 		if err != nil {
-			continue
+
 		}
+	}(response.Body)
 
-		add.Name = getName(addSources[id])
-		add.Description = getDescription(addSources[id])
-		add.Price = addSources[id].Price.TotalPrice.Gel
-		add.Price_usd = addSources[id].Price.TotalPrice.USD
-		add.Currency = "GEL"
-		add.Location_id = Dbmethods.GetLocationIdByAddress(addSources[id].Place, 0, 0)
-		add.CategoryId = category.Id
-		add.Images = getImagesUrlList(addSources[id])
-
-		addsToUpdate = append(addsToUpdate, add)
-
-		delete(addSources, id)
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
 	}
 
-	Dbmethods.UpdateAddsBulk(addsToUpdate)
-
-	if (len(addSources)) != 0 {
-		var addsToInsert = make([]Main.Add, 0)
-		for id, addSource := range addSources {
-			category, err := getCategory(addSources[id])
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			var locationId = Dbmethods.GetLocationIdByAddress(addSource.Place, 0, 0)
-			user, err := getUser(addSource, locationId)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			add := Main.Add{
-				Name:         getName(addSource),
-				Description:  getDescription(addSource),
-				Price:        addSource.Price.TotalPrice.Gel,
-				Price_usd:    float32(addSource.Price.TotalPrice.USD),
-				Currency:     "GEL",
-				Location_id:  locationId,
-				CategoryId:   category.Id,
-				Source_class: Class,
-				Source_id:    id,
-				User_id:      user.Id,
-				Images:       getImagesUrlList(addSource),
-			}
-
-			addsToInsert = append(addsToInsert, add)
-		}
-
-		log.Println(Class + ": " + strconv.Itoa(len(addsToInsert)) + " Items to insert")
-		Dbmethods.InsertAddsBulk(addsToInsert)
+	var responseObject Response
+	err = json.Unmarshal(body, &responseObject)
+	if err != nil {
+		log.Printf(string(body))
+		return make([]Main.Add, 0), err
 	}
 
-	return page, nil
+	result := make([]Main.Add, 0)
+
+	for _, addSource := range responseObject.Data.Children {
+		locationId := Dbmethods.GetLocationIdByAddress(addSource.Place, 0, 0)
+		user, userError := getUser(addSource, locationId)
+		category, categoryError := getCategory(addSource)
+
+		if userError == nil && categoryError == nil {
+			var add Main.Add
+			add.User_id = user.Id
+			add.Status = 2
+			add.Approved = 1
+			add.Location_id = locationId
+			add.Name = getName(addSource)
+			add.Description = getDescription(addSource)
+			add.Price = addSource.Price.TotalPrice.Gel
+			add.Price_usd = addSource.Price.TotalPrice.USD
+			add.Source_class = class
+			add.Source_id = addSource.ID
+			add.CategoryId = category.Id
+			add.Images = getImagesUrlList(addSource)
+			add.Currency = "GEL"
+
+			result = append(result, add)
+		}
+
+	}
+	return result, nil
 }
 
 func getImagesUrlList(addSource AddSource) string {
 	images := make([]string, 0)
 	for i := 1; i <= min(addSource.Images.Val, numberOfPhotos); i++ {
-		images = append(images, "https://static.my.ge/myhome/photos/"+addSource.Images.Path+"/large/"+strconv.Itoa(addSource.ID)+"_"+strconv.Itoa(int(i))+".jpg")
+		images = append(images, "https://static.my.ge/myhome/photos/"+addSource.Images.Path+"/large/"+strconv.Itoa(int(addSource.ID))+"_"+strconv.Itoa(int(i))+".jpg")
 	}
 
 	return "[\"" + strings.Join(images, "\",\"") + "\"]"
@@ -255,47 +228,4 @@ func getName(addSource AddSource) string {
 	}
 
 	return strings.Join(name, " ")
-}
-
-func loadPage(page uint16) (map[uint32]AddSource, error) {
-	params := map[string]string{
-		"Page": strconv.Itoa(int(page)),
-	}
-
-	fullUrl := url + "search?"
-	for key, value := range params {
-		fullUrl += key + "=" + value + "&"
-	}
-
-	response, err := http.Get(fullUrl)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-
-		}
-	}(response.Body)
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var responseObject Response
-	err = json.Unmarshal(body, &responseObject)
-	if err != nil {
-		log.Printf(string(body))
-		return make(map[uint32]AddSource), err
-	}
-
-	result := make(map[uint32]AddSource)
-	for _, addSource := range responseObject.Data.Children {
-		result[uint32(addSource.ID)] = addSource
-	}
-
-	return result, nil
 }
