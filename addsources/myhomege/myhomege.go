@@ -221,11 +221,11 @@ func getName(addSource AddSource) string {
 	addType, ok := addTypes[addSource.AdtypeID]
 	if ok {
 		name = append(name, addType)
-	}
-
-	estateType, ok := estateTypes[addSource.ProductTypeID]
-	if ok {
-		name = append(name, estateType)
+	} else {
+		estateType, ok := estateTypes[addSource.ProductTypeID]
+		if ok {
+			name = append(name, estateType)
+		}
 	}
 
 	return strings.Join(name, " ")
