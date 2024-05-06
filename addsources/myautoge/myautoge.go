@@ -313,7 +313,7 @@ func getName(addSource AddSource) string {
 		if addSource.VehicleType == 2 {
 			name = append(name, strconv.Itoa(int(addSource.EngineVolume)))
 		} else {
-			name = append(name, strconv.FormatFloat(float64(float32(addSource.EngineVolume/1000)), 'f', 2, 64)+transmission)
+			name = append(name, strconv.FormatFloat(float64(addSource.EngineVolume)/1000, 'f', 1, 64)+transmission)
 		}
 
 	}
