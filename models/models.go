@@ -23,7 +23,6 @@ type Add struct {
 	Currency     string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	DeletedAt    time.Time
 }
 
 type Location struct {
@@ -34,7 +33,6 @@ type Location struct {
 	Address   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt time.Time
 }
 
 type Category struct {
@@ -44,7 +42,6 @@ type Category struct {
 	ParentId   uint64
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
-	DeletedAt  time.Time
 	Adds_count uint32
 }
 
