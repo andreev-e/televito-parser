@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"televito-parser/dbmethods"
+	Dbmethods "televito-parser/dbmethods"
 	Main "televito-parser/models"
 )
 

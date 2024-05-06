@@ -98,6 +98,7 @@ var (
 func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	var token, err = getToken()
 	if err != nil {
+		token = ""
 		return nil, err
 	}
 
@@ -109,6 +110,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 
 	requestBodyJSON, err := json.Marshal(requestBodyData)
 	if err != nil {
+		token = ""
 		return nil, err
 	}
 
@@ -124,6 +126,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 
 	req, err := http.NewRequest("POST", url+"LegendSearch", requestBody)
 	if err != nil {
+		token = ""
 		return nil, err
 	}
 
@@ -133,12 +136,14 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 
 	response, err := client.Do(req)
 	if err != nil {
+		token = ""
 		return nil, err
 	}
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
+		token = ""
 		return nil, err
 	}
 
