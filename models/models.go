@@ -1,6 +1,9 @@
 package Models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type Add struct {
 	gorm.Model
@@ -18,17 +21,20 @@ type Add struct {
 	Approved     int
 	Images       string
 	Currency     string
-	Updated_at   string
-	Created_at   string
-	Deleted_at   *string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    time.Time
 }
 
 type Location struct {
 	gorm.Model
-	ID      uint64 `gorm:"primaryKey"`
-	Lat     float32
-	Lng     float32
-	Address string
+	ID        uint64 `gorm:"primaryKey"`
+	Lat       float32
+	Lng       float32
+	Address   string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt time.Time
 }
 
 type Category struct {
@@ -36,9 +42,9 @@ type Category struct {
 	Id         uint64 `gorm:"primaryKey"`
 	Name       string
 	ParentId   uint64
-	Created_at string
-	Updated_at string
-	Deleted_at string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  time.Time
 	Adds_count uint32
 }
 
@@ -49,6 +55,6 @@ type User struct {
 	Currency    string
 	Location_id uint64
 	Timezone    string
-	Created_at  string
-	Updated_at  string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
