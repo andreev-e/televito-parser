@@ -282,7 +282,7 @@ func getUser(addSource AddSource, locationId uint64) (Main.User, error) {
 }
 
 func getAddress(addSource AddSource) string {
-	return addSource.Address.CityTitle + ", Georgia"
+	return addSource.Address.CityTitle + ", Грузия"
 }
 
 func getCategory(addSource AddSource) (Main.Category, error) {
