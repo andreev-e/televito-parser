@@ -24,6 +24,7 @@ func ReparseFirstPages(class string) {
 			_, err = Myautoge.LoadPage(1, class)
 		case Ssge.Class:
 			_, err = Ssge.LoadPage(1, class)
+			Ssge.ResetToken()
 		case Myhomege.Class:
 			_, err = Myhomege.LoadPage(1, class)
 		}

@@ -188,6 +188,10 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	return result, nil
 }
 
+func ResetToken() {
+	token = ""
+}
+
 func getImagesUrlList(addSource AddSource) string {
 	var images = make([]string, 0)
 	for index, image := range addSource.AppImages {
