@@ -11,7 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"televito-parser/dbmethods"
+	Dbmethods "televito-parser/dbmethods"
 	Main "televito-parser/models"
 )
 
@@ -313,13 +313,11 @@ func getName(addSource AddSource) string {
 	if addTypes[addSource.DealType] != "" {
 		name = append(name, addTypes[addSource.DealType])
 	} else {
-		name = append(name, "dealType:"+strconv.Itoa(int(addSource.DealType)))
-	}
-
-	if estateTypes[addSource.Type] != "" {
-		name = append(name, estateTypes[addSource.Type])
-	} else {
-		name = append(name, "type:"+strconv.Itoa(int(addSource.Type)))
+		if estateTypes[addSource.Type] != "" {
+			name = append(name, estateTypes[addSource.Type])
+		} else {
+			name = append(name, "type:"+strconv.Itoa(int(addSource.Type)))
+		}
 	}
 
 	name = append(name, strconv.Itoa(int(addSource.TotalArea))+"m²")
