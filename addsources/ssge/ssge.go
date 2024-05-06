@@ -189,7 +189,7 @@ func getImagesUrlList(addSource AddSource) string {
 		if index >= numberOfPhotos {
 			break
 		}
-		images = append(images, image.FileName)
+		images = append(images, strings.ReplaceAll(image.FileName, "/", "\\/"))
 
 	}
 	return "[\"" + strings.Join(images, "\",\"") + "\"]"

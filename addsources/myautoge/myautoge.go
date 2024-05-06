@@ -185,7 +185,8 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 func getImagesUrlList(addSource AddSource, id uint64) string {
 	images := make([]string, 0)
 	for i := uint(1); i <= min(addSource.PhotosCount, NumberOfPhotos); i++ {
-		images = append(images, "https://static.my.ge/myauto/photos/"+addSource.Photo+"/large/"+strconv.Itoa(int(id))+"_"+strconv.Itoa(int(i))+".jpg")
+		url := "https://static.my.ge/myauto/photos/" + addSource.Photo + "/large/" + strconv.Itoa(int(id)) + "_" + strconv.Itoa(int(i)) + ".jpg"
+		images = append(images, strings.ReplaceAll(url, "/", "\\/"))
 	}
 
 	return "[\"" + strings.Join(images, "\",\"") + "\"]"
