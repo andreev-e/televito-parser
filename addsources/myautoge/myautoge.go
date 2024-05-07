@@ -38,6 +38,7 @@ type AddSource struct {
 	Photo         string  `json:"photo"`
 	CategoryID    uint16  `json:"category_id"`
 	CarRunKm      uint64  `json:"car_run_km"`
+	FuelTypeId    uint16  `json:"fuel_type_id"`
 }
 
 type Response struct {
@@ -66,6 +67,7 @@ type AppData struct {
 	Mans       map[uint16]Manufacturer
 	Locations  map[uint16]Location
 	GearTypes  map[uint16]GearType
+	FuelTypes  map[uint16]FuelType
 }
 
 type Category struct {
@@ -100,6 +102,11 @@ type GearType struct {
 	Name string `json:"title"`
 }
 
+type FuelType struct {
+	ID   uint16 `json:"fuel_type_id"`
+	Name string `json:"title"`
+}
+
 const url = "https://api2.myauto.ge"
 const NumberOfPhotos uint = 5
 const mainCategory = 12
@@ -107,9 +114,9 @@ const mainCategory = 12
 var Characteristics = []string{
 	Consts.Mileage,
 	Consts.ProductionYear,
-	//Consts.VehicleBodyType,
-	//Consts.FuelType,
-	//Consts.TransmissionType,
+	Consts.VehicleBodyType,
+	Consts.FuelType,
+	Consts.TransmissionType,
 }
 
 var autoAppData AppData
@@ -204,14 +211,27 @@ func getCharacteristics(source AddSource) []Main.Characteristic {
 			value = strconv.FormatUint(source.CarRunKm, 10)
 		case Consts.ProductionYear:
 			value = strconv.Itoa(int(source.ProdYear))
+		case Consts.VehicleBodyType:
+			category, ok := autoAppData.Categories[source.CategoryID]
+			if ok {
+				value = category.Name
+			}
+		case Consts.FuelType:
+			fuel, ok := autoAppData.FuelTypes[source.FuelTypeId]
+			if ok {
+				value = fuel.Name
+			}
+
 		}
 
-		char := Main.Characteristic{
-			Class: characteristic,
-			Value: value,
-		}
+		if value != "" {
+			char := Main.Characteristic{
+				Class: characteristic,
+				Value: value,
+			}
 
-		result = append(result, char)
+			result = append(result, char)
+		}
 	}
 
 	return result
