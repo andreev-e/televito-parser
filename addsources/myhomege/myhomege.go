@@ -10,6 +10,7 @@ import (
 	"strings"
 	Dbmethods "televito-parser/dbmethods"
 	Main "televito-parser/models"
+	"time"
 )
 
 type Response struct {
@@ -149,6 +150,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			add.CategoryId = category.ID
 			add.Images = getImagesUrlList(addSource)
 			add.Currency = "GEL"
+			add.UpdatedAt = time.Now()
 
 			result = append(result, add)
 		}

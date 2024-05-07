@@ -12,6 +12,7 @@ import (
 	Consts "televito-parser/consts"
 	"televito-parser/dbmethods"
 	Main "televito-parser/models"
+	"time"
 )
 
 var (
@@ -191,6 +192,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			add.CategoryId = category.ID
 			add.Images = getImagesUrlList(addSource, addSource.CarID)
 			add.Currency = getCurrency(addSource)
+			add.UpdatedAt = time.Now()
 
 			add.Characteristics = getCharacteristics(addSource)
 
