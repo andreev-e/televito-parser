@@ -185,6 +185,7 @@ func FirstOrCreate(add Models.Add) (bool, error) {
 		gormDb.Where("add_id = ?", existingAdd.ID).Unscoped().Delete(&Models.Characteristic{})
 
 		for _, characteristic := range add.Characteristics {
+			log.Println(characteristic.Value, characteristic.Class)
 			characteristic.AddId = add.ID
 			gormDb.Create(&characteristic)
 		}
@@ -194,7 +195,7 @@ func FirstOrCreate(add Models.Add) (bool, error) {
 		gormDb.Create(&add)
 
 		for _, characteristic := range add.Characteristics {
-			log.Println(characteristic.Value)
+			log.Println(characteristic.Value, characteristic.Class)
 			characteristic.AddId = add.ID
 			gormDb.Create(&characteristic)
 		}
