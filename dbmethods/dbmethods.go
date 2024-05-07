@@ -193,9 +193,10 @@ func FirstOrCreate(add Models.Add) (bool, error) {
 		return false, nil
 	} else if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		gormDb.Create(&add)
+		gormDb.Where(Models.Add{Source_id: add.Source_id, Source_class: add.Source_class}).First(&existingAdd)
 
 		for _, characteristic := range add.Characteristics {
-			characteristic.AddId = add.ID
+			characteristic.AddId = existingAdd.ID
 			log.Println(characteristic.AddId, characteristic.Value, characteristic.Class)
 			gormDb.Create(&characteristic)
 		}
