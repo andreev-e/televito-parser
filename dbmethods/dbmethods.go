@@ -186,7 +186,6 @@ func FirstOrCreate(add Models.Add) (bool, error) {
 
 		for _, characteristic := range add.Characteristics {
 			characteristic.AddId = existingAdd.ID
-			log.Println("upd ", characteristic.AddId, characteristic.Value, characteristic.Class)
 			gormDb.Create(&characteristic)
 		}
 
@@ -197,7 +196,6 @@ func FirstOrCreate(add Models.Add) (bool, error) {
 
 		for _, characteristic := range add.Characteristics {
 			characteristic.AddId = existingAdd.ID
-			log.Println("ins ", characteristic.AddId, characteristic.Value, characteristic.Class)
 			gormDb.Create(&characteristic)
 		}
 
