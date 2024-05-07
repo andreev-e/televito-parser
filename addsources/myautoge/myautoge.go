@@ -37,6 +37,7 @@ type AddSource struct {
 	PhotosCount   uint    `json:"pic_number"`
 	Photo         string  `json:"photo"`
 	CategoryID    uint16  `json:"category_id"`
+	CarRunKm      uint64  `json:"car_run_km"`
 }
 
 type Response struct {
@@ -106,9 +107,9 @@ const mainCategory = 12
 var Characteristics = []string{
 	Consts.Mileage,
 	Consts.ProductionYear,
-	Consts.VehicleBodyType,
-	Consts.FuelType,
-	Consts.TransmissionType,
+	//Consts.VehicleBodyType,
+	//Consts.FuelType,
+	//Consts.TransmissionType,
 }
 
 var autoAppData AppData
@@ -170,7 +171,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 
 		if userError == nil && categoryError == nil {
 			var add Main.Add
-			add.User_id = user.Id
+			add.UserId = user.ID
 			add.Status = 2
 			add.Approved = 1
 			add.Location_id = locationId
@@ -180,15 +181,40 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			add.Price_usd = addSource.PriceUSD
 			add.Source_class = class
 			add.Source_id = addSource.CarID
-			add.CategoryId = category.Id
+			add.CategoryId = category.ID
 			add.Images = getImagesUrlList(addSource, addSource.CarID)
 			add.Currency = getCurrency(addSource)
+
+			add.Characteristics = getCharacteristics(addSource)
 
 			result = append(result, add)
 		}
 
 	}
 	return result, nil
+}
+
+func getCharacteristics(source AddSource) []Main.Characteristic {
+	result := make([]Main.Characteristic, 0)
+	for _, characteristic := range Characteristics {
+
+		value := ""
+		switch characteristic {
+		case Consts.Mileage:
+			value = strconv.FormatUint(source.CarRunKm, 10)
+		case Consts.ProductionYear:
+			value = strconv.Itoa(int(source.ProdYear))
+		}
+
+		char := Main.Characteristic{
+			Class: characteristic,
+			Value: value,
+		}
+
+		result = append(result, char)
+	}
+
+	return result
 }
 
 func getImagesUrlList(addSource AddSource, id uint64) string {
@@ -246,7 +272,7 @@ func getCategory(addSource AddSource) (Main.Category, error) {
 		return category, nil
 	}
 
-	subCategory, err = Dbmethods.RetrieveCategory(subCategoryAuto.Name, category.Id)
+	subCategory, err = Dbmethods.RetrieveCategory(subCategoryAuto.Name, category.ID)
 	if err != nil {
 		return category, err
 	}

@@ -167,7 +167,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 
 		if userError == nil && categoryError == nil {
 			var add Main.Add
-			add.User_id = user.Id
+			add.UserId = user.ID
 			add.Status = 2
 			add.Approved = 1
 			add.Location_id = locationId
@@ -177,7 +177,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			add.Price_usd = addSource.Price.PriceUSD
 			add.Source_class = class
 			add.Source_id = addSource.ApplicationID
-			add.CategoryId = category.Id
+			add.CategoryId = category.ID
 			add.Images = getImagesUrlList(addSource)
 			add.Currency = "GEL"
 

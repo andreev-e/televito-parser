@@ -68,14 +68,14 @@ func GetLocationIdByAddress(address string, lat float32, lng float32) uint64 {
 			if err := gormDb.First(&location, "address = ?", address).Error; err != nil {
 				return 0
 			}
-			Lrucache.CachedLocations.Put(address, strconv.FormatUint(location.ID, 10))
-			return location.ID
+			Lrucache.CachedLocations.Put(address, strconv.FormatUint(uint64(location.ID), 10))
+			return uint64(location.ID)
 		}
 		return 0
 	}
 
-	Lrucache.CachedLocations.Put(address, strconv.FormatUint(location.ID, 10))
-	return location.ID
+	Lrucache.CachedLocations.Put(address, strconv.FormatUint(uint64(location.ID), 10))
+	return uint64(location.ID)
 }
 
 func FindUserByPhone(phone string) (Models.User, error) {
@@ -88,7 +88,7 @@ func FindUserByPhone(phone string) (Models.User, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&user.Id, &user.Contact)
+		err := rows.Scan(&user.ID, &user.Contact)
 		if err != nil {
 			return user, err
 		}
@@ -108,7 +108,7 @@ func FindUserBySourceId(sourceId string) (Models.User, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&user.Id, &user.Contact)
+		err := rows.Scan(&user.ID, &user.Contact)
 		if err != nil {
 			return user, err
 		}
@@ -141,16 +141,16 @@ func CreateUser(contact string, lang string, currency string, locationId uint64,
 		return user, err
 	}
 
-	user.Id = int(userId)
+	user.ID = uint(userId)
 	user.Contact = contact
 	user.Lang = lang
 	user.Currency = currency
-	user.Location_id = locationId
+	user.LocationId = locationId
 
 	return user, nil
 }
 
-func RetrieveCategory(name string, parentId uint64) (Models.Category, error) {
+func RetrieveCategory(name string, parentId uint) (Models.Category, error) {
 	var category Models.Category
 
 	if err := gormDb.First(&category, "name = ? AND parent_id = ?", name, parentId).Error; err != nil {
@@ -181,9 +181,23 @@ func FirstOrCreate(add Models.Add) (bool, error) {
 
 	if result.Error == nil {
 		gormDb.Model(&existingAdd).Updates(add)
+
+		gormDb.Where("add_id = ?", existingAdd.ID).Delete(&Models.Characteristic{})
+
+		for _, characteristic := range add.Characteristics {
+			characteristic.AddId = add.ID
+			gormDb.Create(&characteristic)
+		}
+
 		return false, nil
 	} else if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		gormDb.Create(&add)
+
+		for _, characteristic := range add.Characteristics {
+			characteristic.AddId = add.ID
+			gormDb.Create(&characteristic)
+		}
+
 		return true, nil
 	}
 

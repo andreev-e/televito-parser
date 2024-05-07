@@ -2,68 +2,54 @@ package Models
 
 import (
 	"gorm.io/gorm"
-	"time"
 )
 
 type Add struct {
 	gorm.Model
-	Id           uint64
-	User_id      uint64
-	Status       int
-	Location_id  uint64
-	Name         string
-	Description  string
-	Price        float32
-	Price_usd    float32
-	Source_class string
-	Source_id    uint64
-	CategoryId   uint64
-	Approved     int
-	Images       string
-	Currency     string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	UserId          uint
+	Status          int
+	Location_id     uint64
+	Name            string
+	Description     string
+	Price           float32
+	Price_usd       float32
+	Source_class    string
+	Source_id       uint64
+	CategoryId      uint
+	Approved        int
+	Images          string
+	Currency        string
+	Characteristics []Characteristic
 }
 
 type Location struct {
 	gorm.Model
-	ID        uint64 `gorm:"primaryKey"`
-	Lat       float32
-	Lng       float32
-	Address   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Lat     float32
+	Lng     float32
+	Address string
 }
 
 type Category struct {
 	gorm.Model
-	Id         uint64 `gorm:"primaryKey"`
 	Name       string
-	ParentId   uint64
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ParentId   uint
 	Adds_count uint32
 }
 
 type User struct {
-	Id         uint64 `gorm:"primaryKey"`
+	gorm.Model
 	Contact    interface{}
 	Lang       string
 	Currency   string
 	LocationId uint64
 	Location   Location
 	Timezone   string
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
 }
 
 type Characteristic struct {
 	gorm.Model
-	Id        uint64 `gorm:"primaryKey"`
-	AddId     uint64
-	Add       Add
-	Class     string
-	Value     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	AddId uint
+	Add   Add
+	Class string
+	Value string
 }
