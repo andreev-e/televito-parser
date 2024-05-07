@@ -182,7 +182,7 @@ func FirstOrCreate(add Models.Add) (bool, error) {
 	if result.Error == nil {
 		gormDb.Model(&existingAdd).Updates(add)
 
-		gormDb.Where("add_id = ?", existingAdd.ID).Delete(&Models.Characteristic{})
+		gormDb.Where("add_id = ?", existingAdd.ID).Unscoped().Delete(&Models.Characteristic{})
 
 		for _, characteristic := range add.Characteristics {
 			characteristic.AddId = add.ID
