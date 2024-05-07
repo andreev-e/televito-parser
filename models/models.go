@@ -8,7 +8,7 @@ import (
 type Add struct {
 	gorm.Model
 	Id           uint64
-	User_id      int
+	User_id      uint64
 	Status       int
 	Location_id  uint64
 	Name         string
@@ -46,12 +46,24 @@ type Category struct {
 }
 
 type User struct {
-	Id          int
-	Contact     interface{}
-	Lang        string
-	Currency    string
-	Location_id uint64
-	Timezone    string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	Id         uint64 `gorm:"primaryKey"`
+	Contact    interface{}
+	Lang       string
+	Currency   string
+	LocationId uint64
+	Location   Location
+	Timezone   string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
+
+type Characteristic struct {
+	gorm.Model
+	Id        uint64 `gorm:"primaryKey"`
+	AddId     uint64
+	Add       Add
+	Class     string
+	Value     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

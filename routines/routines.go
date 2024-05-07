@@ -19,17 +19,35 @@ func ReparseFirstPages(class string) {
 
 	for {
 		err := error(nil)
+		adds := make([]Models.Add, 0)
 		switch class {
 		case "MyAutoGe", "MyAutoGeRent":
-			_, err = Myautoge.LoadPage(1, class)
+			adds, err = Myautoge.LoadPage(1, class)
 		case Ssge.Class:
-			_, err = Ssge.LoadPage(1, class)
+			adds, err = Ssge.LoadPage(1, class)
 			Ssge.ResetToken()
 		case Myhomege.Class:
-			_, err = Myhomege.LoadPage(1, class)
+			adds, err = Myhomege.LoadPage(1, class)
 		}
 		if err != nil {
 			log.Println("Error parsing first pages: ", err)
+		}
+
+		if (len(adds)) > 0 {
+			created, updated, errored := 0, 0, 0
+			for _, add := range adds {
+				result, err := Dbmethods.FirstOrCreate(add)
+				if err != nil {
+					log.Println("Error creating add: ", err)
+					errored++
+				}
+				if result {
+					created++
+				} else {
+					updated++
+				}
+			}
+			log.Println(class, " page 1", " created: ", created, " updated: ", updated, " errored: ", errored)
 		}
 
 		time.Sleep(5 * time.Minute)

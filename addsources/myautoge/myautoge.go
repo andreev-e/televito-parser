@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	Consts "televito-parser/consts"
 	"televito-parser/dbmethods"
 	Main "televito-parser/models"
 )
@@ -101,6 +102,14 @@ type GearType struct {
 const url = "https://api2.myauto.ge"
 const NumberOfPhotos uint = 5
 const mainCategory = 12
+
+var Characteristics = []string{
+	Consts.Mileage,
+	Consts.ProductionYear,
+	Consts.VehicleBodyType,
+	Consts.FuelType,
+	Consts.TransmissionType,
+}
 
 var autoAppData AppData
 
