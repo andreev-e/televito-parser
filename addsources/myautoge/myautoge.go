@@ -34,7 +34,7 @@ type AddSource struct {
 	VehicleType   uint16  `json:"vehicle_type"`
 	CustomsPassed bool    `json:"customs_passed"`
 	LocationId    uint16  `json:"location_id"`
-	ClientPhone   uint64  `json:"client_phone"`
+	ClientPhone   string  `json:"client_phone"`
 	PhotosCount   uint    `json:"pic_number"`
 	Photo         string  `json:"photo"`
 	CategoryID    uint16  `json:"category_id"`
@@ -250,7 +250,7 @@ func getImagesUrlList(addSource AddSource, id uint64) string {
 }
 
 func getUser(addSource AddSource, locationId uint64) (Main.User, error) {
-	var phone = strconv.FormatUint(addSource.ClientPhone, 10)
+	var phone = addSource.ClientPhone
 	var user, err = Dbmethods.FindUserByPhone(phone)
 	if err != nil {
 		user, err = Dbmethods.CreateUser(phone, "ge", getCurrency(addSource), locationId, nil)
