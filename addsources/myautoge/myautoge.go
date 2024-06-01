@@ -59,6 +59,9 @@ type LoadedAppData struct {
 	Locations struct {
 		Items []Location `json:"items"`
 	} `json:"Locations"`
+	FuelTypes struct {
+		Items []FuelType `json:"items"`
+	} `json:"FuelTypes"`
 }
 
 type AppData struct {
@@ -206,8 +209,8 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 func getCharacteristics(source AddSource) []Main.Characteristic {
 	result := make([]Main.Characteristic, 0)
 	for _, characteristic := range Characteristics {
-
 		value := ""
+
 		switch characteristic {
 		case Consts.Mileage:
 			value = strconv.FormatUint(source.CarRunKm, 10)
@@ -221,9 +224,9 @@ func getCharacteristics(source AddSource) []Main.Characteristic {
 		case Consts.FuelType:
 			fuel, ok := autoAppData.FuelTypes[source.FuelTypeId]
 			if ok {
+				log.Println(fuel.Name)
 				value = fuel.Name
 			}
-
 		}
 
 		if value != "" {
@@ -382,6 +385,7 @@ func loadData() {
 	once.Do(func() {
 		response, err := http.Get(url + "/appdata/other_en.json")
 
+		log.Println(url + "/appdata/other_en.json")
 		if err != nil {
 			return
 		}
@@ -431,6 +435,11 @@ func loadData() {
 			gearTypes[gearType.ID] = gearType
 		}
 
+		fuelTypes := make(map[uint16]FuelType)
+		for _, fuelType := range loadedAppData.FuelTypes.Items {
+			fuelTypes[fuelType.ID] = fuelType
+		}
+
 		currencies := make(map[uint8]Currency)
 		for _, currency := range loadedAppData.Currencies {
 			currencies[currency.ID] = currency
@@ -443,6 +452,7 @@ func loadData() {
 			Models:     models,
 			GearTypes:  gearTypes,
 			Currencies: currencies,
+			FuelTypes:  fuelTypes,
 		}
 
 		log.Println("Appdata loaded")
