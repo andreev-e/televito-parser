@@ -58,7 +58,7 @@ type AddSource struct {
 const (
 	Class              = "MyHomeGe"
 	url                = "https://api2.myhome.ge/api/ru/"
-	numberOfPhotos int = 5
+	numberOfPhotos int = 10
 	mainCategory       = 1
 )
 

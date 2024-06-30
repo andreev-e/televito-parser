@@ -112,7 +112,7 @@ type FuelType struct {
 }
 
 const url = "https://api2.myauto.ge"
-const NumberOfPhotos uint = 5
+const NumberOfPhotos uint = 10
 const mainCategory = 12
 
 var Characteristics = []string{

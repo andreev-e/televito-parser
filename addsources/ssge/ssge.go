@@ -73,7 +73,7 @@ type AppImage struct {
 const (
 	Class              = "SSGe"
 	url                = "https://api-gateway.ss.ge/v1/RealEstate/"
-	numberOfPhotos int = 5
+	numberOfPhotos int = 10
 	mainCategory       = 1
 	pageSize           = 30
 )
