@@ -308,6 +308,10 @@ func getCategory(addSource AddSource) (Main.Category, error) {
 func getCurrency(addSource AddSource) string {
 	currency, ok := autoAppData.Currencies[addSource.Currency]
 	if ok {
+		if currency.Name == "EURO" {
+			return "EUR"
+		}
+
 		return currency.Name
 	}
 	return ""
