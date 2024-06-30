@@ -29,8 +29,9 @@ func ReparseFirstPages(class string) {
 		case Myhomege.Class:
 			adds, err = Myhomege.LoadPage(1, class)
 		}
+
 		if err != nil {
-			log.Println("Error parsing first pages: ", err)
+			log.Println(class+": Error parsing first pages: ", err)
 		}
 
 		if (len(adds)) > 0 {
@@ -64,7 +65,6 @@ func ReparseAllPages(class string) {
 
 	var page uint16
 	storedPage, err := redisClient.ReadKey(class + "_last_page")
-	log.Println(class+"_last_page: ", storedPage)
 	if err == nil {
 		pageInt, err := strconv.Atoi(storedPage)
 		if err == nil && pageInt > 0 {

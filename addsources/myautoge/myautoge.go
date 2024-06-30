@@ -224,7 +224,6 @@ func getCharacteristics(source AddSource) []Main.Characteristic {
 		case Consts.FuelType:
 			fuel, ok := autoAppData.FuelTypes[source.FuelTypeId]
 			if ok {
-				log.Println(fuel.Name)
 				value = fuel.Name
 			}
 		}
@@ -389,7 +388,6 @@ func loadData() {
 	once.Do(func() {
 		response, err := http.Get(url + "/appdata/other_en.json")
 
-		log.Println(url + "/appdata/other_en.json")
 		if err != nil {
 			return
 		}

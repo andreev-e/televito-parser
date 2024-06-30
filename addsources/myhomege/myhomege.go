@@ -106,6 +106,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	response, err := http.Get(fullUrl)
 
 	if err != nil {
+		log.Println("error loading " + fullUrl)
 		return nil, err
 	}
 

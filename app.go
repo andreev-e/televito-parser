@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	Myhomege "televito-parser/addsources/myhomege"
 	Ssge "televito-parser/addsources/ssge"
 	Dbmethods "televito-parser/dbmethods"
 	Lrucache "televito-parser/lrucache"
@@ -33,7 +32,12 @@ func main() {
 	defer logFile.Close()
 	defer Dbmethods.CloseDB()
 
-	for _, class := range []string{"MyAutoGe", "MyAutoGeRent", Ssge.Class, Myhomege.Class} {
+	for _, class := range []string{
+		"MyAutoGe",
+		"MyAutoGeRent",
+		Ssge.Class,
+		//Myhomege.Class
+	} {
 		go Routines.ReparseFirstPages(class)
 		go Routines.ReparseAllPages(class)
 	}
