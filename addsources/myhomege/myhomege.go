@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	Consts "televito-parser/consts"
 	Dbmethods "televito-parser/dbmethods"
 	Main "televito-parser/models"
 	"time"
@@ -53,6 +54,9 @@ type AddSource struct {
 		PhotoVer int    `json:"photo_ver"`
 		Path     string `json:"path"`
 	} `json:"images"`
+	Floors uint64 `json:"floors"`
+	Floor  uint64 `json:"floor"`
+	Area   uint64 `json:"area_size_value"`
 }
 
 const (
@@ -61,6 +65,12 @@ const (
 	numberOfPhotos int = 10
 	mainCategory       = 1
 )
+
+var Characteristics = []string{
+	Consts.Area,
+	Consts.Floor,
+	Consts.Floors,
+}
 
 var (
 	estateTypes = map[int]string{
@@ -153,11 +163,40 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			add.Currency = "GEL"
 			add.UpdatedAt = time.Now()
 
+			add.Characteristics = getCharacteristics(addSource)
+
 			result = append(result, add)
 		}
 
 	}
 	return result, nil
+}
+
+func getCharacteristics(source AddSource) []Main.Characteristic {
+	result := make([]Main.Characteristic, 0)
+	for _, characteristic := range Characteristics {
+		value := ""
+
+		switch characteristic {
+		case Consts.Area:
+			value = strconv.FormatUint(source.Area, 10)
+		case Consts.Floor:
+			value = strconv.Itoa(int(source.Floor))
+		case Consts.Floors:
+			value = strconv.Itoa(int(source.Floors))
+		}
+
+		if value != "" {
+			char := Main.Characteristic{
+				Class: characteristic,
+				Value: value,
+			}
+
+			result = append(result, char)
+		}
+	}
+
+	return result
 }
 
 func getImagesUrlList(addSource AddSource) string {
