@@ -226,6 +226,11 @@ func getCharacteristics(source AddSource) []Main.Characteristic {
 			if ok {
 				value = fuel.Name
 			}
+		case Consts.TransmissionType:
+			transmission, ok := autoAppData.GearTypes[source.GearTypeID]
+			if ok {
+				value = transmission.Name
+			}
 		}
 
 		if value != "" {
