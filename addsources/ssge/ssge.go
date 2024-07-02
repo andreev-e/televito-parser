@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	Consts "televito-parser/consts"
 	Dbmethods "televito-parser/dbmethods"
 	Main "televito-parser/models"
 	"time"
@@ -77,6 +78,12 @@ const (
 	mainCategory       = 1
 	pageSize           = 30
 )
+
+var Characteristics = []string{
+	Consts.Area,
+	Consts.Floor,
+	Consts.Floors,
+}
 
 var (
 	token    = ""
@@ -183,6 +190,8 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			add.Currency = "GEL"
 			add.UpdatedAt = time.Now()
 
+			add.Characteristics = getCharacteristics(addSource)
+
 			result = append(result, add)
 		}
 
@@ -192,6 +201,33 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 
 func ResetToken() {
 	token = ""
+}
+
+func getCharacteristics(source AddSource) []Main.Characteristic {
+	result := make([]Main.Characteristic, 0)
+	for _, characteristic := range Characteristics {
+		value := ""
+
+		switch characteristic {
+		case Consts.Area:
+			value = strconv.Itoa(int(source.TotalArea))
+		case Consts.Floor:
+			value = source.FloorNumber
+		case Consts.Floors:
+			value = strconv.Itoa(int(source.TotalAmountOfFloor))
+		}
+
+		if value != "" {
+			char := Main.Characteristic{
+				Class: characteristic,
+				Value: value,
+			}
+
+			result = append(result, char)
+		}
+	}
+
+	return result
 }
 
 func getImagesUrlList(addSource AddSource) string {
