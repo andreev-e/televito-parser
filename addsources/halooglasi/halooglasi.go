@@ -199,11 +199,11 @@ func getLatLng(responseObject Response, adGeoLocationId string) (float32, float3
 	for _, adGeoLocation := range responseObject.AdGeoLocations {
 		if strconv.FormatUint(adGeoLocation.Id, 10) == adGeoLocationId {
 			coords := strings.Split(adGeoLocation.Coord, ",")
-			lat, err := strconv.ParseFloat(coords[0], 32)
+			lat, err := strconv.ParseFloat(coords[1], 32)
 			if err != nil {
 				return 0, 0
 			}
-			lng, err := strconv.ParseFloat(coords[1], 32)
+			lng, err := strconv.ParseFloat(coords[0], 32)
 			if err != nil {
 				return 0, 0
 			}
