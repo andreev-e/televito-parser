@@ -57,14 +57,20 @@ type Response struct {
 func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	result := make([]Main.Add, 0)
 
-	//fin category by index
-	category, ok := categories[int(page)]
-	if !ok {
-		return result, nil
+	////fin category by index
+	//category, ok := categories[int(page)]
+	//if !ok {
+	//	return nil, nil
+	//}
+
+	minLat, maxLat, minLng, maxLng, err := getLocationBounds(page)
+
+	if err != nil {
+		return nil, nil
 	}
 
 	data := map[string]interface{}{
-		"CategoryId": category,
+		//"CategoryId": category,
 		"SortFields": []map[string]interface{}{
 			{
 				"FieldName": "ValidFromForDisplay",
@@ -76,6 +82,17 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 		"PageNumber":         1,
 		"fetchBanners":       false,
 		"RenderSEOWidget":    false,
+		"GeoPolygonQuery": map[string]interface{}{
+			"FieldName": "location_rpt",
+			"GeoPolygon": []map[string]float64{
+				{"Lng": minLng, "Lat": maxLat},
+				{"Lng": minLng, "Lat": minLat},
+				{"Lng": maxLng, "Lat": minLat},
+				{"Lng": maxLng, "Lat": maxLat},
+				{"Lng": minLng, "Lat": maxLat},
+			},
+			"Operation": 2,
+		},
 	}
 
 	// Marshal the data into JSON
@@ -145,6 +162,29 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 
 	}
 	return result, nil
+}
+
+func getLocationBounds(page uint16) (float64, float64, float64, float64, error) {
+	const (
+		minLatOverall = 41.644183479397455
+		maxLatOverall = 46.31658418182218
+		minLngOverall = 18.3801373882843
+		maxLngOverall = 23.416895338243755
+	)
+
+	pageCount := float64(4)
+	pageFloat := float64(page)
+
+	minLat := minLatOverall + (pageFloat-1)*(maxLatOverall-minLatOverall)/pageCount
+	maxLat := minLatOverall + pageFloat*(maxLatOverall-minLatOverall)/pageCount
+	minLng := minLngOverall + (pageFloat-1)*(maxLngOverall-minLngOverall)/pageCount
+	maxLng := minLngOverall + pageFloat*(maxLngOverall-minLngOverall)/pageCount
+
+	if page > 32 {
+		return 0, 0, 0, 0, fmt.Errorf("page out of bounds")
+	}
+
+	return minLat, maxLat, minLng, maxLng, nil
 }
 
 func getImagesUrlList(addSource AddSource) string {
