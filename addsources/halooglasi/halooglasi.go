@@ -66,7 +66,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	minLat, maxLat, minLng, maxLng, err := getLocationBounds(page)
 
 	if err != nil {
-		minLat, maxLat, minLng, maxLng, err = getLocationBounds(0)
+		return result, err
 	}
 
 	data := map[string]interface{}{
@@ -99,14 +99,14 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		fmt.Println("Error marshaling JSON:", err)
-		return nil, err
+		return result, err
 	}
 
 	response, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 
 	if err != nil {
 		log.Println("error loading " + url)
-		return nil, err
+		return result, err
 	}
 
 	defer func(Body io.ReadCloser) {
@@ -118,14 +118,14 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return nil, err
+		return result, err
 	}
 
 	var responseObject Response
 	err = json.Unmarshal(body, &responseObject)
 	if err != nil {
 		log.Printf(string(body))
-		return make([]Main.Add, 0), err
+		return result, err
 	}
 
 	for _, addSource := range responseObject.AddSources {
