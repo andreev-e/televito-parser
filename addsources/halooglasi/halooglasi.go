@@ -150,10 +150,14 @@ func getPrice(addSource AddSource) float32 {
 
 	ulElement := findElementByClass(doc, "div", "central-feature")
 	if ulElement != nil {
-		price, err := strconv.ParseFloat(getTextContent(ulElement), 32)
+		priceString := ulElement.FirstChild.Attr[0].Val
+		priceString = strings.ReplaceAll(priceString, ".", "")
+		price, err := strconv.ParseFloat(priceString, 32)
 		if err != nil {
+			log.Println(err)
 			return 0
 		}
+		log.Println(price)
 		return float32(price)
 	}
 
