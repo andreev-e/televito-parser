@@ -69,6 +69,8 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 		return result, err
 	}
 
+	log.Println("p", page, "minLat: ", minLat, " maxLat: ", maxLat, " minLng: ", minLng, " maxLng: ", maxLng)
+
 	data := map[string]interface{}{
 		//"CategoryId": category,
 		"SortFields": []map[string]interface{}{
@@ -128,6 +130,8 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 		return result, err
 	}
 
+	log.Println(len(responseObject.AddSources))
+
 	for _, addSource := range responseObject.AddSources {
 		addressString, addressError := getAddress(addSource)
 
@@ -176,7 +180,7 @@ func getLocationBounds(page uint16) (float64, float64, float64, float64, error) 
 		return minLatOverall, maxLatOverall, minLngOverall, maxLngOverall, nil
 	}
 
-	pageCount := float64(4)
+	pageCount := float64(8)
 	pageFloat := float64(page)
 
 	minLat := minLatOverall + (pageFloat-1)*(maxLatOverall-minLatOverall)/pageCount
@@ -184,7 +188,7 @@ func getLocationBounds(page uint16) (float64, float64, float64, float64, error) 
 	minLng := minLngOverall + (pageFloat-1)*(maxLngOverall-minLngOverall)/pageCount
 	maxLng := minLngOverall + pageFloat*(maxLngOverall-minLngOverall)/pageCount
 
-	if page > 16 {
+	if page > 64 {
 		return 0, 0, 0, 0, fmt.Errorf("page out of bounds")
 	}
 

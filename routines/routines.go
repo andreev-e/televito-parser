@@ -151,7 +151,7 @@ func ReparseAllPages(class string) {
 			if err != nil {
 				maxPage = "0"
 			}
-			maxPageInteger, err := strconv.Atoi(maxPage)
+			maxPageInteger, _ := strconv.Atoi(maxPage)
 
 			err = redisClient.WriteKey("max_page_"+class, strconv.Itoa(max(int(page+1), maxPageInteger)))
 			if err != nil {
@@ -171,7 +171,7 @@ func ReparseAllPages(class string) {
 			page++
 		}
 
-		if class != "Halooglasi" && page > 16 {
+		if class != "Halooglasi" && page > 64 {
 			page = 1
 			err = redisClient.DeleteKey(class + "_last_page")
 			continue
