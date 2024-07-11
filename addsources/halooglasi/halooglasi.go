@@ -75,7 +75,6 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 		"ItemsPerPage":       20,
 		"PageNumber":         1,
 		"fetchBanners":       false,
-		"BaseTaxonomy":       "/nekretnine/prodaja-kuca",
 		"RenderSEOWidget":    false,
 	}
 
