@@ -66,7 +66,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	minLat, maxLat, minLng, maxLng, err := getLocationBounds(page)
 
 	if err != nil {
-		return result, err
+		return result, nil
 	}
 
 	log.Println("p", page, "minLat: ", minLat, " maxLat: ", maxLat, " minLng: ", minLng, " maxLng: ", maxLng)
