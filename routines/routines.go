@@ -3,6 +3,7 @@ package Routines
 import (
 	"log"
 	"strconv"
+	Halooglasi "televito-parser/addsources/halooglasi"
 	Myautoge "televito-parser/addsources/myautoge"
 	Myhomege "televito-parser/addsources/myhomege"
 	Ssge "televito-parser/addsources/ssge"
@@ -28,6 +29,8 @@ func ReparseFirstPages(class string) {
 			Ssge.ResetToken()
 		case Myhomege.Class:
 			adds, err = Myhomege.LoadPage(1, class)
+		case "Halooglasi":
+			adds, err = Halooglasi.LoadPage(1, class)
 		}
 
 		if err != nil {
@@ -86,6 +89,8 @@ func ReparseAllPages(class string) {
 		delay = 5 * time.Second
 	case Myhomege.Class:
 		delay = 5 * time.Second
+	case "Halooglasi":
+		delay = 60 * time.Second
 	}
 
 	for {
@@ -97,6 +102,8 @@ func ReparseAllPages(class string) {
 			adds, err = Ssge.LoadPage(page, class)
 		case Myhomege.Class:
 			adds, err = Myhomege.LoadPage(page, class)
+		case "Halooglasi":
+			adds, err = Halooglasi.LoadPage(page, class)
 		}
 
 		if err != nil {
