@@ -171,7 +171,7 @@ func ReparseAllPages(class string) {
 			page++
 		}
 
-		if class != "Halooglasi" && page > 64 {
+		if class == "Halooglasi" && page > 64 {
 			page = 1
 			err = redisClient.DeleteKey(class + "_last_page")
 			continue
