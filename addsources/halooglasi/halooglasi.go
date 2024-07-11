@@ -66,7 +66,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	minLat, maxLat, minLng, maxLng, err := getLocationBounds(page)
 
 	if err != nil {
-		return result, err
+		minLat, maxLat, minLng, maxLng, err = getLocationBounds(0)
 	}
 
 	data := map[string]interface{}{
@@ -171,6 +171,10 @@ func getLocationBounds(page uint16) (float64, float64, float64, float64, error) 
 		minLngOverall = 18.3801373882843
 		maxLngOverall = 23.416895338243755
 	)
+
+	if page == 0 {
+		return minLatOverall, maxLatOverall, minLngOverall, maxLngOverall, nil
+	}
 
 	pageCount := float64(4)
 	pageFloat := float64(page)
