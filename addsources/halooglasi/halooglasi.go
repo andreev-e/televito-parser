@@ -157,7 +157,6 @@ func getPrice(addSource AddSource) float32 {
 			log.Println(err)
 			return 0
 		}
-		log.Println(price)
 		return float32(price)
 	}
 
@@ -177,7 +176,7 @@ func getDescription(source AddSource) string {
 		return ""
 	}
 
-	ulElement := findElementByClass(doc, "p", "short-desc")
+	ulElement := findElementByClass(doc, "p", "text-description-list product-description short-desc")
 	if ulElement != nil {
 		return getTextContent(ulElement)
 	}
