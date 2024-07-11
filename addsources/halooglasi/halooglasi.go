@@ -39,7 +39,7 @@ type Response struct {
 
 func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	data := map[string]interface{}{
-		"CategoryId": "24",
+		"CategoryId": page,
 		"SortFields": []map[string]interface{}{
 			{
 				"FieldName": "ValidFromForDisplay",
