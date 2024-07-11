@@ -119,10 +119,6 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			//add.Characteristics = getCharacteristics(addSource)
 
 			result = append(result, add)
-
-			if len(result) > 10 {
-				return result, nil
-			}
 		}
 
 	}
