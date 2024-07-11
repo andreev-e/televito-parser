@@ -37,6 +37,7 @@ func main() {
 		"MyAutoGeRent",
 		Ssge.Class,
 		//Myhomege.Class
+		"Halooglasi",
 	} {
 		go Routines.ReparseFirstPages(class)
 		go Routines.ReparseAllPages(class)
