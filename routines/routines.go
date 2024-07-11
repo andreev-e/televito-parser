@@ -1,8 +1,6 @@
 package Routines
 
 import (
-	"errors"
-	"fmt"
 	"log"
 	"strconv"
 	Halooglasi "televito-parser/addsources/halooglasi"
@@ -114,15 +112,6 @@ func ReparseAllPages(class string) {
 			time.Sleep(2 * time.Minute)
 		}
 
-		if errors.Is(err, fmt.Errorf("page out of bounds")) {
-			page = 1
-			err = redisClient.DeleteKey(class + "_last_page")
-			if err != nil {
-				log.Println("Error deleting last page from redis: ", err)
-			}
-			continue
-		}
-
 		if (len(adds)) == 0 && class != "Halooglasi" {
 			page = 1
 
@@ -180,6 +169,12 @@ func ReparseAllPages(class string) {
 			}
 
 			page++
+		}
+
+		if class != "Halooglasi" && page > 16 {
+			page = 1
+			err = redisClient.DeleteKey(class + "_last_page")
+			continue
 		}
 
 		time.Sleep(delay)
