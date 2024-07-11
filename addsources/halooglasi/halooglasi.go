@@ -131,7 +131,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			add.Name = addSource.Title
 			add.Description = getDescription(addSource)
 			add.Price = getPrice(addSource)
-			add.Price_usd = 0
+			add.Price_usd = getPrice(addSource) / 1.08
 			add.Source_class = class
 			add.Source_id = uint64(id)
 			add.CategoryId = mainCategory
