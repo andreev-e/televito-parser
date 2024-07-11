@@ -39,10 +39,11 @@ func main() {
 		//Myhomege.Class
 		"Halooglasi",
 	} {
-		go Routines.ReparseFirstPages(class)
 		if class != "Halooglasi" {
-			go Routines.ReparseAllPages(class)
+			go Routines.ReparseFirstPages(class)
 		}
+		go Routines.ReparseAllPages(class)
+
 	}
 
 	for {
