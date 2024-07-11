@@ -90,7 +90,7 @@ func ReparseAllPages(class string) {
 	case Myhomege.Class:
 		delay = 5 * time.Second
 	case "Halooglasi":
-		delay = 60 * time.Second
+		delay = 5 * time.Second
 	}
 
 	for {
