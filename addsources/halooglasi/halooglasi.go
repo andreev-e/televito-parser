@@ -66,7 +66,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	minLat, maxLat, minLng, maxLng, err := getLocationBounds(page)
 
 	if err != nil {
-		return nil, nil
+		return result, err
 	}
 
 	data := map[string]interface{}{
@@ -180,7 +180,7 @@ func getLocationBounds(page uint16) (float64, float64, float64, float64, error) 
 	minLng := minLngOverall + (pageFloat-1)*(maxLngOverall-minLngOverall)/pageCount
 	maxLng := minLngOverall + pageFloat*(maxLngOverall-minLngOverall)/pageCount
 
-	if page > 32 {
+	if page > 16 {
 		return 0, 0, 0, 0, fmt.Errorf("page out of bounds")
 	}
 
