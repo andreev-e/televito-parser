@@ -40,7 +40,9 @@ func main() {
 		"Halooglasi",
 	} {
 		go Routines.ReparseFirstPages(class)
-		go Routines.ReparseAllPages(class)
+		if class != "Halooglasi" {
+			go Routines.ReparseAllPages(class)
+		}
 	}
 
 	for {

@@ -21,6 +21,23 @@ const (
 	mainCategory       = 1
 )
 
+var categories = map[int]string{
+	0:  "13",
+	1:  "24",
+	2:  "25",
+	3:  "62",
+	4:  "29",
+	5:  "27",
+	6:  "33",
+	7:  "39",
+	8:  "45",
+	9:  "42",
+	10: "1356",
+	11: "48",
+	12: "51",
+	13: "54",
+}
+
 type AddSource struct {
 	ID       string `json:"Id"`
 	Title    string `json:"Title"`
@@ -38,8 +55,16 @@ type Response struct {
 }
 
 func LoadPage(page uint16, class string) ([]Main.Add, error) {
+	result := make([]Main.Add, 0)
+
+	//fin category by index
+	category, ok := categories[int(page)]
+	if !ok {
+		return result, nil
+	}
+
 	data := map[string]interface{}{
-		"CategoryId": page,
+		"CategoryId": category,
 		"SortFields": []map[string]interface{}{
 			{
 				"FieldName": "ValidFromForDisplay",
@@ -48,7 +73,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 		},
 		"GetAllGeolocations": true,
 		"ItemsPerPage":       20,
-		"PageNumber":         page,
+		"PageNumber":         1,
 		"fetchBanners":       false,
 		"BaseTaxonomy":       "/nekretnine/prodaja-kuca",
 		"RenderSEOWidget":    false,
@@ -87,8 +112,6 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 		return make([]Main.Add, 0), err
 	}
 
-	result := make([]Main.Add, 0)
-
 	for _, addSource := range responseObject.AddSources {
 		addressString, addressError := getAddress(addSource)
 
@@ -122,7 +145,6 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 		}
 
 	}
-
 	return result, nil
 }
 
@@ -135,7 +157,8 @@ func getImagesUrlList(addSource AddSource) string {
 
 	ulElement := findElementByClass(doc, "span", "pi-img-count-num")
 	if ulElement != nil {
-		return "[" + getTextContent(ulElement) + "]"
+		//return "[" + getTextContent(ulElement) + "]"
+		return "[]"
 	}
 
 	return "[]"
