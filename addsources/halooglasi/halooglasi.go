@@ -72,7 +72,15 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 		"ItemsPerPage":       20,
 		"PageNumber":         1,
 		"fetchBanners":       false,
-		"RenderSEOWidget":    false,
+		"FieldORQueries": []map[string]interface{}{
+			{
+				"FieldName":   "CategoryIds",
+				"FieldValues": []string{"12"},
+			},
+		},
+		"HasValueQueries": []map[string]interface{}{},
+		"IsGrid":          false,
+		"RenderSEOWidget": false,
 		"GeoPolygonQuery": map[string]interface{}{
 			"FieldName": "location_rpt",
 			"GeoPolygon": []map[string]float64{
