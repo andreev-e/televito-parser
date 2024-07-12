@@ -162,9 +162,12 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			//add.Characteristics = getCharacteristics(addSource)
 
 			result = append(result, add)
+		} else {
+			log.Println("userError", userError, "addressError", addressError)
 		}
-
 	}
+
+	log.Println("page", page, "loaded", len(result))
 	return result, nil
 }
 
@@ -229,7 +232,6 @@ func getPrice(addSource AddSource) float32 {
 		priceString = strings.ReplaceAll(priceString, ".", "")
 		price, err := strconv.ParseFloat(priceString, 32)
 		if err != nil {
-			log.Println(err)
 			return 0
 		}
 		return float32(price)
@@ -301,7 +303,16 @@ func getAddress(source AddSource) (string, error) {
 		return joined, nil
 	}
 
-	return "", fmt.Errorf("could not find address in HTML")
+	spanElement := findElementByClass(doc, "span", "basic-info")
+	if spanElement != nil {
+		//get first child span of this span
+		spanElement = spanElement.FirstChild
+		if spanElement != nil {
+			return getTextContent(spanElement), nil
+		}
+	}
+
+	return "", fmt.Errorf("could not find address in " + html.UnescapeString(source.ListHTML))
 }
 
 func findElementByClass(n *html.Node, tag, class string) *html.Node {
