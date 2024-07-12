@@ -21,21 +21,16 @@ const (
 	mainCategory       = 1
 )
 
-var categories = map[int]string{
-	0:  "13",
-	1:  "24",
-	2:  "25",
-	3:  "62",
-	4:  "29",
-	5:  "27",
-	6:  "33",
-	7:  "39",
-	8:  "45",
-	9:  "42",
-	10: "1356",
-	11: "48",
-	12: "51",
-	13: "54",
+var categories = map[string]string{
+	"12": "prodaja-stanova",
+	"13": "izdavanje-stanova",
+	"24": "prodaja-kuca",
+	"25": "izdavanje-kuca",
+	"26": "prodaja-zemljista",
+	"27": "izdavanje-zemljista",
+	"28": "prodaja-garaza",
+	"29": "izdavanje-garaza",
+	"62": "izdavanje-soba",
 }
 
 type AddSource struct {
