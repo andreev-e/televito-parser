@@ -52,7 +52,7 @@ type Response struct {
 func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	result := make([]Main.Add, 0)
 
-	minLat, maxLat, minLng, maxLng, err := getLocationBounds(page, 11)
+	minLat, maxLat, minLng, maxLng, err := getLocationBounds(page, 20)
 
 	if err != nil {
 		return result, nil
