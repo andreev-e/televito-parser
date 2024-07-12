@@ -180,7 +180,7 @@ func getLocationBounds(page uint16) (float64, float64, float64, float64, error) 
 		return minLatOverall, maxLatOverall, minLngOverall, maxLngOverall, nil
 	}
 
-	pageCount := uint16(15)
+	pageCount := uint16(16)
 
 	x := float64(page / pageCount)
 	y := float64(page % pageCount)
@@ -193,7 +193,7 @@ func getLocationBounds(page uint16) (float64, float64, float64, float64, error) 
 	minLng := minLngOverall + y*yStep
 	maxLng := minLngOverall + (y+1)*yStep
 
-	if page > 225 {
+	if page > 256 {
 		return 0, 0, 0, 0, fmt.Errorf("page out of bounds")
 	}
 
