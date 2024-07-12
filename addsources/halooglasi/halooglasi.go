@@ -72,7 +72,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	log.Println("p", page, "minLat: ", minLat, " maxLat: ", maxLat, " minLng: ", minLng, " maxLng: ", maxLng)
 
 	data := map[string]interface{}{
-		//"CategoryId": category,
+		"CategoryId": "13",
 		"SortFields": []map[string]interface{}{
 			{
 				"FieldName": "ValidFromForDisplay",
