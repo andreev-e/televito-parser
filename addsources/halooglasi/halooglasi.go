@@ -57,13 +57,7 @@ type Response struct {
 func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	result := make([]Main.Add, 0)
 
-	////fin category by index
-	//category, ok := categories[int(page)]
-	//if !ok {
-	//	return nil, nil
-	//}
-
-	minLat, maxLat, minLng, maxLng, err := getLocationBounds(page)
+	minLat, maxLat, minLng, maxLng, err := getLocationBounds(page, 11)
 
 	if err != nil {
 		return result, nil
@@ -72,7 +66,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	log.Println("p", page, "minLat: ", minLat, " maxLat: ", maxLat, " minLng: ", minLng, " maxLng: ", maxLng)
 
 	data := map[string]interface{}{
-		"CategoryId": "13",
+		"CategoryId": "12",
 		"SortFields": []map[string]interface{}{
 			{
 				"FieldName": "ValidFromForDisplay",
@@ -95,7 +89,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			},
 			"Operation": 2,
 		},
-		"BaseTaxonomy": "/nekretnine/izdavanje-soba",
+		"BaseTaxonomy": "/nekretnine/prodaja-stanova",
 	}
 
 	// Marshal the data into JSON
@@ -130,8 +124,6 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 		log.Printf(string(body))
 		return result, err
 	}
-
-	log.Println(len(responseObject.AddSources))
 
 	for _, addSource := range responseObject.AddSources {
 		addressString, addressError := getAddress(addSource)
@@ -168,11 +160,12 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 		}
 	}
 
-	log.Println("page", page, "processed", len(result))
+	log.Println("page", page, "loaded", len(responseObject.AddSources), "processed", len(result))
+
 	return result, nil
 }
 
-func getLocationBounds(page uint16) (float64, float64, float64, float64, error) {
+func getLocationBounds(page uint16, pageCount uint16) (float64, float64, float64, float64, error) {
 	const (
 		minLatOverall = 41.644183479397455
 		maxLatOverall = 46.31658418182218
@@ -183,8 +176,6 @@ func getLocationBounds(page uint16) (float64, float64, float64, float64, error) 
 	if page == 0 {
 		return minLatOverall, maxLatOverall, minLngOverall, maxLngOverall, nil
 	}
-
-	pageCount := uint16(16)
 
 	x := float64(page / pageCount)
 	y := float64(page % pageCount)
@@ -197,7 +188,7 @@ func getLocationBounds(page uint16) (float64, float64, float64, float64, error) 
 	minLng := minLngOverall + y*yStep
 	maxLng := minLngOverall + (y+1)*yStep
 
-	if page > 256 {
+	if page > pageCount*pageCount {
 		return 0, 0, 0, 0, fmt.Errorf("page out of bounds")
 	}
 
