@@ -155,17 +155,17 @@ func ReparseAllPages(class string) {
 
 			err = redisClient.WriteKey("max_page_"+class, strconv.Itoa(max(int(page+1), maxPageInteger)))
 			if err != nil {
-				log.Println("Error writing max_page page to redis: ", err)
+				//log.Println("Error writing max_page page to redis: ", err)
 			}
 
 			err = redisClient.WriteKey(class+"_last_page", strconv.Itoa(int(page)))
 			if err != nil {
-				log.Println("Error writing last page to redis: ", err)
+				//log.Println("Error writing last page to redis: ", err)
 			}
 
 			err = redisClient.WriteTime("resent_check_"+class, time.Now())
 			if err != nil {
-				log.Println("Error writing resent check to redis: ", err)
+				//log.Println("Error writing resent check to redis: ", err)
 			}
 
 			page++

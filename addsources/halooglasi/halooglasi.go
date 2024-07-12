@@ -95,6 +95,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 			},
 			"Operation": 2,
 		},
+		"BaseTaxonomy": "/nekretnine/izdavanje-soba",
 	}
 
 	// Marshal the data into JSON
@@ -167,7 +168,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 		}
 	}
 
-	log.Println("page", page, "loaded", len(result))
+	log.Println("page", page, "processed", len(result))
 	return result, nil
 }
 
