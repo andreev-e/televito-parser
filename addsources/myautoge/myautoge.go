@@ -168,7 +168,7 @@ func LoadPage(page uint16, class string) ([]Main.Add, error) {
 	var responseObject Response
 	err = json.Unmarshal(body, &responseObject)
 	if err != nil {
-		log.Printf("Error parsing JSON: %v\n", err)
+		log.Printf("Error parsing myauto JSON: %v\n", err)
 		return nil, err
 	}
 
@@ -413,7 +413,7 @@ func loadData() {
 
 		err = json.Unmarshal(body, &loadedAppData)
 		if err != nil {
-			log.Printf("Error parsing JSON: %v\n", err)
+			log.Printf("Error parsing common myato data JSON: %v\n", err)
 			panic("Can't load myAutoGe appdata")
 		}
 

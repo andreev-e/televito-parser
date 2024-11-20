@@ -33,8 +33,8 @@ func main() {
 	defer Dbmethods.CloseDB()
 
 	for _, class := range []string{
-		"MyAutoGe",
-		"MyAutoGeRent",
+		//"MyAutoGe",
+		//"MyAutoGeRent",
 		Ssge.Class,
 		//Myhomege.Class
 		"Halooglasi",
